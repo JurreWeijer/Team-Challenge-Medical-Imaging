@@ -21,7 +21,7 @@ def OpenNonscoliotic(path, name):
     img = Image.open(path / name)
     return img
 
-def OpenScoliosis(path, name, slice_num):
+def OpenScoliosis(path, name):
     
     patient_path = path / name
     if os.path.exists(patient_path):
@@ -30,10 +30,7 @@ def OpenScoliosis(path, name, slice_num):
     else:
         print("File does not exist")
     
-    print(image_array.size())
-    img_slice = image_array[slice_num,:,:]
-    
-    return img_slice
+    return image_array 
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -49,7 +46,11 @@ if __name__ == '__main__':
     #print(img_nonscoliotic.n_frames)
     #img_nonscoliotic.show()
     
-    img_scoliosis = OpenScoliosis(scoliosis_path, "1preop.nii", 200)
-    plt.imshow(img_scoliosis)
+    img_scoliosis = OpenScoliosis(scoliosis_path, "1preop.nii")
+    print(np.shape(img_scoliosis))
+    slice_num = 200
+    plt.imshow(img_scoliosis[slice_num,:,:])
+    
+   
     
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

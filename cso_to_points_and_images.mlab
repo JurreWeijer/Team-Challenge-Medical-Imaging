@@ -1,5 +1,5 @@
 // MDL v1 utf8
-mevislabVersion = 3.5.0.2011
+mevislabVersion = 3.4.3
 network  {
   watchlist = ""
 }
@@ -79,7 +79,7 @@ xyzt_units :
 
 "
     suppressErrorPosting = FALSE
-    unresolvedFileName = $(NETWORK)/Data/Scoliose/1preop.nii
+    unresolvedFileName = $(HOME)/Documents/TUe/TeamChallenge_Data/Scoliose/1preop.nii
   }
 }
 module CSOLoad {
@@ -97,7 +97,7 @@ module CSOLoad {
   fields  {
     instanceName = CSOLoad
     taskVerboseLogging = FALSE
-    fileName = $(NETWORK)/Data/Scoliose/1preop.cso
+    fileName = C:/Users/20182371/Documents/TUe/TeamChallenge_Data/Scoliose/1preop.cso
     autoApply = TRUE
   }
 }
@@ -118,7 +118,7 @@ module View2D {
     inventorInputOn = TRUE
     inventorOutputOn = FALSE
     view2DExtensionsOn = TRUE
-    startSlice = 74
+    startSlice = 383
     numSlices = 1
     numXSlices = 1
     sliceStep = 1
@@ -143,8 +143,8 @@ module View2D {
     sliceOrigin = "0 0"
     useShaders = TRUE
     useManagedInteraction = FALSE
-    lutCenter = 142.670043945313
-    lutWidth = 2293.10961914063
+    lutCenter = 317
+    lutWidth = 2682
     annotationOn = TRUE
     annotationMode = ANNO_MODE_AUTO
     annotationSizeMode = ANNO_SHOW_DETAILED
@@ -476,56 +476,6 @@ module CSOFilter {
     groupTabSelected = FALSE
   }
 }
-module CSOVoxelizeContours {
-  internal  {
-    frame = "1101 13 184 56"
-    moduleGroupName = ""
-    showNetworkPanel = true
-    windows  {
-      window _default {
-        geometry = "853 433 440 488"
-        sizeHint = "440 488"
-        wasOpen = no
-      }
-    }
-  }
-  fields  {
-    instanceName = CSOConvertToImage
-    updateMode = AutoClear
-    autoApply = TRUE
-    foregroundValue = 1
-    backgroundValue = 0
-    useImageValues = FALSE
-    fillSurface = TRUE
-    copyInputImage = FALSE
-    listenInteractionNotifications = FALSE
-    listenInteractionFinished = TRUE
-    boundingBoxMargin = 0
-    useAlwaysForegroundValueOfModule = FALSE
-    voxelizeCSO = TRUE
-    removeOutsideVoxels = FALSE
-    useAntiAliasing = FALSE
-    useGlobalSubsample = TRUE
-    antiAliasSubSample = 4
-    antiAliasSubSampleX = 4
-    antiAliasSubSampleY = 4
-    antiAliasSubSampleZ = 4
-    removeBorderVoxelsByVolume = TRUE
-    removeBorderVoxelVolumeThreshold = 0.5
-    ignoreTimePoints = FALSE
-    drawToAllTimePoints = FALSE
-    createMarkerList = FALSE
-    markerGenerationMode = CSOMarkerGenerationModeFromVoxels
-    outputTypeMode = Automatic
-    createCSOVoxelSet = FALSE
-    voxelSetMode = VoxelSetModeReplaceMax
-    generationMode = GenerationModeComplete
-    useFastModeForParallelCSOs = TRUE
-    numThreads = 1
-    timePointIndexForBoundingBox = -1
-    removeOutsideVoxelsMode = Volume
-  }
-}
 module View2D {
   internal  {
     frame = "1053 -195 120 56"
@@ -661,56 +611,6 @@ module CSOFilter {
     listenToMovedCSONotifications = FALSE
     csoTabSelected = TRUE
     groupTabSelected = FALSE
-  }
-}
-module CSOVoxelizeContours {
-  internal  {
-    frame = "1301 13 184 56"
-    moduleGroupName = ""
-    showNetworkPanel = true
-    windows  {
-      window _default {
-        geometry = "853 433 440 488"
-        sizeHint = "440 488"
-        wasOpen = no
-      }
-    }
-  }
-  fields  {
-    instanceName = CSOConvertToImage1
-    updateMode = AutoClear
-    autoApply = TRUE
-    foregroundValue = 1
-    backgroundValue = 0
-    useImageValues = FALSE
-    fillSurface = TRUE
-    copyInputImage = FALSE
-    listenInteractionNotifications = FALSE
-    listenInteractionFinished = TRUE
-    boundingBoxMargin = 0
-    useAlwaysForegroundValueOfModule = FALSE
-    voxelizeCSO = TRUE
-    removeOutsideVoxels = FALSE
-    useAntiAliasing = FALSE
-    useGlobalSubsample = TRUE
-    antiAliasSubSample = 4
-    antiAliasSubSampleX = 4
-    antiAliasSubSampleY = 4
-    antiAliasSubSampleZ = 4
-    removeBorderVoxelsByVolume = TRUE
-    removeBorderVoxelVolumeThreshold = 0.5
-    ignoreTimePoints = FALSE
-    drawToAllTimePoints = FALSE
-    createMarkerList = FALSE
-    markerGenerationMode = CSOMarkerGenerationModeFromVoxels
-    outputTypeMode = Automatic
-    createCSOVoxelSet = FALSE
-    voxelSetMode = VoxelSetModeReplaceMax
-    generationMode = GenerationModeComplete
-    useFastModeForParallelCSOs = TRUE
-    numThreads = 1
-    timePointIndexForBoundingBox = -1
-    removeOutsideVoxelsMode = Volume
   }
 }
 module CSOConvertToXMarkerList {
@@ -985,18 +885,10 @@ connections  {
   CSOManager.inCSOList = CSOLoad.outCSOList
   pointsFilter.inputCSOList = CSOManager.outCSOList
   firstSplineFilter.inputCSOList = CSOManager.outCSOList
-  CSOConvertToImage.input0 = itkImageFileReader.output0
-  CSOConvertToImage.inCSOList = firstSplineFilter.outputCSOList
-  View2D1.inImage = CSOConvertToImage.output0
   secondSplineFilter.inputCSOList = CSOManager.outCSOList
-  CSOConvertToImage1.input0 = itkImageFileReader.output0
-  CSOConvertToImage1.inCSOList = secondSplineFilter.outputCSOList
   CSOConvertToXMarkerList.inImage = itkImageFileReader.output0
   CSOConvertToXMarkerList.inCSOList = pointsFilter.outputCSOList
   MarkerListInspector.inMarkerList = CSOConvertToXMarkerList.outputXMarkerList
-  itkImageFileWriter.input0 = CSOConvertToImage.output0
-  itkImageFileWriter1.input0 = CSOConvertToImage1.output0
   SaveBase.inObject = CSOConvertToXMarkerList.outputXMarkerList
-  View2D2.inImage = CSOConvertToImage1.output0
 }
 networkModel = ""

@@ -16,10 +16,10 @@ The goal is to create a program that imports CT scans from scoliotic and non-sco
 2. Install [Github Desktop] (https://desktop.github.com/) for easy push and pull commits
 3. Clone the Github repository by opening Github Desktop and going to file --> Clone repository. Make sure you select the right place to place the repository in the bottom of the window.
 4. Prepare your Python environment in Anaconda by installing all relevant libraies
-4.1. Open an Anaconda Prompt by searching for Anaconda Prompt in your Windows search bar
-4.2. Create an environment by typing 'conda create -n TeamChallenge python=3.6'
-4.3. Open your environment by typing 'conda activate TeamChallenge'
-4.4. Install all your dependencies by calling 'conda install Library_Name'
+   1. Open an Anaconda Prompt by searching for Anaconda Prompt in your Windows search bar
+   2. Create an environment by typing ``` conda create -n TeamChallenge python=3.6```
+   3. Open your environment by typing ```conda activate TeamChallenge```
+   4. Install all your dependencies by calling ```conda install Library_Name```
 5. Open your favorite IDE and make sure you have the correct Python Interpreter selected. This is often found in the settings of your IDE
 6. Open the Team-Challenge-Medical-Imaging project and start working!
 7. Upload your changes to your own branch using GitHub desktop
@@ -27,8 +27,8 @@ The goal is to create a program that imports CT scans from scoliotic and non-sco
 ### Required dependencies:
 
 Add libraries here if you need to use them!
-- 
-- 
+
+- test
 - 
 
 ## Good to Know

@@ -1,3 +1,6 @@
-# Ignore data files
+# Ignore data files and user-specific stuff
+
+.idea/**/workspace.xml
+.idea/**/shelf
 /Data/
 /data/

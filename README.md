@@ -12,17 +12,18 @@ The goal is to create a program that imports CT scans from scoliotic and non-sco
 ## Getting started
 
 ### On your Windows machine
-1. Install [Anaconda] (https://www.anaconda.com/) for easy environment setup
-2. Install [Github Desktop] (https://desktop.github.com/) for easy push and pull commits
-3. Clone the Github repository by opening Github Desktop and going to file --> Clone repository. Make sure you select the right place to place the repository in the bottom of the window.
-4. Prepare your Python environment in Anaconda by installing all relevant libraies
+1. Install [Anaconda](https://www.anaconda.com/) for easy environment setup
+2. Install [Github Desktop](https://desktop.github.com/) for easy push and pull commits
+3. Clone the Github repository by opening Github Desktop and going to file --> Clone repository. Make sure you select the right folder to place the repository in the bottom of the window.
+4. Prepare your Python environment in Anaconda by installing all relevant libraries
    1. Open an Anaconda Prompt by searching for Anaconda Prompt in your Windows search bar
    2. Create an environment by typing ``` conda create -n TeamChallenge python=3.6```
    3. Open your environment by typing ```conda activate TeamChallenge```
    4. Install all your dependencies by calling ```conda install Library_Name```
-5. Open your favorite IDE and make sure you have the correct Python Interpreter selected. This is often found in the settings of your IDE
-6. Open the Team-Challenge-Medical-Imaging project and start working!
-7. Upload your changes to your own branch using GitHub desktop
+5. Download the data from the Research drive and place them in a data folder somewhere on your PC 
+6. Open your favorite IDE and make sure you have the correct Python Interpreter selected. This is often found in the settings of your IDE 
+7. Open the Team-Challenge-Medical-Imaging project and start working!
+8. Upload your changes to your own branch using GitHub desktop
 
 ### Required dependencies:
 
@@ -36,7 +37,6 @@ Add libraries here if you need to use them!
 ### Find Answers to Questions
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/python)
 - [Python documentation](https://docs.python.org/3/)
-- [Docker Documentation](https://docs.docker.com/)
 - [GNU make Manual](https://www.gnu.org/software/make/manual/html_node/index.html)
   and [Concise introduction to GNU Make](https://swcarpentry.github.io/make-novice/reference.html)
 

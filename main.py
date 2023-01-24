@@ -6,12 +6,34 @@
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+from pathlib import Path
+import SimpleITK as sitk
 
-datapath = "./Data/"
 
-def OpenImage(path, name):
-    img = Image.open(path + name)
+#datapath to map with Scoliotic and Nonscoliotic data
+datapath = Path(r"C:\Users\20182371\Documents\TUe\TeamChallenge_Data")
+
+scoliosis_path = datapath / "Scoliose"
+nonscoliotic_path = datapath / "Nonscoliotic"
+
+def OpenNonscoliotic(path, name):
+    img = Image.open(path / name)
     return img
+
+def OpenScoliosis(path, name, slice_num):
+    
+    patient_path = path / name
+    if os.path.exists(patient_path):
+        image = sitk.ReadImage(patient_path)
+        image_array = sitk.GetArrayFromImage(image)
+    else:
+        print("File does not exist")
+    
+    print(image_array.size())
+    img_slice = image_array[slice_num,:,:]
+    
+    return img_slice
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -22,9 +44,12 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('PyCharm')
 
-    img = OpenImage(datapath + 'Nonscoliotic/', 'Control1a.tif')
-    print(img.size)
-    print(img.n_frames)
-    img.show()
-
+    #img_nonscoliotic = OpenNonscoliotic(nonscoliotic_path, 'Control1a.tif')
+    #print(img_nonscoliotic.size)
+    #print(img_nonscoliotic.n_frames)
+    #img_nonscoliotic.show()
+    
+    img_scoliosis = OpenScoliosis(scoliosis_path, "1preop.nii", 200)
+    plt.imshow(img_scoliosis)
+    
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

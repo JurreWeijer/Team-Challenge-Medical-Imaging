@@ -28,7 +28,7 @@ The goal is to create a program that imports CT scans from scoliotic and non-sco
 
 Add libraries here if you need to use them!
 
-- test
+- 
 - 
 
 ## Good to Know

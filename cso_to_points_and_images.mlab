@@ -1,5 +1,5 @@
 // MDL v1 utf8
-mevislabVersion = 3.4.3
+mevislabVersion = 3.5.0.2011
 network  {
   watchlist = ""
 }
@@ -9,30 +9,77 @@ module itkImageFileReader {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "796 373 328 395"
-        sizeHint = "328 395"
+        geometry = "635 292 327 395"
+        sizeHint = "327 395"
         wasOpen = no
       }
     }
   }
   fields  {
     instanceName = itkImageFileReader
-    fileDataType = "unsigned int8"
+    fileDataType = float
     autoDetermineDataType = TRUE
     correctSubVoxelShift = TRUE
     fileDimension = 3
-    info = " Could not create IO object for file C:/Users/hkuijf/Downloads/1preop.nii
-The file doesn't exist. 
-Filename = C:/Users/hkuijf/Downloads/1preop.nii
- Loaded data may be undefined."
-    numDims = 0
+    info = "Loading okay."
+    numDims = 3
     fileType = TypeNotApplicable
-    componentType = ""
-    pixelType = UNKNOWNPIXELTYPE
-    loaderType = ""
-    outputMetaDataStr = ""
+    componentType = float
+    pixelType = SCALAR
+    loaderType = NiftiImageIO
+    outputMetaDataStr = "ITK_FileNotes : Time=0.000;mb=437
+aux_file : 
+bitpix : 16
+cal_max : 0
+cal_min : 0
+datatype : 4
+descrip : Time=0.000;mb=437
+dim[0] : 3
+dim[1] : 512
+dim[2] : 512
+dim[3] : 437
+dim[4] : 1
+dim[5] : 1
+dim[6] : 1
+dim[7] : 1
+dim_info : 
+intent_code : 0
+intent_name : 
+intent_p1 : 0
+intent_p2 : 0
+intent_p3 : 0
+pixdim[0] : -1
+pixdim[1] : 0.472656
+pixdim[2] : 0.472656
+pixdim[3] : 0.599991
+pixdim[4] : 0
+pixdim[5] : 0
+pixdim[6] : 0
+pixdim[7] : 0
+qform_code : 1
+qoffset_x : 118.764
+qoffset_y : 10.2363
+qoffset_z : -504.696
+quatern_b : 0
+quatern_c : 1
+quatern_d : 0
+scl_inter : -1024
+scl_slope : 1
+sform_code : 1
+slice_code : 
+slice_duration : 0
+slice_end : 0
+slice_start : 0
+srow_x : -0.472656 -0 0 118.764
+srow_y : 0 0.472656 0 10.2363
+srow_z : 0 0 0.599991 -504.696
+toffset : 0
+vox_offset : 352
+xyzt_units : 
+
+"
     suppressErrorPosting = FALSE
-    unresolvedFileName = $(HOME)/Downloads/1preop.nii
+    unresolvedFileName = $(NETWORK)/Data/Scoliose/1preop.nii
   }
 }
 module CSOLoad {
@@ -41,7 +88,7 @@ module CSOLoad {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "710 501 500 138"
+        geometry = "592 467 500 138"
         sizeHint = "500 138"
         wasOpen = no
       }
@@ -50,7 +97,7 @@ module CSOLoad {
   fields  {
     instanceName = CSOLoad
     taskVerboseLogging = FALSE
-    fileName = C:/Users/Hugo_UMC/Downloads/1preop.cso
+    fileName = $(NETWORK)/Data/Scoliose/1preop.cso
     autoApply = TRUE
   }
 }
@@ -60,7 +107,7 @@ module View2D {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "1085 278 907 650"
+        geometry = "440 228 400 400"
         sizeHint = "400 400"
         wasOpen = no
       }
@@ -71,7 +118,7 @@ module View2D {
     inventorInputOn = TRUE
     inventorOutputOn = FALSE
     view2DExtensionsOn = TRUE
-    startSlice = 0
+    startSlice = 74
     numSlices = 1
     numXSlices = 1
     sliceStep = 1
@@ -96,8 +143,8 @@ module View2D {
     sliceOrigin = "0 0"
     useShaders = TRUE
     useManagedInteraction = FALSE
-    lutCenter = 1
-    lutWidth = 1
+    lutCenter = 142.670043945313
+    lutWidth = 2293.10961914063
     annotationOn = TRUE
     annotationMode = ANNO_MODE_AUTO
     annotationSizeMode = ANNO_SHOW_DETAILED
@@ -429,7 +476,7 @@ module CSOFilter {
     groupTabSelected = FALSE
   }
 }
-module CSOConvertToImage {
+module CSOVoxelizeContours {
   internal  {
     frame = "1101 13 184 56"
     moduleGroupName = ""
@@ -485,7 +532,7 @@ module View2D {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "1149 211 400 400"
+        geometry = "440 228 400 400"
         sizeHint = "400 400"
         wasOpen = no
       }
@@ -616,7 +663,7 @@ module CSOFilter {
     groupTabSelected = FALSE
   }
 }
-module CSOConvertToImage {
+module CSOVoxelizeContours {
   internal  {
     frame = "1301 13 184 56"
     moduleGroupName = ""
@@ -696,8 +743,8 @@ module MarkerListInspector {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "799 438 362 338"
-        sizeHint = "322 264"
+        geometry = "658 246 363 339"
+        sizeHint = "323 265"
         wasOpen = no
       }
     }
@@ -792,7 +839,7 @@ module View2D {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "1149 211 400 400"
+        geometry = "440 228 400 400"
         sizeHint = "400 400"
         wasOpen = no
       }
@@ -854,9 +901,9 @@ module RunPythonScript {
     showNetworkPanel = true
     windows  {
       window _default {
-        geometry = "2245 406 732 637"
-        sizeHint = "621 300"
-        wasOpen = yes
+        geometry = "2993 297 734 637"
+        sizeHint = "623 300"
+        wasOpen = no
       }
     }
   }

@@ -1,5 +1,5 @@
 // MDL v1 utf8
-mevislabVersion = 3.4.3
+mevislabVersion = 3.5.0.2011
 network  {
   watchlist = ""
 }
@@ -9,7 +9,7 @@ module itkImageFileReader {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "635 292 327 395"
+        geometry = "2848 295 327 395"
         sizeHint = "327 395"
         wasOpen = no
       }
@@ -79,7 +79,7 @@ xyzt_units :
 
 "
     suppressErrorPosting = FALSE
-    unresolvedFileName = $(HOME)/Documents/TUe/TeamChallenge_Data/Scoliose/1preop.nii
+    unresolvedFileName = $(NETWORK)/Data/Scoliose/1preop.nii
   }
 }
 module CSOLoad {
@@ -97,7 +97,7 @@ module CSOLoad {
   fields  {
     instanceName = CSOLoad
     taskVerboseLogging = FALSE
-    fileName = C:/Users/20182371/Documents/TUe/TeamChallenge_Data/Scoliose/1preop.cso
+    fileName = $(NETWORK)/Data/Scoliose/1preop.cso
     autoApply = TRUE
   }
 }
@@ -107,7 +107,7 @@ module View2D {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "440 228 400 400"
+        geometry = "3113 216 397 397"
         sizeHint = "400 400"
         wasOpen = no
       }
@@ -118,7 +118,7 @@ module View2D {
     inventorInputOn = TRUE
     inventorOutputOn = FALSE
     view2DExtensionsOn = TRUE
-    startSlice = 383
+    startSlice = 218
     numSlices = 1
     numXSlices = 1
     sliceStep = 1
@@ -143,8 +143,8 @@ module View2D {
     sliceOrigin = "0 0"
     useShaders = TRUE
     useManagedInteraction = FALSE
-    lutCenter = 317
-    lutWidth = 2682
+    lutCenter = 732.710327148438
+    lutWidth = 2655.1796875
     annotationOn = TRUE
     annotationMode = ANNO_MODE_AUTO
     annotationSizeMode = ANNO_SHOW_DETAILED

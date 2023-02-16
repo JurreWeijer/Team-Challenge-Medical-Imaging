@@ -31,7 +31,10 @@ Add libraries here if you need to use them!
 
 - Numpy
 - Matplotlib
+- Pandas
 - SimpleITK
+- Tkinter 
+- CustomTkinter 
 
 ## Good to Know
 

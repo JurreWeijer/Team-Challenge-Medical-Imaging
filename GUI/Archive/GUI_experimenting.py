@@ -32,7 +32,10 @@ class MyGUI:
         self.button = tk.Button(self.root, text = "Open Image", font = ("Arial",18), command=self.mfileopen)
         self.button.pack(side= "right", padx=10,pady=10)
         
-        self.fig = plt.figure()
+        self.button2 = tk.Button(self.root, text = "Open Image", font = ("Arial",18), command=self.mfileopen)
+        self.button2.pack(side= "right", padx=10,pady=10)
+        
+        self.fig = plt.Figure(figsize=(5, 4), dpi=100)
         
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)  # A tk.DrawingArea.
         self.canvas.draw()

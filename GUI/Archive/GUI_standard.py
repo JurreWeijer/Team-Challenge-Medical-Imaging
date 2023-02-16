@@ -85,7 +85,7 @@ class MyGUI:
         Dist_AB = math.sqrt((Bx-Ax)^2 + (By-Ay)^2)
         Dist_CD = math.sqrt((Dx-Cx)^2 + (Dy-Cy)^2)
         
-        assymetry_ind = 1 - (Dist_AB/Dist_CD)
+        assymetry_ind = abs(1 - (Dist_AB/Dist_CD))
         
         return assymetry_ind
         

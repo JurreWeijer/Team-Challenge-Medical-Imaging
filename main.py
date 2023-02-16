@@ -11,7 +11,7 @@ import SimpleITK as sitk
 
 
 #datapath to map with Scoliotic and Nonscoliotic data, assumed to be in the same folder as your code
-datapath = Path("./Data")
+datapath = Path(r"C:\Users\20182371\Documents\TUe\TeamChallenge_Data")
 
 scoliosis_path = datapath / "Scoliose"
 nonscoliotic_path = datapath / "Nonscoliotic"
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     image_array = sitk.GetArrayFromImage(img_scoliosis)
 
     VoxelSize = img_scoliosis.GetSpacing()
-    print(np.shape(image_array))
+    print(np.shape(image_array)[0])
     slice_num = 200
     plt.imshow(image_array[slice_num,:,:], cmap = "gray")
     plt.show()

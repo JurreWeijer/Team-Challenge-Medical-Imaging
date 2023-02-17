@@ -15,6 +15,7 @@ import SimpleITK as sitk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import math
 import pandas as pd
+from PIL import ImageTk, Image
 
 """
 Known bugs: 
@@ -83,7 +84,7 @@ class MyGUI(customtkinter.CTk):
         self.tabview.tab("Table").grid_rowconfigure((0), weight=1)
         
         #---------------------------------------- Image tab ----------------------------------------
-        self.fig = plt.Figure(figsize=(4,4),dpi=100)
+        self.fig = plt.Figure(figsize=(5,5),dpi=100)
         self.fig.set_facecolor(color = "white")
         self.subplot = self.fig.add_subplot()
         self.subplot.axis("off")
@@ -166,71 +167,61 @@ class MyGUI(customtkinter.CTk):
         customtkinter.set_appearance_mode(new_appearance_mode)
     
     def on_closing(self):
-        # Perform any necessary cleanup or save operations here
         self.destroy()  # Close the window
         raise SystemExit  # Stop the kernel
     
     def delete_items(self):
         for i in self.table.selection():
             self.table.delete(i)
+            
+    def draw_image(self):
+        self.subplot.cla()
+        self.subplot.imshow(self.image_array[self.slice_number, :, :], cmap=self.map)
+        self.subplot.axis('off')
+        self.subplot.text(0.95, 0.05, f"slice number: {self.slice_number}", transform=self.subplot.transAxes,fontsize=10, color='white', ha='right', va='bottom')
+        self.canvas.draw()
     
     def open_file(self):
         #open directory to find a file
         file_path = filedialog.askopenfile()
-      
-        if os.path.exists(file_path.name):
-            if os.path.splitext(file_path.name)[1] == '.nii':
-                image = sitk.ReadImage(file_path.name)
-                self.image_array = sitk.GetArrayFromImage(image)
-                #display the image in GUI
-                self.subplot.imshow(self.image_array[self.slice_number, :, :], cmap=self.map)
-                self.canvas.draw()
-            else:
-                messagebox.showinfo(title="Message", message="incorrect file type")  
+        
+        if os.path.splitext(file_path.name)[1] == '.nii':
+            image = sitk.ReadImage(file_path.name)
+            self.image_array = sitk.GetArrayFromImage(image)
+            self.draw_image()
         else:
             messagebox.showinfo(title="Message", message="incorrect file type")
-        
+
     def skip_to_slice(self):
-        #dialog = customtkinter.CTkInputDialog(text="Type in a slice number:", title="slice number input")
-        dialog_input = self.slice_entry.get()
-        
-        #first try of the input can be change to an integer
         try:
-            #check is an image if already opened
-            if self.image_array is not None:
-                self.slice_number = int(dialog_input)
-                #check if the slice number is withint the range of the image
-                if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
-                    #show the image in the subplot 
-                    self.subplot.imshow(self.image_array[self.slice_number, :, :],cmap=self.map)
-                    self.canvas.draw()
-                    self.slice_entry.delete(0,"end")
-                else:
-                    #error message in the text frame that the slice number is out of range
-                    messagebox.showinfo(title="Message", message="slice is out of range")
-                    self.slice_entry.delete(0,"end")
-            #else:
-                #error message that first an image should be opened
-            #    messagebox.showinfo(title="Message", message="must open image before changing the slice")
-                
+            dialog_input = self.slice_entry.get()
+            self.slice_number = int(dialog_input)
         except ValueError:
-            #error message if the input is not an integer
-            messagebox.showinfo(title="Message", message="must give integer to change the slice")
-            self.slice_entry.delete(0,"end")
-    
+            # error message if the input is not an integer
+            messagebox.showinfo(title="Message", message="Must input an integer to change the slice.")
+        else:
+            if self.image_array is not None:
+                # check if the slice number is within the range of the image
+                if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
+                    self.draw_image()
+                else:
+                    # error message in the text frame that the slice number is out of range
+                    messagebox.showinfo(title="Message", message="Slice is out of range.")
+        finally:
+            self.slice_entry.delete(0, "end")
+
+           
     def plus_slice(self):
         if self.image_array is not None:
             self.slice_number += 1
             if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
-                self.subplot.imshow(self.image_array[self.slice_number, :, :],cmap=self.map)
-                self.canvas.draw()
+                self.draw_image()
     
     def minus_slice(self):
         if self.image_array is not None:
             self.slice_number -= 1
             if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
-                self.subplot.imshow(self.image_array[self.slice_number, :, :],cmap=self.map)
-                self.canvas.draw()
+                self.draw_image()
                 
     def get_points(self, num_points=4):
         #show the image in new window
@@ -249,29 +240,11 @@ class MyGUI(customtkinter.CTk):
         plt.close()
         
         return pts
-    
-    def assymetry_index(self,pts):
-        #pts = self.pts
-        Ax = int(pts[0,0])
-        Ay = int(pts[0,1])
-        Bx = int(pts[1,0])
-        By = int(pts[1,1])
-        Cx = int(pts[2,0])
-        Cy = int(pts[2,1])
-        Dx = int(pts[3,0])
-        Dy = int(pts[3,1])
-        
-        Dist_AB = math.sqrt((Bx-Ax)^2 + (By-Ay)^2)
-        Dist_CD = math.sqrt((Dx-Cx)^2 + (Dy-Cy)^2)
-        
-        assymetry_ind = abs(1 - (Dist_AB/Dist_CD))
-        
-        return assymetry_ind
         
     def calc_assymetry_ind(self):
         if self.image_array is not None:
             pts = self.get_points(num_points=4)
-            assymetry_ind = self.assymetry_index(pts)
+            assymetry_ind = Assymetry_parameters.assymetry_index(pts)
             self.param_value = round(assymetry_ind,3)
             
             self.results_label = customtkinter.CTkLabel(self.output_frame, text=f"assymetry index: {self.param_value}", height = 50)
@@ -297,12 +270,30 @@ class MyGUI(customtkinter.CTk):
             dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")
             file_name = dialog.get_input()
             self.df_params.to_csv(f'{file_name}.csv', index=False)
-        
+    
     def dummydef(self):
         print("test")
+        
 
-#class assymetry_parameters():
+class Assymetry_parameters():
     
+    def assymetry_index(pts):
+        #pts = self.pts
+        Ax = int(pts[0,0])
+        Ay = int(pts[0,1])
+        Bx = int(pts[1,0])
+        By = int(pts[1,1])
+        Cx = int(pts[2,0])
+        Cy = int(pts[2,1])
+        Dx = int(pts[3,0])
+        Dy = int(pts[3,1])
+        
+        Dist_AB = math.sqrt((Bx-Ax)^2 + (By-Ay)^2)
+        Dist_CD = math.sqrt((Dx-Cx)^2 + (Dy-Cy)^2)
+        
+        assymetry_ind = abs(1 - (Dist_AB/Dist_CD))
+        
+        return assymetry_ind
     
 
 if __name__ == "__main__":

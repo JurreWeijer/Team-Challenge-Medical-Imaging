@@ -56,3 +56,33 @@ if __name__ == '__main__':
    
     
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+
+# The functions for the different parameters we selected
+# The point guesses 
+point1 = (480,200,200)
+point2 = (20,200,200)
+point3 = (340,105,200)
+point4 = (100,80,200)
+point5 = (410,380,200)
+point6 = (340,110,200)
+point7 = (180,375,200)
+point8 = (100,90,200)
+point9 = (490,250,200)
+point10 = (20,200,200)
+point11 = (300,400,200)
+point12 = (150,200,200)
+point13 = (175,125,200)
+
+# Angle of trunk rotation = angle between line 1 -> 2 and line 3 -> 4
+# angle = cos(aanliggend/schuin) = cos(deltax/dis(3,4)) 
+angle_trunk = np.cos((point3[0]-point4[0])/np.sqrt((point3[0]-point4[0])^2+(point3[1]-point4[1]))) # add calculation 
+
+# Assymetry index = 1-(dis(5,6)/dis(7,8))
+assymetry_index = 1 - (np.sqrt((point5[0]-point6[0])^2+(point5[1]-point6[1]))/np.sqrt((point7[0]-point8[0])^2+(point7[1]-point8[1])))
+# Pectus index = dis(9,10)/dis(11,12)
+pectus_index = np.sqrt((point9[0]-point10[0])^2+(point9[1]-point10[1]))/np.sqrt((point11[0]-point12[0])^2+(point11[1]-point12[1]))
+# Sagital diameter = dis(11,13)
+sagital_diameter = np.sqrt((point11[0]-point13[0])^2+(point11[1]-point13[1]))
+# Steep vertebral distance = dis(11,12)
+steep_vertebral = np.sqrt((point11[0]-point12[0])^2+(point11[1]-point12[1]))

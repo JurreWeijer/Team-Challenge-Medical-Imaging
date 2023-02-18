@@ -31,7 +31,7 @@ class MyGUI(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         
-        #global variables
+        #Variables
         self.image_array = None
         self.slice_number = 200
         self.map = "gray"
@@ -273,7 +273,6 @@ class MyGUI(customtkinter.CTk):
     
     def dummydef(self):
         print("test")
-        
 
 class Assymetry_parameters():
     
@@ -297,5 +296,7 @@ class Assymetry_parameters():
     
 
 if __name__ == "__main__":
+    
     app = MyGUI()
     app.mainloop()
+    print(MyGUI.slice_number)

@@ -93,7 +93,7 @@ class MyGUI(customtkinter.CTk):
         #https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.tabview.tab("Image"))  # A tk.DrawingArea.
         self.canvas.draw()
-        self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=5, padx=(10,10), pady=(10,10))
+        self.canvas.get_tk_widget().grid(row=1, column=0, columnspan=5, padx=(10,10), pady=(10,10), sticky = 'news')
         
         self.btn_open_image = customtkinter.CTkButton(self.tabview.tab("Image"), width = 200, text="Open Image", command=self.open_file)
         self.btn_open_image.grid(row=2, column=0,padx=(10,10), pady=(0,0), sticky = "w")

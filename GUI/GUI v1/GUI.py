@@ -16,6 +16,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import math
 import pandas as pd
 from PIL import ImageTk, Image
+from Deformity_Parameters import assymetry_index, angle_trunk_rotation, pectus_index, sagital_diameter, steep_vertebral
 
 """
 Known bugs: 
@@ -144,23 +145,26 @@ class MyGUI(customtkinter.CTk):
         self.button_label = customtkinter.CTkLabel(self.button_frame, text="Deformity Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.button_label.grid(row=0, column=0, columnspan=2, padx=20, pady=(20, 10))
         
+        self.param_info_btn = customtkinter.CTkButton(self.button_frame, text = "show landmarks", font = ("Arial",18), command=self.show_landmarks)
+        self.param_info_btn.grid(row=1, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky= 'ew')
+        
         self.param_btn1 = customtkinter.CTkButton(self.button_frame, text = "assymetry index", font = ("Arial",18), command=self.calc_assymetry_ind	)
-        self.param_btn1.grid(row=1, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
+        self.param_btn1.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
         
-        self.param_btn2 = customtkinter.CTkButton(self.button_frame, text = "Param 2", font = ("Arial",18), command=self.dummydef)
-        self.param_btn2.grid(row=1, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.param_btn2 = customtkinter.CTkButton(self.button_frame, text = "trunk angle", font = ("Arial",18), command=self.calc_trunk_angle)
+        self.param_btn2.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.param_btn3 = customtkinter.CTkButton(self.button_frame, text = "Param 3", font = ("Arial",18), command=self.dummydef)
-        self.param_btn3.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.param_btn3 = customtkinter.CTkButton(self.button_frame, text = "pectus index", font = ("Arial",18), command=self.calc_pectus_index)
+        self.param_btn3.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.param_btn4 = customtkinter.CTkButton(self.button_frame, text = "Param 4", font = ("Arial",18), command=self.dummydef)
-        self.param_btn4.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.param_btn4 = customtkinter.CTkButton(self.button_frame, text = "sagital diameter", font = ("Arial",18), command=self.calc_sagital_diameter)
+        self.param_btn4.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.param_btn5 = customtkinter.CTkButton(self.button_frame, text = "Param 5", font = ("Arial",18), command=self.dummydef)
-        self.param_btn5.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.param_btn5 = customtkinter.CTkButton(self.button_frame, text = "steep vertebral", font = ("Arial",18), command=self.calc_steep_vertebral)
+        self.param_btn5.grid(row=4, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.param_btn6 = customtkinter.CTkButton(self.button_frame, text = "Param 6", font = ("Arial",18), command=self.dummydef)
-        self.param_btn6.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.param_btn6.grid(row=4, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     
     def change_appearance_mode_event(self, new_appearance_mode: str):
@@ -240,16 +244,67 @@ class MyGUI(customtkinter.CTk):
         plt.close()
         
         return pts
+    
+    def show_landmarks(self):
+        print("to be implemented")
         
     def calc_assymetry_ind(self):
         if self.image_array is not None:
             pts = self.get_points(num_points=4)
-            assymetry_ind = Assymetry_parameters.assymetry_index(pts)
+            assymetry_ind = assymetry_index(pts)
             self.param_value = round(assymetry_ind,3)
             
             self.results_label = customtkinter.CTkLabel(self.output_frame, text=f"assymetry index: {self.param_value}", height = 50)
             self.results_label.grid(row =1, column = 0)
             self.current_param = "asymmetry index"
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_trunk_angle(self):
+        if self.image_array is not None:
+            pts = self.get_points(num_points=2)
+            angle_trunk_rot = angle_trunk_rotation(pts)
+            self.param_value = round(angle_trunk_rot,3)
+            
+            self.results_label = customtkinter.CTkLabel(self.output_frame, text=f"angle trunk rotation: {self.param_value}", height = 50)
+            self.results_label.grid(row =1, column = 0)
+            self.current_param = "angle trunk rotation"
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+        
+    def calc_pectus_index(self):
+        if self.image_array is not None:
+            pts = self.get_points(num_points=4)
+            pectus_ind = pectus_index(pts)
+            self.param_value = round(pectus_ind,3)
+            
+            self.results_label = customtkinter.CTkLabel(self.output_frame, text=f"pectus index: {self.param_value}", height = 50)
+            self.results_label.grid(row =1, column = 0)
+            self.current_param = "pectus index"
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_sagital_diameter(self):
+        if self.image_array is not None:
+            pts = self.get_points(num_points=2)
+            sagital_diam = sagital_diameter(pts)
+            self.param_value = round(sagital_diam,3)
+            
+            self.results_label = customtkinter.CTkLabel(self.output_frame, text=f"sagital_diameter: {self.param_value}", height = 50)
+            self.results_label.grid(row =1, column = 0)
+            self.current_param = "sagital diameter"
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_steep_vertebral(self):
+        if self.image_array is not None:
+            pts = self.get_points(num_points=2)
+            steep_vert = steep_vertebral(pts)
+            self.param_value = round(steep_vert,3)
+            
+            self.results_label = customtkinter.CTkLabel(self.output_frame, text=f"sagital_diameter: {self.param_value}", height = 50)
+            self.results_label.grid(row =1, column = 0)
+            self.current_param = "sagital diameter"
         else:
             messagebox.showinfo(title="Message", message="must open image first")
             
@@ -273,30 +328,10 @@ class MyGUI(customtkinter.CTk):
     
     def dummydef(self):
         print("test")
-
-class Assymetry_parameters():
-    
-    def assymetry_index(pts):
-        #pts = self.pts
-        Ax = int(pts[0,0])
-        Ay = int(pts[0,1])
-        Bx = int(pts[1,0])
-        By = int(pts[1,1])
-        Cx = int(pts[2,0])
-        Cy = int(pts[2,1])
-        Dx = int(pts[3,0])
-        Dy = int(pts[3,1])
-        
-        Dist_AB = math.sqrt((Bx-Ax)^2 + (By-Ay)^2)
-        Dist_CD = math.sqrt((Dx-Cx)^2 + (Dy-Cy)^2)
-        
-        assymetry_ind = abs(1 - (Dist_AB/Dist_CD))
-        
-        return assymetry_ind
     
 
 if __name__ == "__main__":
     
     app = MyGUI()
     app.mainloop()
-    print(MyGUI.slice_number)
+    print(MyGUI.self.slice_number)

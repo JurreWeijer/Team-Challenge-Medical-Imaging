@@ -16,7 +16,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import math
 import pandas as pd
 from PIL import ImageTk, Image
-from Deformity_Parameters import assymetry_index, angle_trunk_rotation, pectus_index, sagital_diameter, steep_vertebral
+from Deformity_Parameters import calculate_parameter, assymetry_index #, angle_trunk_rotation, pectus_index, sagital_diameter, steep_vertebral
 
 from GUI_layout import GUI_Layout
 
@@ -49,10 +49,23 @@ class GUI_Functionality:
         self.button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice())
         
         self.button_assymetry_index = self.layout.master.button_assymetry_index
-        self.button_assymetry_index.bind('<Button-1>', lambda event: self.calc_assymetry_ind())
+        self.button_assymetry_index.bind('<Button-1>', lambda event: self.calc_assymetry_index())
+        
+        self.button_trunk_angle = self.layout.master.button_trunk_angle
+        self.button_trunk_angle.bind('<Button-1>', lambda event: self.calc_trunk_angle())
+        
+        self.button_pectus_index = self.layout.master.button_pectus_index
+        self.button_pectus_index.bind('<Button-1>', lambda event: self.calc_pectus_index())
+        
+        self.button_sagital_diameter = self.layout.master.button_sagital_diameter
+        self.button_sagital_diameter.bind('<Button-1>', lambda event: self.calc_sagital_diameter())
+        
+        self.button_steep_vertebral = self.layout.master.button_steep_vertebral
+        self.button_steep_vertebral.bind('<Button-1>', lambda event: self.calc_steep_vertebral())
         
         self.button_save_parameters = self.layout.master.button_save_parameters
         self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
+        
         #entrys
         self.slice_entry = self.layout.master.slice_entry
         
@@ -121,31 +134,7 @@ class GUI_Functionality:
         #self.layout.draw_landmarks(pts)
         
         return pts
-    
-    def calc_assymetry_ind(self):
-        if self.image_array is not None:
-            pts = self.get_points(num_points=4)
-            
-            string_slice = str(self.slice_number)
-            if f"slice_{string_slice}" not in self.dict_landmarks:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks["slice_200"] = {}
-                
-            self.dict_landmarks[f"slice_{string_slice}"]["point_5"] = pts[0,:]
-            self.dict_landmarks[f"slice_{string_slice}"]["point_6"] = pts[1,:]
-            self.dict_landmarks[f"slice_{string_slice}"]["point_7"] = pts[2,:]
-            self.dict_landmarks[f"slice_{string_slice}"]["point_8"] = pts[3,:]
-            
-            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
-            
-            assymetry_ind = assymetry_index(pts)
-            self.param_value = round(assymetry_ind,3)
-            
-            self.current_param = "assymetry index"
-            self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
+
     
     def add_parameter(self):
         if self.df_params is None:  
@@ -161,5 +150,120 @@ class GUI_Functionality:
             file_name = dialog.get_input()
             self.df_params.to_csv(f'{file_name}.csv', index=False)
             
+    
+    def calc_assymetry_index(self):
+        self.current_param = "assymetry index"
+        if self.image_array is not None:
+            pts = self.get_points(num_points=4)
+            
+            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_5"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_6"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_7"] = pts[2,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_8"] = pts[3,:]
+            
+            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            
+            self.add_parameter()
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_trunk_angle(self):
+        self.current_param = "angle trunk rotation"
+        if self.image_array is not None:
+            pts = self.get_points(num_points=2)
+            
+            
+            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_3"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_4"] = pts[1,:]
+            
+            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            
+            self.add_parameter()
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_pectus_index(self):
+        self.current_param = "pectus index"
+        if self.image_array is not None:
+            pts = self.get_points(num_points=4)
+            
+            
+            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_9"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_10"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[2,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_12"] = pts[3,:]
+            
+            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            
+            self.add_parameter()
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_sagital_diameter(self):
+        self.current_param = "sagital diameter"
+        if self.image_array is not None:
+            pts = self.get_points(num_points=2)
+            
+            
+            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_13"] = pts[1,:]
+            
+            
+            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+        
+            self.add_parameter()
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+    
+    def calc_steep_vertebral(self):
+        self.current_param = "steep vertebral"
+        if self.image_array is not None:
+            pts = self.get_points(num_points=2)
+            
+            
+            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.slice_number}"]["point_12"] = pts[1,:]
+            
+            
+            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            
+            self.add_parameter()
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
             
             

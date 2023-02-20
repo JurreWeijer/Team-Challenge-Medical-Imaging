@@ -211,14 +211,15 @@ class GUI_Layout:
     
     def show_landmarks(self, n_slice, dict_landmarks):
         
-        landmarks_x = []
-        landmarks_y = []
-        for k in dict_landmarks[f"slice_{n_slice}"].keys():
-            landmarks_x.append(dict_landmarks[f"slice_{n_slice}"][k][0])
-            landmarks_y.append(dict_landmarks[f"slice_{n_slice}"][k][1])
+        if f"slice_{n_slice}" in dict_landmarks:
+            landmarks_x = []
+            landmarks_y = []
+            for k in dict_landmarks[f"slice_{n_slice}"].keys():
+                landmarks_x.append(dict_landmarks[f"slice_{n_slice}"][k][0])
+                landmarks_y.append(dict_landmarks[f"slice_{n_slice}"][k][1])
         
-        self.master.subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
-        self.master.canvas.draw()
+            self.master.subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
+            self.master.canvas.draw()
     
     
     

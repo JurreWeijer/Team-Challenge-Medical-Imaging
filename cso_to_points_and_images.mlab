@@ -118,7 +118,7 @@ module View2D {
     inventorInputOn = TRUE
     inventorOutputOn = FALSE
     view2DExtensionsOn = TRUE
-    startSlice = 218
+    startSlice = 195
     numSlices = 1
     numXSlices = 1
     sliceStep = 1
@@ -143,8 +143,8 @@ module View2D {
     sliceOrigin = "0 0"
     useShaders = TRUE
     useManagedInteraction = FALSE
-    lutCenter = 732.710327148438
-    lutWidth = 2655.1796875
+    lutCenter = -12.782470703125
+    lutWidth = 2682
     annotationOn = TRUE
     annotationMode = ANNO_MODE_AUTO
     annotationSizeMode = ANNO_SHOW_DETAILED
@@ -482,7 +482,7 @@ module View2D {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "440 228 400 400"
+        geometry = "3466 195 397 397"
         sizeHint = "400 400"
         wasOpen = no
       }
@@ -493,7 +493,7 @@ module View2D {
     inventorInputOn = TRUE
     inventorOutputOn = FALSE
     view2DExtensionsOn = TRUE
-    startSlice = 0
+    startSlice = 397
     numSlices = 1
     numXSlices = 1
     sliceStep = 1
@@ -519,7 +519,7 @@ module View2D {
     useShaders = TRUE
     useManagedInteraction = FALSE
     lutCenter = 1
-    lutWidth = 1
+    lutWidth = 0
     annotationOn = TRUE
     annotationMode = ANNO_MODE_AUTO
     annotationSizeMode = ANNO_SHOW_DETAILED
@@ -666,50 +666,6 @@ module MarkerListInspector {
     tabbar = shortinfo
   }
 }
-module itkImageFileWriter {
-  internal  {
-    frame = "1105 -107 128 56"
-    moduleGroupName = ""
-    windows  {
-      window _default {
-        geometry = "828 365 315 411"
-        sizeHint = "264 411"
-        wasOpen = no
-      }
-    }
-  }
-  fields  {
-    instanceName = itkImageFileWriter
-    useCompression = FALSE
-    correctSubVoxelShift = TRUE
-    forceDirectionCosineWrite = TRUE
-    outputVoxelType = Automatic
-    info = ""
-    unresolvedFileName = ""
-  }
-}
-module itkImageFileWriter {
-  internal  {
-    frame = "1301 -107 136 56"
-    moduleGroupName = ""
-    windows  {
-      window _default {
-        geometry = "828 365 315 411"
-        sizeHint = "264 411"
-        wasOpen = no
-      }
-    }
-  }
-  fields  {
-    instanceName = itkImageFileWriter1
-    useCompression = FALSE
-    correctSubVoxelShift = TRUE
-    forceDirectionCosineWrite = TRUE
-    outputVoxelType = Automatic
-    info = ""
-    unresolvedFileName = ""
-  }
-}
 module SaveBase {
   internal  {
     frame = "941 -107 88 56"
@@ -739,7 +695,7 @@ module View2D {
     moduleGroupName = ""
     windows  {
       window _default {
-        geometry = "440 228 400 400"
+        geometry = "3066 190 397 397"
         sizeHint = "400 400"
         wasOpen = no
       }
@@ -750,7 +706,7 @@ module View2D {
     inventorInputOn = TRUE
     inventorOutputOn = FALSE
     view2DExtensionsOn = TRUE
-    startSlice = 0
+    startSlice = 397
     numSlices = 1
     numXSlices = 1
     sliceStep = 1
@@ -775,8 +731,8 @@ module View2D {
     sliceOrigin = "0 0"
     useShaders = TRUE
     useManagedInteraction = FALSE
-    lutCenter = 0.5
-    lutWidth = 1
+    lutCenter = 0.32749992609024
+    lutWidth = 0
     annotationOn = TRUE
     annotationMode = ANNO_MODE_AUTO
     annotationSizeMode = ANNO_SHOW_DETAILED
@@ -878,6 +834,162 @@ for cso in csoList.getCSOs():
     showConsole = FALSE
   }
 }
+module itkImageFileReader {
+  internal  {
+    frame = "1057 -91 144 56"
+    moduleGroupName = ""
+    windows  {
+      window _default {
+        geometry = "2848 295 327 395"
+        sizeHint = "327 395"
+        wasOpen = no
+      }
+    }
+  }
+  fields  {
+    instanceName = itkImageFileReader1
+    fileDataType = "unsigned int32"
+    autoDetermineDataType = TRUE
+    correctSubVoxelShift = TRUE
+    fileDimension = 3
+    info = "Loading okay."
+    numDims = 3
+    fileType = TypeNotApplicable
+    componentType = "unsigned int32"
+    pixelType = SCALAR
+    loaderType = NiftiImageIO
+    outputMetaDataStr = "ITK_FileNotes : 
+aux_file : 
+bitpix : 32
+cal_max : 0
+cal_min : 0
+datatype : 768
+descrip : 
+dim[0] : 3
+dim[1] : 512
+dim[2] : 512
+dim[3] : 437
+dim[4] : 1
+dim[5] : 1
+dim[6] : 1
+dim[7] : 1
+dim_info : 
+intent_code : 0
+intent_name : 
+intent_p1 : 0
+intent_p2 : 0
+intent_p3 : 0
+pixdim[0] : -1
+pixdim[1] : 0.472656
+pixdim[2] : 0.472656
+pixdim[3] : 0.599991
+pixdim[4] : 0
+pixdim[5] : 0
+pixdim[6] : 0
+pixdim[7] : 0
+qform_code : 1
+qoffset_x : 118.764
+qoffset_y : 10.2363
+qoffset_z : -504.696
+quatern_b : -0
+quatern_c : 1
+quatern_d : 0
+scl_inter : 0
+scl_slope : 1
+sform_code : 1
+slice_code : 
+slice_duration : 0
+slice_end : 0
+slice_start : 0
+srow_x : -0.472656 -0 0 118.764
+srow_y : -0 0.472656 -0 10.2363
+srow_z : 0 0 0.599991 -504.696
+toffset : 0
+vox_offset : 352
+xyzt_units : 
+"
+    suppressErrorPosting = FALSE
+    unresolvedFileName = $(NETWORK)/Data/LargestComponent.nii
+  }
+}
+module itkImageFileReader {
+  internal  {
+    frame = "1233 -107 144 56"
+    moduleGroupName = ""
+    windows  {
+      window _default {
+        geometry = "2848 295 327 395"
+        sizeHint = "327 395"
+        wasOpen = no
+      }
+    }
+  }
+  fields  {
+    instanceName = itkImageFileReader2
+    fileDataType = "unsigned int8"
+    autoDetermineDataType = TRUE
+    correctSubVoxelShift = TRUE
+    fileDimension = 3
+    info = "Loading okay."
+    numDims = 3
+    fileType = TypeNotApplicable
+    componentType = "unsigned int8"
+    pixelType = SCALAR
+    loaderType = NiftiImageIO
+    outputMetaDataStr = "ITK_FileNotes : 
+aux_file : 
+bitpix : 8
+cal_max : 0
+cal_min : 0
+datatype : 2
+descrip : 
+dim[0] : 3
+dim[1] : 512
+dim[2] : 512
+dim[3] : 437
+dim[4] : 1
+dim[5] : 1
+dim[6] : 1
+dim[7] : 1
+dim_info : 
+intent_code : 0
+intent_name : 
+intent_p1 : 0
+intent_p2 : 0
+intent_p3 : 0
+pixdim[0] : -1
+pixdim[1] : 0.472656
+pixdim[2] : 0.472656
+pixdim[3] : 0.599991
+pixdim[4] : 0
+pixdim[5] : 0
+pixdim[6] : 0
+pixdim[7] : 0
+qform_code : 1
+qoffset_x : 118.764
+qoffset_y : 10.2363
+qoffset_z : -504.696
+quatern_b : -0
+quatern_c : 1
+quatern_d : 0
+scl_inter : 0
+scl_slope : 1
+sform_code : 1
+slice_code : 
+slice_duration : 0
+slice_end : 0
+slice_start : 0
+srow_x : -0.472656 -0 0 118.764
+srow_y : -0 0.472656 -0 10.2363
+srow_z : 0 0 0.599991 -504.696
+toffset : 0
+vox_offset : 352
+xyzt_units : 
+"
+    suppressErrorPosting = FALSE
+    unresolvedFileName = $(NETWORK)/Data/mask_result.nii
+  }
+}
 connections  {
   View2D.inImage = itkImageFileReader.output0
   View2D.inInvPostLUT = SoView2DCSOExtensibleEditor.self
@@ -885,10 +997,12 @@ connections  {
   CSOManager.inCSOList = CSOLoad.outCSOList
   pointsFilter.inputCSOList = CSOManager.outCSOList
   firstSplineFilter.inputCSOList = CSOManager.outCSOList
+  View2D1.inImage = itkImageFileReader1.output0
   secondSplineFilter.inputCSOList = CSOManager.outCSOList
   CSOConvertToXMarkerList.inImage = itkImageFileReader.output0
   CSOConvertToXMarkerList.inCSOList = pointsFilter.outputCSOList
   MarkerListInspector.inMarkerList = CSOConvertToXMarkerList.outputXMarkerList
   SaveBase.inObject = CSOConvertToXMarkerList.outputXMarkerList
+  View2D2.inImage = itkImageFileReader2.output0
 }
 networkModel = ""

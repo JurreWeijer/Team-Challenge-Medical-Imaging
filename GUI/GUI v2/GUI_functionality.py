@@ -33,6 +33,7 @@ class GUI_Functionality:
         self.df_params = None
         self.param_value = None
         self.current_param = None
+        self.dict_landmarks = {}
         
         #Buttons
         self.button_open_image = self.layout.master.button_open_image
@@ -50,7 +51,8 @@ class GUI_Functionality:
         self.button_assymetry_index = self.layout.master.button_assymetry_index
         self.button_assymetry_index.bind('<Button-1>', lambda event: self.calc_assymetry_ind())
         
-        
+        self.button_save_parameters = self.layout.master.button_save_parameters
+        self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
         #entrys
         self.slice_entry = self.layout.master.slice_entry
         
@@ -74,12 +76,14 @@ class GUI_Functionality:
             if 0 < self.slice_number < np.shape(self.image_array)[0]:
                 self.slice_number += 1
                 self.layout.draw_image(self.image_array, self.slice_number, self.map)
+                self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
     
     def previous_slice(self):
         if self.image_array is not None:
             if 0 < self.slice_number < np.shape(self.image_array)[0]:
                 self.slice_number -= 1
                 self.layout.draw_image(self.image_array, self.slice_number, self.map)
+                self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
     
     def go_to_slice(self):
         try:
@@ -93,6 +97,7 @@ class GUI_Functionality:
                 # check if the slice number is within the range of the image
                 if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
                     self.layout.draw_image(self.image_array, self.slice_number, self.map)
+                    self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
                 else:
                     # error message in the text frame that the slice number is out of range
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
@@ -110,23 +115,51 @@ class GUI_Functionality:
         pts = np.asarray(plt.ginput(num_points, timeout=-1))
         
         plt.close()
+            
         
         #display the marked point in the GUI
-        self.layout.draw_landmarks(pts)
+        #self.layout.draw_landmarks(pts)
         
         return pts
     
     def calc_assymetry_ind(self):
         if self.image_array is not None:
             pts = self.get_points(num_points=4)
+            
+            string_slice = str(self.slice_number)
+            if f"slice_{string_slice}" not in self.dict_landmarks:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_landmarks["slice_200"] = {}
+                
+            self.dict_landmarks[f"slice_{string_slice}"]["point_5"] = pts[0,:]
+            self.dict_landmarks[f"slice_{string_slice}"]["point_6"] = pts[1,:]
+            self.dict_landmarks[f"slice_{string_slice}"]["point_7"] = pts[2,:]
+            self.dict_landmarks[f"slice_{string_slice}"]["point_8"] = pts[3,:]
+            
+            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            
             assymetry_ind = assymetry_index(pts)
             self.param_value = round(assymetry_ind,3)
             
             self.current_param = "assymetry index"
+            self.add_parameter()
             self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
+    
+    def add_parameter(self):
+        if self.df_params is None:  
+            self.df_params = pd.DataFrame({'Parameter': [], 'Value': [], "Slice":[]})
             
+        if self.current_param is not None and self.param_value is not None:
+            new_row = {'Parameter': self.current_param, 'Value': self.param_value, "Slice": self.slice_number}
+            self.df_params = self.df_params.append(new_row, ignore_index=True)
+            
+    def save_parameters(self):
+        if self.df_params is not None:
+            dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")
+            file_name = dialog.get_input()
+            self.df_params.to_csv(f'{file_name}.csv', index=False)
             
             
             

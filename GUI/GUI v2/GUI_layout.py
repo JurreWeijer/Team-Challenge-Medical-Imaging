@@ -41,7 +41,9 @@ class GUI_Layout:
         self.sidebar()
         self.image_frame()
         self.output_frame()
-        self.button_frame()
+        self.manual_buttons()
+        self.landmark_extension_buttons()
+        self.automatic_buttons()
         
     def sidebar(self):
         self.master.sidebar_frame = customtkinter.CTkFrame(self.master, width=140, corner_radius=0)
@@ -136,13 +138,13 @@ class GUI_Layout:
         #self.master.keep_btn = customtkinter.CTkButton(self.master.output_frame, text = "Keep", font = ("Arial",18), )
         #self.master.keep_btn.grid(row=2, column = 0)
         
-    def button_frame(self):
+    def manual_buttons(self):
         self.master.button_frame = customtkinter.CTkFrame(self.master, width = 250, fg_color="transparent", corner_radius=0)
         self.master.button_frame.grid(row=0, column=2, padx=(5,5), pady=(5,5), sticky="nsew")
         self.master.button_frame.columnconfigure((0,1), weight = 1)
         
-        self.master.button_label = customtkinter.CTkLabel(self.master.button_frame, text="Deformity Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.button_label.grid(row=0, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Manual Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.master.manual_parameter_label.grid(row=0, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
         self.master.param_info_btn = customtkinter.CTkButton(self.master.button_frame, text = "show landmarks", font = ("Arial",18), )
         self.master.param_info_btn.grid(row=1, column = 0, columnspan = 2, padx=(5,5), pady=(0,5), sticky= 'ew')
@@ -150,20 +152,39 @@ class GUI_Layout:
         self.master.button_assymetry_index = customtkinter.CTkButton(self.master.button_frame, text = "assymetry index", font = ("Arial",18), )
         self.master.button_assymetry_index.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
         
-        self.master.param_btn2 = customtkinter.CTkButton(self.master.button_frame, text = "trunk angle", font = ("Arial",18), )
-        self.master.param_btn2.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_trunk_angle = customtkinter.CTkButton(self.master.button_frame, text = "trunk angle", font = ("Arial",18), )
+        self.master.button_trunk_angle.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.param_btn3 = customtkinter.CTkButton(self.master.button_frame, text = "pectus index", font = ("Arial",18), )
-        self.master.param_btn3.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_pectus_index = customtkinter.CTkButton(self.master.button_frame, text = "pectus index", font = ("Arial",18), )
+        self.master.button_pectus_index.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.param_btn4 = customtkinter.CTkButton(self.master.button_frame, text = "sagital diameter", font = ("Arial",18), )
-        self.master.param_btn4.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_sagital_diameter = customtkinter.CTkButton(self.master.button_frame, text = "sagital diameter", font = ("Arial",18), )
+        self.master.button_sagital_diameter.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.param_btn5 = customtkinter.CTkButton(self.master.button_frame, text = "steep vertebral", font = ("Arial",18), )
-        self.master.param_btn5.grid(row=4, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_steep_vertebral = customtkinter.CTkButton(self.master.button_frame, text = "steep vertebral", font = ("Arial",18), )
+        self.master.button_steep_vertebral.grid(row=4, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.param_btn6 = customtkinter.CTkButton(self.master.button_frame, text = "Param 6", font = ("Arial",18), )
         self.master.param_btn6.grid(row=4, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+    def landmark_extension_buttons(self):
+        
+        self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Landmark Extension", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.master.manual_parameter_label.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        
+        self.master.button_begin = customtkinter.CTkButton(self.master.button_frame, text = "begin", font = ("Arial",18), )
+        self.master.button_begin.grid(row=6, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.button_end = customtkinter.CTkButton(self.master.button_frame, text = "end", font = ("Arial",18), )
+        self.master.button_end.grid(row=6, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "compute parameters", font = ("Arial",18), )
+        self.master.compute_parameters.grid(row=7, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+    def automatic_buttons(self):
+        
+        self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.master.manual_parameter_label.grid(row= 8, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -188,8 +209,19 @@ class GUI_Layout:
         self.master.subplot.scatter(landmarks[:,0],landmarks[:,1], c="red", marker = "x")
         self.master.canvas.draw()
     
-    def display_landmarks(self, param, value, n_slice):
-        self.table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+    def show_landmarks(self, n_slice, dict_landmarks):
+        
+        landmarks_x = []
+        landmarks_y = []
+        for k in dict_landmarks[f"slice_{n_slice}"].keys():
+            landmarks_x.append(dict_landmarks[f"slice_{n_slice}"][k][0])
+            landmarks_y.append(dict_landmarks[f"slice_{n_slice}"][k][1])
+        
+        self.master.subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
+        self.master.canvas.draw()
+    
+    
+    
         
         
         

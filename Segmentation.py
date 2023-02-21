@@ -109,9 +109,9 @@ def SingleSliceContour(slice):
         except:
             cX = 0
             cY = 0
-            warnings.warn("Contour not fully segmented, returning 0", RuntimeWarning)
+            warnings.warn("Contour not fully segmented, returning 0 at index " + str(i), RuntimeWarning)
 
-        centroid_list.append((cX, cY))
+        centroid_list.append([cX, cY])
 
     cmap = plt.cm.get_cmap("hsv", len(hull_list))
 
@@ -197,11 +197,27 @@ if __name__ == '__main__':
 
     segmentation_mask = sitk.GetArrayFromImage(mask)
 
-    slice_num = 200
+    #Current implementation only works on slices without any different bones like shoulder blades
+    slice_num = 100
 
     slice = segmentation_mask[slice_num,:,:]
 
-    SingleSliceContour(slice)
+    hull_list, centroid_list = SingleSliceContour(slice)
+
+    canvas = np.zeros_like(slice)
+    for i in range(len(centroid_list)):
+        cv.drawContours(canvas, hull_list, i, color = (255,255,255))
+
+    centroid_list = np.array(centroid_list[1:])
+    #Reordering the list
+    centroid_left = centroid_list[centroid_list[:,0] < 512/2]
+    centroid_right = centroid_list[centroid_list[:,0] >= 512/2]
+
+    centroid_ordered = [np.append(np.flip(centroid_left, axis = 0), centroid_right, axis = 0)]
+
+    cv.drawContours(canvas, centroid_ordered, 0, color = (255,0,0))
+    plt.figure()
+    plt.imshow(canvas)
 
 
     plt.figure()

@@ -103,6 +103,7 @@ if __name__ == '__main__':
     #img_nonscoliotic = OpenNonscoliotic(nonscoliotic_path, 'Control1a.tif')
 # =============================================================================
     img_scoliosis = OpenScoliosis(scoliosis_path,"4preop.nii")
+<<<<<<< Updated upstream
     slice_0 = 100
     img = img_scoliosis[slice_0,:,:]
 
@@ -123,4 +124,50 @@ if __name__ == '__main__':
         
     
     
+=======
+    og_seeds = []
+    for i in range(0,464, 50):
+        img = img_scoliosis[i,:,:]
+        seedx, seedy = GetSeed(img)  
+        og_seeds.append((seedx, seedy))
+        
+    plt.switch_backend('module://ipykernel.pylab.backend_inline')
+    
+
+    prev_seed = (og_seeds[0])
+    next_seed = (og_seeds[0])
+    
+    #first propagate seed down
+    slice_0 = 0
+    n_seed = 0
+    seeds = np.zeros((img_scoliosis.shape[0], 2))
+    seeds[0,:] = og_seeds[0]
+    for i in range(25):
+        next_seed = GetNextSeed(img_scoliosis[slice_0+i+1,:,:], prev_seed[0], prev_seed[1])
+        seeds[i+1, :] = next_seed
+        prev_seed = next_seed
+    #after first 25 propagate from next seed up
+    for i in range(50,464, 50):
+        if i <= 400:
+            slice_0 = i
+            n_seed += 1
+            seeds[slice_0,:] = og_seeds[n_seed]
+            prev_seed = (og_seeds[n_seed])
+            next_seed = (og_seeds[n_seed])
+            for j in range(25):
+                next_seed = GetNextSeed(img_scoliosis[slice_0-j-1,:,:], prev_seed[0], prev_seed[1])
+                seeds[slice_0-j-1,:] = next_seed
+                prev_seed = next_seed
+            prev_seed = og_seeds[n_seed]
+            for k in range(25):
+                next_seed = GetNextSeed(img_scoliosis[slice_0+k+1,:,:], prev_seed[0], prev_seed[1])
+                seeds[slice_0+k+1, :] = next_seed
+                prev_seed = next_seed
+    for i in range(0,450):
+        plt.figure()
+        plt.imshow(img_scoliosis[i,:,:])
+        plt.plot(seeds[i,0], seeds[i,1], marker = '*', color = "red")
+        
+
+>>>>>>> Stashed changes
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

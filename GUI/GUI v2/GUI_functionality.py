@@ -34,6 +34,7 @@ class GUI_Functionality:
         self.param_value = None
         self.current_param = None
         self.dict_landmarks = {}
+        self.dict_parameters = {}
         
         #Buttons
         self.button_open_image = self.layout.master.button_open_image
@@ -143,7 +144,14 @@ class GUI_Functionality:
         if self.current_param is not None and self.param_value is not None:
             new_row = {'Parameter': self.current_param, 'Value': self.param_value, "Slice": self.slice_number}
             self.df_params = self.df_params.append(new_row, ignore_index=True)
+        
+        if self.current_param is not None and self.param_value is not None:
+            if f"slice_{self.slice_number}" not in self.dict_parameters:
+                # If the key doesn't exist, create it with an empty dictionary as its value
+                self.dict_parameters[f"{self.slice_number}"] = {}
             
+            self.dict_parameters[f"{self.slice_number}"][f"{self.current_param}"] = self.param_value
+        
     def save_parameters(self):
         if self.df_params is not None:
             dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")

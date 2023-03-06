@@ -138,13 +138,13 @@ def SingleSliceContour(slice):
             warnings.warn("Contour not fully segmented, returning 0 at index " + str(i), RuntimeWarning)
 
         centroid_list.append([cX, cY])
-
-    cmap = plt.cm.get_cmap("hsv", len(hull_list))
-    plt.figure()
-    plt.imshow(contour_img, cmap="gray")
-    for i in range(len(hull_list)):
-        plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='P', color=cmap(i), s=4)
-        plt.scatter(hull_list[i][:, 0, 0], hull_list[i][:, 0, 1], color=cmap(i), s=2)
+    #
+    # cmap = plt.cm.get_cmap("hsv", len(hull_list))
+    # plt.figure()
+    # plt.imshow(contour_img, cmap="gray")
+    # for i in range(len(hull_list)):
+    #     plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='P', color=cmap(i), s=4)
+    #     plt.scatter(hull_list[i][:, 0, 0], hull_list[i][:, 0, 1], color=cmap(i), s=2)
 
     return hull_list, centroid_list
 
@@ -228,22 +228,29 @@ if __name__ == '__main__':
 
     slice = segmentation_mask[slice_num,:,:]
 
-    ActiveContour(slice)
-
-    hull_list, centroid_list = SingleSliceContour(slice)
+    #ActiveContour(slice)
 
     canvas = np.zeros_like(slice)
-    for i in range(len(centroid_list)):
-        cv.drawContours(canvas, hull_list, i, color = (255,255,255))
 
-    centroid_list = np.array(centroid_list[1:])
-    #Reordering the list
-    centroid_left = centroid_list[centroid_list[:,0] < 512/2]
-    centroid_right = centroid_list[centroid_list[:,0] >= 512/2]
+    for i in range(slice_num, slice_num + 50,10):
+        slice = segmentation_mask[i,:,:]
 
-    centroid_ordered = [np.append(np.flip(centroid_left, axis = 0), centroid_right, axis = 0)]
+        hull_list, centroid_list = SingleSliceContour(slice)
 
-    cv.drawContours(canvas, centroid_ordered, 0, color = (255,0,0))
+        for i in range(len(centroid_list)):
+            cv.drawContours(canvas, hull_list, i, color = (255,255,255))
+            plt.scatter(centroid_list[i][0], centroid_list[i][1])
+
+        centroid_list = np.array(centroid_list[1:])
+        #Reordering the list
+        centroid_left = centroid_list[centroid_list[:,0] < 512/2]
+        centroid_right = centroid_list[centroid_list[:,0] >= 512/2]
+
+        centroid_ordered = [np.append(np.flip(centroid_left, axis = 0), centroid_right, axis = 0)]
+
+        cv.drawContours(canvas, centroid_ordered, 0, color = (255,0,0))
+
+    plt.imshow(slice)
     plt.figure()
     plt.imshow(canvas)
 

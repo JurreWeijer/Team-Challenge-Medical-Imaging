@@ -11,6 +11,9 @@ import SimpleITK as sitk
 import cv2 as cv
 import warnings
 
+import skimage.filters as filters
+import skimage.segmentation as seg
+
 
 # datapath to map with Scoliotic and Nonscoliotic data, assumed to be in the same folder as your code
 datapath = Path("./Data")
@@ -35,7 +38,6 @@ GaussianFilter = sitk.SmoothingRecursiveGaussianImageFilter()
 OpeningFilter = sitk.BinaryMorphologicalOpeningImageFilter()
 ClosingFilter = sitk.BinaryMorphologicalClosingImageFilter()
 ThinningFilter = sitk.BinaryThinningImageFilter()
-
 
 def SimpleSegmentation(image):
     threshold = 150
@@ -85,6 +87,30 @@ def ContinuousContourMaker(image):
 
     return img_contour
 
+def ActiveContour(slice):
+    #active contouring of a single slice, experimental and does not work well
+
+    s = np.linspace(0, 2 * np.pi, 400)
+    r = 250 + 250 * np.sin(s)
+    c = 250 + 300 * np.cos(s)
+    init = np.array([r, c]).T
+
+    #From: https://scikit-image.org/docs/stable/api/skimage.segmentation.html#active-contour
+    # alpha: Snake length shape parameter. Higher values makes snake contract faster.
+    # beta: Snake smoothness shape parameter. Higher values makes snake smoother.
+    # w_line: Controls attraction to brightness. Use negative values to attract toward dark regions.
+    # w_edge: Controls attraction to edges. Use negative values to repel snake from edges.
+    # gamma: Explicit time stepping parameter.
+
+    snake = seg.active_contour(slice,
+                               init, alpha=0.001, beta=5, w_line=100, w_edge=10, gamma=0.001)
+
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.imshow(slice, cmap=plt.cm.gray)
+    ax.plot(init[:, 1], init[:, 0], '--r', lw=3)
+    ax.plot(snake[:, 1], snake[:, 0], '-b', lw=3)
+    return
+
 def SingleSliceContour(slice):
     #Compute the contour of each blob on a single slice using the OpenCV toolkit
     #Adapted from the hull tutorial https://docs.opencv.org/3.4.2/d7/d1d/tutorial_hull.html
@@ -114,10 +140,10 @@ def SingleSliceContour(slice):
         centroid_list.append([cX, cY])
 
     cmap = plt.cm.get_cmap("hsv", len(hull_list))
-
+    plt.figure()
     plt.imshow(contour_img, cmap="gray")
     for i in range(len(hull_list)):
-        plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='X', color=cmap(i), s=4)
+        plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='P', color=cmap(i), s=4)
         plt.scatter(hull_list[i][:, 0, 0], hull_list[i][:, 0, 1], color=cmap(i), s=2)
 
     return hull_list, centroid_list
@@ -202,6 +228,8 @@ if __name__ == '__main__':
 
     slice = segmentation_mask[slice_num,:,:]
 
+    ActiveContour(slice)
+
     hull_list, centroid_list = SingleSliceContour(slice)
 
     canvas = np.zeros_like(slice)
@@ -221,13 +249,13 @@ if __name__ == '__main__':
 
 
     plt.figure()
-    plt.imshow(image_array[slice_num, :, :], cmap="gray")
+    plt.imshow(image_array[slice_num,:,:], cmap="gray")
     plt.title("Original Image")
     plt.figure()
     plt.imshow(segmentation_mask[slice_num,:,:], cmap="gray")
     plt.title("Segmentation mask")
     plt.figure()
-    plt.imshow(image_array[slice_num, :, :] * segmentation_mask[slice_num,:,:], cmap="gray", vmin = 0)
+    plt.imshow(image_array[slice_num,:,:] * segmentation_mask[slice_num,:,:], cmap="gray", vmin = 0)
     plt.title("Segmented Image")
     plt.show()
 

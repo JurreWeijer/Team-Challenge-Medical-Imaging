@@ -11,8 +11,8 @@ import SimpleITK as sitk
 import cv2 as cv
 import warnings
 
-import skimage.filters as filters
 import skimage.segmentation as seg
+import scipy.optimize as optim
 
 
 # datapath to map with Scoliotic and Nonscoliotic data, assumed to be in the same folder as your code
@@ -33,7 +33,7 @@ def OpenScoliosis(path, name):
 ThresholdFilter = sitk.BinaryThresholdImageFilter()
 DilationFilter = sitk.DilateObjectMorphologyImageFilter()
 ErosionFilter = sitk.ErodeObjectMorphologyImageFilter()
-#GaussianFilter = sitk.RecursiveGaussianImageFilter()
+GaussianFilter = sitk.RecursiveGaussianImageFilter()
 GaussianFilter = sitk.SmoothingRecursiveGaussianImageFilter()
 OpeningFilter = sitk.BinaryMorphologicalOpeningImageFilter()
 ClosingFilter = sitk.BinaryMorphologicalClosingImageFilter()
@@ -111,7 +111,7 @@ def ActiveContour(slice):
     ax.plot(snake[:, 1], snake[:, 0], '-b', lw=3)
     return
 
-def SingleSliceContour(slice):
+def SingleSliceContour(slice, plot = False):
     #Compute the contour of each blob on a single slice using the OpenCV toolkit
     #Adapted from the hull tutorial https://docs.opencv.org/3.4.2/d7/d1d/tutorial_hull.html
 
@@ -138,15 +138,61 @@ def SingleSliceContour(slice):
             warnings.warn("Contour not fully segmented, returning 0 at index " + str(i), RuntimeWarning)
 
         centroid_list.append([cX, cY])
-    #
-    # cmap = plt.cm.get_cmap("hsv", len(hull_list))
-    # plt.figure()
-    # plt.imshow(contour_img, cmap="gray")
-    # for i in range(len(hull_list)):
-    #     plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='P', color=cmap(i), s=4)
-    #     plt.scatter(hull_list[i][:, 0, 0], hull_list[i][:, 0, 1], color=cmap(i), s=2)
+
+    if (plot == True):
+        cmap = plt.cm.get_cmap("hsv", len(hull_list))
+        canvas = np.zeros_like(slice)
+
+        plt.figure()
+        plt.imshow(contour_img, cmap="gray")
+        for i in range(len(hull_list)):
+            plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='P', color=cmap(i), s=4)
+            plt.scatter(hull_list[i][:, 0, 0], hull_list[i][:, 0, 1], color=cmap(i), s=2)
+
+        plt.figure()
+
+        for i in range(len(centroid_list)):
+            cv.drawContours(canvas, hull_list, i, color = (255,255,255))
+            plt.scatter(centroid_list[i][0], centroid_list[i][1])
+
+        centroid_list = np.array(centroid_list)
+        centroid_left = centroid_list[centroid_list[:, 0] < 512 / 2]
+        centroid_right = centroid_list[centroid_list[:, 0] >= 512 / 2]
+
+        centroid_ordered = [np.append(np.flip(centroid_left, axis = 0), centroid_right, axis = 0)]
+
+        cv.drawContours(canvas, centroid_ordered, 0, color = (255,0,0))
+
+        plt.imshow(canvas)
 
     return hull_list, centroid_list
+
+def MultiSliceContour(image_array, slice_num = 100, plot = False):
+    Multi_slice_centroids = np.empty((1,1,2), dtype = np.int32)
+
+    #Get centroids for multiple slices and put them in a single array
+    for i in range(slice_num, slice_num + 50,10):
+        slice = image_array[i,:,:]
+
+        hull_list, centroid_list = SingleSliceContour(slice)
+
+        centroid_array = np.array(centroid_list)
+        centroid_array = centroid_array[np.all(centroid_array != 0, axis = 1)]
+
+        Multi_slice_centroids = np.append(Multi_slice_centroids, np.reshape(centroid_array, (len(centroid_array), 1, 2)), axis = 0)
+
+    #Plot results if necessary
+    if (plot == True):
+        canvas = np.zeros_like(slice)
+        plt.figure()
+        hull = cv.convexHull(Multi_slice_centroids[1:])
+        cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
+        plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
+        plt.scatter(Multi_slice_centroids[1:,0,0], Multi_slice_centroids[1:,0,1], s = 1, c = "red")
+        plt.imshow(canvas, alpha = 1)
+        plt.imshow(slice, alpha= 0.3, cmap = "gray")
+
+    return Multi_slice_centroids
 
 def FilterLargestComponents(image, size= 100000):
     #Filters out only components that are larger than the given size from the segmentation mask
@@ -201,7 +247,6 @@ def BanikSegmentation(image):
 
     return img_processed
 
-
 GetSegmented = True
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -216,7 +261,6 @@ if __name__ == '__main__':
     else:
         img_processed = sitk.ReadImage(str(datapath/"mask_result.nii"))
 
-
     mask = FilterLargestComponents(img_processed) #outputs image with numbers based on size
     ThresholdFilter.SetLowerThreshold(1)
     mask = ThresholdFilter.Execute(mask)
@@ -228,32 +272,8 @@ if __name__ == '__main__':
 
     slice = segmentation_mask[slice_num,:,:]
 
-    #ActiveContour(slice)
-
-    canvas = np.zeros_like(slice)
-
-    for i in range(slice_num, slice_num + 50,10):
-        slice = segmentation_mask[i,:,:]
-
-        hull_list, centroid_list = SingleSliceContour(slice)
-
-        for i in range(len(centroid_list)):
-            cv.drawContours(canvas, hull_list, i, color = (255,255,255))
-            plt.scatter(centroid_list[i][0], centroid_list[i][1])
-
-        centroid_list = np.array(centroid_list[1:])
-        #Reordering the list
-        centroid_left = centroid_list[centroid_list[:,0] < 512/2]
-        centroid_right = centroid_list[centroid_list[:,0] >= 512/2]
-
-        centroid_ordered = [np.append(np.flip(centroid_left, axis = 0), centroid_right, axis = 0)]
-
-        cv.drawContours(canvas, centroid_ordered, 0, color = (255,0,0))
-
-    plt.imshow(slice)
-    plt.figure()
-    plt.imshow(canvas)
-
+    MultiSliceContour(segmentation_mask, slice_num, True)
+    ActiveContour(slice)
 
     plt.figure()
     plt.imshow(image_array[slice_num,:,:], cmap="gray")

@@ -103,40 +103,63 @@ if __name__ == '__main__':
     #img_nonscoliotic = OpenNonscoliotic(nonscoliotic_path, 'Control1a.tif')
 # =============================================================================
     img_scoliosis = OpenScoliosis(scoliosis_path,"4preop.nii")
-<<<<<<< Updated upstream
+
     slice_0 = 100
     img = img_scoliosis[slice_0,:,:]
 
-    seedx, seedy = GetSeed(img)  
-    plt.switch_backend('module://ipykernel.pylab.backend_inline')
-    
-    next_seed = GetNextSeed(img, seedx, seedy)
-    prev_seed = (seedx, seedy)
-    next_seed = (seedx, seedy)
-    
-    for i in range(70):
-        plt.figure()
-        plt.plot(prev_seed[0], prev_seed[1], marker='*', color="red")
-        plt.imshow(img_scoliosis[slice_0+i,:,:], cmap = "gray")
-        
-        next_seed = GetNextSeed(img_scoliosis[slice_0+i+1,:,:], prev_seed[0], prev_seed[1])
-        prev_seed = next_seed
-        
-    
-    
-=======
+# =============================================================================
+#     seedx, seedy = GetSeed(img)  
+#     plt.switch_backend('module://ipykernel.pylab.backend_inline')
+#     
+#     next_seed = GetNextSeed(img, seedx, seedy)
+#     prev_seed = (seedx, seedy)
+#     next_seed = (seedx, seedy)
+#     
+#     for i in range(70):
+#         plt.figure()
+#         plt.plot(prev_seed[0], prev_seed[1], marker='*', color="red")
+#         plt.imshow(img_scoliosis[slice_0+i,:,:], cmap = "gray")
+#         
+#         next_seed = GetNextSeed(img_scoliosis[slice_0+i+1,:,:], prev_seed[0], prev_seed[1])
+#         prev_seed = next_seed
+# 
+# =============================================================================
+
     og_seeds = []
+    seeds = np.zeros((img_scoliosis.shape[0], 2))
+    
+    #for some reason it is showing slice 0 twice 
     for i in range(0,464, 50):
         img = img_scoliosis[i,:,:]
         seedx, seedy = GetSeed(img)  
         og_seeds.append((seedx, seedy))
-        
-    plt.switch_backend('module://ipykernel.pylab.backend_inline')
+        seeds[i,0] = seedx
+        seeds[i,1] = seedy
+        print(i)
     
-
+    plt.switch_backend('module://ipykernel.pylab.backend_inline')
+# =============================================================================
+#     for i in range(0,464, 50):
+#         img = img_scoliosis[i,:,:]
+#         plt.figure()
+#         plt.imshow(img)
+#         plt.show()
+#     print(len(og_seeds))
+#     plt.switch_backend('module://ipykernel.pylab.backend_inline')
+#     j = 1
+#     for i in range(0,464, 50):
+#         plt.figure()
+#         plt.imshow(img_scoliosis[i,:,:], cmap = 'gray')
+#         plt.plot(og_seeds[j][0], og_seeds[j][1], marker = '*', color = "red")
+#         plt.show()
+#         j += 1
+# =============================================================================
+        
+    og_seeds = og_seeds[1:]
     prev_seed = (og_seeds[0])
     next_seed = (og_seeds[0])
     
+
     #first propagate seed down
     slice_0 = 0
     n_seed = 0
@@ -165,9 +188,6 @@ if __name__ == '__main__':
                 prev_seed = next_seed
     for i in range(0,450):
         plt.figure()
-        plt.imshow(img_scoliosis[i,:,:])
+        plt.imshow(img_scoliosis[i,:,:], cmap = 'gray')
         plt.plot(seeds[i,0], seeds[i,1], marker = '*', color = "red")
         
-
->>>>>>> Stashed changes
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -33,6 +33,7 @@ Add libraries here if you need to use them!
 - Matplotlib
 - Pandas
 - SimpleITK
+- opencv
 - Tkinter 
 - CustomTkinter 
 

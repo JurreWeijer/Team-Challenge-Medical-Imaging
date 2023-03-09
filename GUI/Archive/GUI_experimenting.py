@@ -14,6 +14,11 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 import SimpleITK as sitk
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 
 
 class MyGUI: 
@@ -24,9 +29,22 @@ class MyGUI:
         self.root.title("Scoliosis Chest Deformity")
         #self.root.geometry("800x500")
         
-        
         self.button = tk.Button(self.root, text = "Open Image", font = ("Arial",18), command=self.mfileopen)
         self.button.pack(side= "right", padx=10,pady=10)
+        
+        self.button2 = tk.Button(self.root, text = "Open Image", font = ("Arial",18), command=self.mfileopen)
+        self.button2.pack(side= "right", padx=10,pady=10)
+        
+        self.fig = plt.Figure(figsize=(5, 4), dpi=100)
+        
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)  # A tk.DrawingArea.
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        #self.canvas._tkcanvas.pack(side="top", fill="both", expand=1)
+        
+        #self.toolbar = NavigationToolbar2Tk(self.canvas, self.root)
+        #self.toolbar.update()
+        #self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         
         #self.label = tk.Label(self.root, text="Scolisis Chest Deformity", font=("Arial",18))
         #self.label.pack(padx=10,pady=10)
@@ -49,8 +67,11 @@ class MyGUI:
             image_array = sitk.GetArrayFromImage(image)
         else:
             print("File does not exist")
-            
-        plt.imshow(image_array[200, :, :])
+        
+        a = self.fig.add_subplot(111)
+        a.imshow(image_array[200, :, :])
+        self.canvas.draw()
+        
         
     def show_message(self):
         if self.check_state.get() == 0:
@@ -59,5 +80,4 @@ class MyGUI:
             messagebox.showinfo(title="Message", message=self.textbox.get("1.0",tk.END))  
             
     
-        
 MyGUI()

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 import SimpleITK as sitk
 import pandas as pd
-from Tools.Deformity_Parameters import calculate_parameter  #, angle_trunk_rotation, pectus_index, sagital_diameter, steep_vertebral
+from Tools.Deformity_Parameters import calculate_parameter  
 
 
 class GUI_Functionality:
@@ -30,6 +30,20 @@ class GUI_Functionality:
         self.current_param = None
         self.dict_landmarks = {}
         self.dict_parameters = {}
+        self.start_slice = None
+        self.end_slice = None
+        
+        #parameters
+        self.assymetry_index = "assymetry index"
+        self.trunk_rotation = "angle trunk rotation"
+        self.pectus_index = "pectus index"
+        self.sagital_diameter = "sagital diameter"
+        self.steep_vertebral = "steep vertebral"
+        self.dict_num_points = {self.assymetry_index : 4,
+                                self.trunk_rotation: 2,
+                                self.pectus_index: 4, 
+                                self.sagital_diameter: 2, 
+                                self.steep_vertebral: 2}
         
         #Buttons
         self.button_open_image = self.layout.master.button_open_image
@@ -45,22 +59,31 @@ class GUI_Functionality:
         self.button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice())
         
         self.button_assymetry_index = self.layout.master.button_assymetry_index
-        self.button_assymetry_index.bind('<Button-1>', lambda event: self.calc_assymetry_index())
+        self.button_assymetry_index.bind('<Button-1>', lambda event: self.get_parameter(self.assymetry_index, self.slice_number))
         
         self.button_trunk_angle = self.layout.master.button_trunk_angle
-        self.button_trunk_angle.bind('<Button-1>', lambda event: self.calc_trunk_angle())
+        self.button_trunk_angle.bind('<Button-1>', lambda event: self.get_parameter(self.trunk_rotation, self.slice_number))
         
         self.button_pectus_index = self.layout.master.button_pectus_index
-        self.button_pectus_index.bind('<Button-1>', lambda event: self.calc_pectus_index())
+        self.button_pectus_index.bind('<Button-1>', lambda event: self.get_parameter(self.pectus_index, self.slice_number))
         
         self.button_sagital_diameter = self.layout.master.button_sagital_diameter
-        self.button_sagital_diameter.bind('<Button-1>', lambda event: self.calc_sagital_diameter())
+        self.button_sagital_diameter.bind('<Button-1>', lambda event: self.get_parameter(self.sagital_diameter, self.slice_number))
         
         self.button_steep_vertebral = self.layout.master.button_steep_vertebral
-        self.button_steep_vertebral.bind('<Button-1>', lambda event: self.calc_steep_vertebral())
+        self.button_steep_vertebral.bind('<Button-1>', lambda event: self.get_parameter(self.steep_vertebral, self.slice_number))
         
         self.button_save_parameters = self.layout.master.button_save_parameters
         self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
+        
+        self.button_begin = self.layout.master.button_begin
+        self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start", self.slice_number))
+        
+        self.button_end = self.layout.master.button_end
+        self.button_end.bind('<Button-1>', lambda event: self.set_slice("end", self.slice_number))
+        
+        self.button_landmark_extension = self.layout.master.button_landmark_extension
+        self.button_landmark_extension.bind('<Button-1>', lambda event: self.landmark_extension(self.start_slice, self.end_slice))
         
         #entrys
         self.slice_entry = self.layout.master.slice_entry
@@ -112,8 +135,24 @@ class GUI_Functionality:
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
         finally:
             self.slice_entry.delete(0, "end")
+            
     
-    def get_points(self, num_points=4):
+    def set_slice(self, position, slice_number):
+        if position == "start":
+            if self.end_slice == None or self.end_slice > slice_number:
+                self.start_slice = slice_number
+                print(self.start_slice)
+            else: 
+                messagebox.showinfo(title="Error", message="Starting slice has to come before the end slice")
+            
+        elif position == "end":
+            if self.start_slice == None or self.start_slice < slice_number:
+                self.end_slice = slice_number
+                print(self.end_slice)
+            else:
+                messagebox.showinfo(title="Error", message="End slice has to come after the starting slice")
+    
+    def get_points(self, parameter, slice_num):
         #show the image in new window
         plt.imshow(self.image_array[self.slice_number, :, :],cmap=self.map)
 
@@ -121,31 +160,66 @@ class GUI_Functionality:
         pts = []
         
         #retreive the points 
-        pts = np.asarray(plt.ginput(num_points, timeout=-1))
+        pts = np.asarray(plt.ginput(self.dict_num_points[parameter], timeout=-1))
         
         plt.close()
+        
+        if f"slice_{slice_num}" not in self.dict_landmarks:
+            # If the key doesn't exist, create it with an empty dictionary as its value
+            self.dict_landmarks[f"slice_{slice_num}"] = {}
             
+        if parameter == self.trunk_rotation:
+            self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = pts[0,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = pts[1,:]
+        elif parameter == self.assymetry_index: 
+            self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = pts[0,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = pts[1,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = pts[2,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = pts[3,:]
+        elif parameter == self.pectus_index: 
+            self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = pts[0,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = pts[1,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = pts[2,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = pts[3,:]
+        elif parameter == self.sagital_diameter: 
+            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = pts[0,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_13"] = pts[1,:]
+        elif parameter == self.steep_vertebral:
+            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = pts[0,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = pts[1,:]
         
         #display the marked point in the GUI
         #self.layout.draw_landmarks(pts)
         
         return pts
 
-    
-    def add_parameter(self):
+    def get_parameter(self, parameter, slice_number):
+        self.current_param = parameter
+        if self.image_array is not None:
+            self.get_points(parameter, slice_number)
+            
+            self.layout.show_landmarks(slice_number, self.dict_landmarks)
+
+            param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3)
+            print(param_value)
+            self.add_parameter(parameter, param_value, slice_number)
+            self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_number))
+        else:
+            messagebox.showinfo(title="Message", message="must open image first")
+        
+    def add_parameter(self, parameter, param_value, slice_number):
         if self.df_params is None:  
             self.df_params = pd.DataFrame({'Parameter': [], 'Value': [], "Slice":[]})
             
-        if self.current_param is not None and self.param_value is not None:
-            new_row = {'Parameter': self.current_param, 'Value': self.param_value, "Slice": self.slice_number}
-            self.df_params = self.df_params.append(new_row, ignore_index=True)
+        new_row = {'Parameter': parameter, 'Value': param_value, "Slice": slice_number}
+        self.df_params = self.df_params.append(new_row, ignore_index=True)
         
-        if self.current_param is not None and self.param_value is not None:
-            if f"slice_{self.slice_number}" not in self.dict_parameters:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_parameters[f"{self.slice_number}"] = {}
+      
+        if f"slice_{slice_number}" not in self.dict_parameters:
+            # If the key doesn't exist, create it with an empty dictionary as its value
+            self.dict_parameters[f"{slice_number}"] = {}
             
-            self.dict_parameters[f"{self.slice_number}"][f"{self.current_param}"] = self.param_value
+        self.dict_parameters[f"{slice_number}"][f"{parameter}"] = param_value
         
     def save_parameters(self):
         if self.df_params is not None:
@@ -153,11 +227,19 @@ class GUI_Functionality:
             file_name = dialog.get_input()
             self.df_params.to_csv(f'{file_name}.csv', index=False)
             
+    def landmark_extension(self, start_slice, end_slice): 
+        parameter = self.assymetry_index
+        
+        original_seeds = []
+        for i in range(start_slice, end_slice, 50):
+            self.get_points(parameter, i)
+            original_seeds.append(i)
     
+"""
     def calc_assymetry_index(self):
-        self.current_param = "assymetry index"
+        self.current_param = self.assymetry_index
         if self.image_array is not None:
-            pts = self.get_points(num_points=4)
+            pts = self.get_points(self.assymetry_index)
             
             if f"slice_{self.slice_number}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
@@ -178,9 +260,9 @@ class GUI_Functionality:
             messagebox.showinfo(title="Message", message="must open image first")
     
     def calc_trunk_angle(self):
-        self.current_param = "angle trunk rotation"
+        self.current_param = self.trunk_rotation
         if self.image_array is not None:
-            pts = self.get_points(num_points=2)
+            pts = self.get_points(self.trunk_rotation)
             
             
             if f"slice_{self.slice_number}" not in self.dict_landmarks:
@@ -200,10 +282,9 @@ class GUI_Functionality:
             messagebox.showinfo(title="Message", message="must open image first")
     
     def calc_pectus_index(self):
-        self.current_param = "pectus index"
+        self.current_param = self.pectus_index
         if self.image_array is not None:
-            pts = self.get_points(num_points=4)
-            
+            pts = self.get_points(self.pectus_index)
             
             if f"slice_{self.slice_number}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
@@ -224,9 +305,9 @@ class GUI_Functionality:
             messagebox.showinfo(title="Message", message="must open image first")
     
     def calc_sagital_diameter(self):
-        self.current_param = "sagital diameter"
+        self.current_param = self.sagital_diameter
         if self.image_array is not None:
-            pts = self.get_points(num_points=2)
+            pts = self.get_points(self.sagital_diameter)
             
             
             if f"slice_{self.slice_number}" not in self.dict_landmarks:
@@ -268,5 +349,7 @@ class GUI_Functionality:
             self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
-            
+   
+"""
+
             

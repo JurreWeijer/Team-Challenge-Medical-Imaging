@@ -164,19 +164,22 @@ class GUI_Layout:
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Landmark Extension", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.manual_parameter_label.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-        self.master.button_begin = customtkinter.CTkButton(self.master.button_frame, text = "begin", font = ("Arial",18), )
+        self.master.button_begin = customtkinter.CTkButton(self.master.button_frame, text = "set startpoint", font = ("Arial",18), )
         self.master.button_begin.grid(row=6, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_end = customtkinter.CTkButton(self.master.button_frame, text = "end", font = ("Arial",18), )
+        self.master.button_end = customtkinter.CTkButton(self.master.button_frame, text = "set endpoint", font = ("Arial",18), )
         self.master.button_end.grid(row=6, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "compute parameters", font = ("Arial",18), )
-        self.master.compute_parameters.grid(row=7, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_landmark_extension = customtkinter.CTkButton(self.master.button_frame, text = "compute landmarks", font = ("Arial",18), )
+        self.master.button_landmark_extension.grid(row=7, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "compute parameter", font = ("Arial",18), )
+        self.master.compute_parameters.grid(row=8, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def automatic_buttons(self):
         
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.manual_parameter_label.grid(row= 8, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        self.master.manual_parameter_label.grid(row= 9, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)

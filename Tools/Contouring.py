@@ -83,10 +83,10 @@ def SingleSliceContour(slice, plot = False):
     canny_output = cv.Canny(image = slice, threshold1=0.5, threshold2=2)
 
     try:
-        contour_img, contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     except:
         raise RuntimeError(
-            "cv.findContours not working, most likely a wrong version of OpenCV, program was written for 3.4.2")
+            "cv.findContours not working, most likely a wrong version of OpenCV, program was written for >4.0.0")
 
     hull_list = []
     centroid_list = []
@@ -109,7 +109,6 @@ def SingleSliceContour(slice, plot = False):
         canvas = np.zeros_like(slice)
 
         plt.figure()
-        plt.imshow(contour_img, cmap="gray")
         for i in range(len(hull_list)):
             plt.scatter(centroid_list[i][0], centroid_list[i][1], marker='P', color=cmap(i), s=4)
             plt.scatter(hull_list[i][:, 0, 0], hull_list[i][:, 0, 1], color=cmap(i), s=2)

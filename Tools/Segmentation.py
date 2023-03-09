@@ -140,7 +140,7 @@ if __name__ == '__main__':
         img_processed = sitk.ReadImage(str(datapath/"mask_result.nii"))
         img_largest = sitk.ReadImage(str(datapath/ "LargestComponent.nii"))
 
-    segmentation_mask = img_largest
+    segmentation_mask = sitk.GetArrayFromImage(img_largest)
 
     slice_num = 100
 

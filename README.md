@@ -5,13 +5,20 @@ This project is for the UU & TU/e MiX master project Team Challenge.
 The goal is to create a program that imports CT scans from scoliotic and non-scoliotic patients and calculates some kind of metric for the trunk deformity.
 
 ## Table of Contents
-- [Getting started](#getting-started)
+- [For users](#users)
+- [Contribute](#Contributing)
 - [Good to Know](#good-to-know)
 - [Making code changes](#making-code-changes)
 
-## Getting started
+## Users
 
-### On your Windows machine
+**This tool is under development, metrics are probably not accurate under all circumstances**
+
+To activate the GUI of the tool, make sure to run the main.py or GUI_main.py file. If this does not work, you can find a .exe file in the distributables folder
+
+## Contributing
+
+### Setup on your Windows machine
 1. Install [Anaconda](https://www.anaconda.com/) for easy environment setup
 2. Install [Github Desktop](https://desktop.github.com/) for easy push and pull commits
 3. Clone the Github repository by opening Github Desktop and going to file --> Clone repository. Make sure you select the right folder to place the repository in the bottom of the window.

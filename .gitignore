@@ -4,5 +4,6 @@
 .idea/**/shelf
 /Data/
 /data/
+Distribution/
 .idea/workspace.xml
 *.pyc

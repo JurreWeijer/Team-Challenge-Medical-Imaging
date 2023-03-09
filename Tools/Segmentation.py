@@ -12,7 +12,7 @@ import cv2 as cv
 
 
 # datapath to map with Scoliotic and Nonscoliotic data, assumed to be in the same folder as your code
-datapath = Path("./Data")
+datapath = Path("../Data")
 
 scoliosis_path = datapath / "Scoliose"
 

@@ -13,7 +13,7 @@ import scipy.optimize as optim
 MaskFile = "LargestComponent.nii"
 
 # datapath to map with Scoliotic and Nonscoliotic data, assumed to be in the same folder as your code
-datapath = Path("./Data")
+datapath = Path("../Data")
 scoliosis_path = datapath / "Scoliose"
 
 def OpenScoliosis(path, name):

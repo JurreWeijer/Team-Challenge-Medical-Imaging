@@ -4,21 +4,13 @@ Created on Sun Feb 19 17:10:27 2023
 
 @author: 20182371
 """
-import customtkinter 
-import tkinter as tk 
-from tkinter import filedialog, messagebox, ttk
-import numpy as np
+import customtkinter
+from tkinter import ttk
 import matplotlib.pyplot as plt
-import os
-from pathlib import Path
-import SimpleITK as sitk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import math
-import pandas as pd
-from PIL import ImageTk, Image
-from Deformity_Parameters import assymetry_index, angle_trunk_rotation, pectus_index, sagital_diameter, steep_vertebral
 
-class GUI_Layout: 
+
+class GUI_Layout:
     
     def __init__(self, master):
         super().__init__()

@@ -4,10 +4,19 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 import customtkinter
+import os
 from GUI.GUI_main import Application
+
+datadir = './Data'
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+
+    if os.path.exists(datadir) is False:
+        os.mkdir(datadir)
+
+    #make sure that upon startup the working directory is changed so the main folder does not get clogged
+    os.chdir(datadir)
 
     root = customtkinter.CTk()
     app = Application(root)

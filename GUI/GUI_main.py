@@ -18,7 +18,6 @@ class Application:
         self.layout = GUI_Layout(master)
         self.functionality = GUI_Functionality(master, self.layout)
 
-
 if __name__ == "__main__":
     
     root = customtkinter.CTk()

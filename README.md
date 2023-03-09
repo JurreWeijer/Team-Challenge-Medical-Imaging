@@ -14,7 +14,7 @@ The goal is to create a program that imports CT scans from scoliotic and non-sco
 
 **This tool is under development, metrics are probably not accurate under all circumstances**
 
-To activate the GUI of the tool, make sure to run the main.py or GUI_main.py file. If this does not work, you can find a .exe file in the distributables folder
+To activate the GUI of the tool, make sure to run the main.py file. If this does not work, you can find a .exe file in the distributables folder
 
 ## Contributing
 

@@ -12,7 +12,10 @@ import matplotlib.pyplot as plt
 import os
 import SimpleITK as sitk
 import pandas as pd
-from Tools.Deformity_Parameters import calculate_parameter  
+from Tools.Deformity_Parameters import calculate_parameter 
+from scipy.ndimage import gaussian_filter 
+from skimage import feature
+import math
 
 
 class GUI_Functionality:
@@ -44,6 +47,11 @@ class GUI_Functionality:
                                 self.pectus_index: 4, 
                                 self.sagital_diameter: 2, 
                                 self.steep_vertebral: 2}
+        self.dict_landmark_num = {self.assymetry_index : [5,6,7,8], 
+                                  self.trunk_rotation : [3,4], 
+                                  self.pectus_index : [9,10,11,12],
+                                  self.sagital_diameter: [11,13], 
+                                  self.steep_vertebral: [11,12]}
         
         #Buttons
         self.button_open_image = self.layout.master.button_open_image
@@ -154,44 +162,43 @@ class GUI_Functionality:
     
     def get_points(self, parameter, slice_num):
         #show the image in new window
-        plt.imshow(self.image_array[self.slice_number, :, :],cmap=self.map)
+        plt.imshow(self.image_array[slice_num, :, :],cmap=self.map)
 
-        #emplty list for the points 
-        pts = []
-        
-        #retreive the points 
-        pts = np.asarray(plt.ginput(self.dict_num_points[parameter], timeout=-1))
-        
+        #retreive points
+        points = []
+        points = np.asarray(plt.ginput(self.dict_num_points[parameter], timeout=-1))
+
         plt.close()
+        
         
         if f"slice_{slice_num}" not in self.dict_landmarks:
             # If the key doesn't exist, create it with an empty dictionary as its value
             self.dict_landmarks[f"slice_{slice_num}"] = {}
             
         if parameter == self.trunk_rotation:
-            self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = pts[0,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = pts[1,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = points[0,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = points[1,:].astype(int)
         elif parameter == self.assymetry_index: 
-            self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = pts[0,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = pts[1,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = pts[2,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = pts[3,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = points[0,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = points[1,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = points[2,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = points[3,:].astype(int)
         elif parameter == self.pectus_index: 
-            self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = pts[0,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = pts[1,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = pts[2,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = pts[3,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = points[0,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = points[1,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = points[2,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = points[3,:].astype(int)
         elif parameter == self.sagital_diameter: 
-            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = pts[0,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_13"] = pts[1,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = points[0,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_13"] = points[1,:].astype(int)
         elif parameter == self.steep_vertebral:
-            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = pts[0,:]
-            self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = pts[1,:]
+            self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = points[0,:].astype(int)
+            self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = points[1,:].astype(int)
         
         #display the marked point in the GUI
         #self.layout.draw_landmarks(pts)
         
-        return pts
+        return points
 
     def get_parameter(self, parameter, slice_number):
         self.current_param = parameter
@@ -230,10 +237,95 @@ class GUI_Functionality:
     def landmark_extension(self, start_slice, end_slice): 
         parameter = self.assymetry_index
         
+        #retreive the input seed and put them into the point dicts
+        #save the slice used for seed in the original_seeds list
         original_seeds = []
         for i in range(start_slice, end_slice, 50):
             self.get_points(parameter, i)
             original_seeds.append(i)
+        
+        for point in self.dict_landmark_num[parameter]:
+            n_seed = 0
+            prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
+            print(prev_seed.dtype)
+            for i in range(26):
+                next_seed = self.GetNextSeed(self.image_array[start_slice+i+1,:,:], prev_seed)
+                
+                if f"slice_{original_seeds[0]+i}" not in self.dict_landmarks:
+                    # If the key doesn't exist, create it with an empty dictionary as its value
+                    self.dict_landmarks[f"slice_{original_seeds[n_seed]+i}"] = {}
+                    
+                self.dict_landmarks[f"slice_{original_seeds[n_seed]+i}"][f"point_{point}"] = next_seed  
+                prev_seed = next_seed
+            
+            
+            #after first 25 propagate from next seed up
+            for i in range(start_slice+50,end_slice, 50):
+                n_seed += 1
+                
+                prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
+
+                for j in range(25):
+                    next_seed = self.GetNextSeed(self.image_array[start_slice+j-1,:,:], prev_seed)
+                    
+                    if f"slice_{original_seeds[n_seed]-j}" not in self.dict_landmarks:
+                        # If the key doesn't exist, create it with an empty dictionary as its value
+                        self.dict_landmarks[f"slice_{original_seeds[n_seed]-j}"] = {}
+                        
+                    self.dict_landmarks[f"slice_{original_seeds[n_seed]-j}"][f"point_{point}"] = next_seed  
+                    prev_seed = next_seed
+                
+                #set prev_seed back to input seed point
+                prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
+                
+                for k in range(26):
+                    next_seed = self.GetNextSeed(self.image_array[start_slice+k+1,:,:], prev_seed)
+                    
+                    if f"slice_{original_seeds[n_seed]+k}" not in self.dict_landmarks:
+                        # If the key doesn't exist, create it with an empty dictionary as its value
+                        self.dict_landmarks[f"slice_{original_seeds[n_seed]+k}"] = {}
+                        
+                    self.dict_landmarks[f"slice_{original_seeds[n_seed]+k}"][f"point_{point}"] = next_seed  
+                    prev_seed = next_seed
+                
+       
+        
+    
+    def GetNextSeed(self, work_slice, seed):
+        
+        seedx = seed[0]
+        seedy = seed[1]
+        
+        gaussian = gaussian_filter(work_slice, sigma=3)
+        edges1 = feature.canny(gaussian, sigma = 3)
+        #window = edges1[seedy-100:seedy+100,seedx-100:seedx+100]
+        
+        #find closest gradient points within an increading radius i 
+        i = 1
+        near_points = []
+        looking = True
+        while(looking):
+            for k in range((seedx-i),(seedx+i+1)):
+                for j in range(seedy-i,seedy+i+1):
+                    if edges1[k,j]:
+                        near_points.append((k,j))
+            i += 1
+            if len(near_points) != 0:
+                looking = False
+            #stops looking when we find the first gradient points 
+            
+        # now we need to determine which one is the closest
+        #get the euclidean distance from all and decide on the new seed
+        min_distance = math.dist((seedx,seedy), (near_points[0]))
+        next_seed = near_points[0]
+        for point in near_points:
+            if math.dist((seedx,seedy), point) < min_distance:
+                min_distance = math.dist((seedx,seedy), point)
+                next_seed = point
+                
+
+            
+        return next_seed 
     
 """
     def calc_assymetry_index(self):

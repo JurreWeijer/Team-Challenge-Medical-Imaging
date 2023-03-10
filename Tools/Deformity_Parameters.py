@@ -11,24 +11,24 @@ def calculate_parameter(dict_landmarks, parameter, n_slice):
     
     points = dict_landmarks[f"slice_{n_slice}"]
     
-    if parameter == "angle trunk rotation":
+    if parameter == "Angle Trunk Rotation":
         # Angle of trunk rotation = angle between line 1 -> 2 and line 3 -> 4
         # angle = cos(aanliggend/schuin) = cos(deltax/dis(3,4))
         angle_trunk = np.cos((points["point_3"][0]-points["point_4"][0])/np.sqrt((points["point_3"][0]-points["point_4"][0])**2+(points["point_3"][1]-points["point_4"][1])**2)) # add calculation 
         return angle_trunk
-    elif parameter == "assymetry index":
+    elif parameter == "Assymetry Index":
         # Assymetry index = 1-(dis(5,6)/dis(7,8))
         assymetry_index = 1 - (np.sqrt((points["point_5"][0]-points["point_6"][0])**2+(points["point_5"][1]-points["point_6"][1])**2)/np.sqrt((points["point_7"][0]-points["point_8"][0])**2+(points["point_7"][1]-points["point_8"][1])**2))
         return assymetry_index
-    elif parameter == "pectus index":
+    elif parameter == "Pectus Index":
         # Pectus index = dis(9,10)/dis(11,12)
         pectus_index = np.sqrt((points["point_9"][0]-points["point_10"][0])**2+(points["point_9"][1]-points["point_10"][1])**2)/np.sqrt((points["point_11"][0]-points["point_12"][0])**2+(points["point_11"][1]-points["point_12"][1])**2)
         return pectus_index
-    elif parameter == "sagital diameter":
+    elif parameter == "Sagital Diameter":
         # Sagital diameter = dis(11,13)
         sagital_diameter = np.sqrt((points["point_11"][0]-points["point_13"][0])**2+(points["point_11"][1]-points["point_13"][1])**2)
         return sagital_diameter
-    elif parameter == "steep vertebral":
+    elif parameter == "Steep Vertebral":
         # Steep vertebral distance = dis(11,12)
         steep_vertebral = np.sqrt((points["point_11"][0]-points["point_12"][0])**2+(points["point_11"][1]-points["point_12"][1])**2)
         return steep_vertebral

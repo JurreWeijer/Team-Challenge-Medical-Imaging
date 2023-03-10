@@ -37,16 +37,16 @@ class GUI_Functionality:
         self.end_slice = None
         
         #parameters
-        self.assymetry_index = "assymetry index"
-        self.trunk_rotation = "angle trunk rotation"
-        self.pectus_index = "pectus index"
-        self.sagital_diameter = "sagital diameter"
-        self.steep_vertebral = "steep vertebral"
-        self.dict_num_points = {self.assymetry_index : 4,
-                                self.trunk_rotation: 2,
-                                self.pectus_index: 4, 
-                                self.sagital_diameter: 2, 
-                                self.steep_vertebral: 2}
+        self.assymetry_index = "Assymetry Index"
+        self.trunk_rotation = "Angle Trunk Rotation"
+        self.pectus_index = "Pectus Index"
+        self.sagital_diameter = "Sagital Diameter"
+        self.steep_vertebral = "Steep Vertebral"
+        #self.dict_num_points = {self.assymetry_index : 4,
+        #                        self.trunk_rotation: 2,
+        #                        self.pectus_index: 4, 
+        #                        self.sagital_diameter: 2, 
+        #                        self.steep_vertebral: 2}
         self.dict_landmark_num = {self.assymetry_index : [5,6,7,8], 
                                   self.trunk_rotation : [3,4], 
                                   self.pectus_index : [9,10,11,12],
@@ -93,8 +93,11 @@ class GUI_Functionality:
         self.button_landmark_extension = self.layout.master.button_landmark_extension
         self.button_landmark_extension.bind('<Button-1>', lambda event: self.landmark_extension(self.start_slice, self.end_slice))
         
+        self.button_change_landmarks = self.layout.master.button_change_landmarks
+        self.button_change_landmarks.bind('<Button-1>', lambda event: self.change_landmarks(self.parameter_menu.get(), self.slice_number))
+        
         self.button_compute_parameters = self.layout.master.compute_parameters
-        self.button_compute_parameters.bind('<Button-1>', lambda event: self.test())
+        self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points = False))
         
         #entrys
         self.slice_entry = self.layout.master.slice_entry
@@ -120,14 +123,14 @@ class GUI_Functionality:
             if 0 < self.slice_number < np.shape(self.image_array)[0]:
                 self.slice_number += 1
                 self.layout.draw_image(self.image_array, self.slice_number, self.map)
-                self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+                self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
     
     def previous_slice(self):
         if self.image_array is not None:
             if 0 < self.slice_number < np.shape(self.image_array)[0]:
                 self.slice_number -= 1
                 self.layout.draw_image(self.image_array, self.slice_number, self.map)
-                self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+                self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
     
     def go_to_slice(self):
         try:
@@ -141,7 +144,7 @@ class GUI_Functionality:
                 # check if the slice number is within the range of the image
                 if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
                     self.layout.draw_image(self.image_array, self.slice_number, self.map)
-                    self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+                    self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
                 else:
                     # error message in the text frame that the slice number is out of range
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
@@ -153,14 +156,12 @@ class GUI_Functionality:
         if position == "start":
             if self.end_slice == None or self.end_slice > slice_number:
                 self.start_slice = slice_number
-                print(self.start_slice)
             else: 
                 messagebox.showinfo(title="Error", message="Starting slice has to come before the end slice")
             
         elif position == "end":
             if self.start_slice == None or self.start_slice < slice_number:
                 self.end_slice = slice_number
-                print(self.end_slice)
             else:
                 messagebox.showinfo(title="Error", message="End slice has to come after the starting slice")
     
@@ -170,7 +171,7 @@ class GUI_Functionality:
 
         #retreive points
         points = []
-        points = np.asarray(plt.ginput(self.dict_num_points[parameter], timeout=-1))
+        points = np.asarray(plt.ginput(len(self.dict_landmark_num[parameter]), timeout=-1))
 
         plt.close()
         
@@ -204,15 +205,15 @@ class GUI_Functionality:
         
         return points
 
-    def get_parameter(self, parameter, slice_number):
+    def get_parameter(self, parameter, slice_number, get_points = True):
         self.current_param = parameter
         if self.image_array is not None:
-            self.get_points(parameter, slice_number)
+            if get_points == True:
+                self.get_points(parameter, slice_number)
             
             self.layout.show_landmarks(slice_number, self.dict_landmarks)
 
-            param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3)
-            print(param_value)
+            param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3) 
             self.add_parameter(parameter, param_value, slice_number)
             self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_number))
         else:
@@ -239,9 +240,7 @@ class GUI_Functionality:
             self.df_params.to_csv(f'{file_name}.csv', index=False)
             
     def landmark_extension(self, start_slice, end_slice):
-        test = self.parameter_menu.get()
-        print(test)
-        parameter = self.assymetry_index
+        parameter = self.parameter_menu.get()
         
         #retreive the input seed and put them into the point dicts
         #save the slice used for seed in the original_seeds list
@@ -253,7 +252,6 @@ class GUI_Functionality:
         for point in self.dict_landmark_num[parameter]:
             n_seed = 0
             prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
-            print(prev_seed.dtype)
             for i in range(26):
                 next_seed = self.GetNextSeed(self.image_array[start_slice+i+1,:,:], prev_seed)
                 
@@ -329,13 +327,14 @@ class GUI_Functionality:
                 min_distance = math.dist((seedx,seedy), point)
                 next_seed = point
                 
-
-            
         return next_seed 
     
-    def test(self):
-        test = self.parameter_menu.get()
-        print(test)
+    def change_landmarks(self,parameter, slice_number):
+        self.get_points(parameter, slice_number)
+    
+        self.layout.show_landmarks(self.image_array, slice_number, self.dict_landmarks, self.map)
+        
+   
     
 """
     def calc_assymetry_index(self):
@@ -352,7 +351,7 @@ class GUI_Functionality:
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_7"] = pts[2,:]
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_8"] = pts[3,:]
             
-            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
 
             self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
             
@@ -374,7 +373,7 @@ class GUI_Functionality:
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_3"] = pts[0,:]
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_4"] = pts[1,:]
             
-            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
             
             self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
             
@@ -397,7 +396,7 @@ class GUI_Functionality:
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[2,:]
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_12"] = pts[3,:]
             
-            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
             
             self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
             
@@ -420,7 +419,7 @@ class GUI_Functionality:
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_13"] = pts[1,:]
             
             
-            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
             
             self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
         
@@ -443,7 +442,7 @@ class GUI_Functionality:
             self.dict_landmarks[f"slice_{self.slice_number}"]["point_12"] = pts[1,:]
             
             
-            self.layout.show_landmarks(self.slice_number, self.dict_landmarks)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
             
             self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
             

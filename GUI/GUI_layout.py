@@ -177,13 +177,16 @@ class GUI_Layout:
         self.master.button_landmark_extension = customtkinter.CTkButton(self.master.button_frame, text = "compute landmarks", font = ("Arial",18), )
         self.master.button_landmark_extension.grid(row=8, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
+        self.master.button_change_landmarks = customtkinter.CTkButton(self.master.button_frame, text = "change landmarks", font = ("Arial",18), )
+        self.master.button_change_landmarks.grid(row=9, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
         self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "compute parameter", font = ("Arial",18), )
-        self.master.compute_parameters.grid(row=9, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.compute_parameters.grid(row=10, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def automatic_buttons(self):
         
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.manual_parameter_label.grid(row= 10, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        self.master.manual_parameter_label.grid(row= 11, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -204,11 +207,10 @@ class GUI_Layout:
         self.master.canvas.draw()
     
     def draw_landmarks(self, landmarks):
-        #display the marked point in the GUI
         self.master.subplot.scatter(landmarks[:,0],landmarks[:,1], c="red", marker = "x")
         self.master.canvas.draw()
     
-    def show_landmarks(self, n_slice, dict_landmarks):
+    def show_landmarks(self, data, n_slice, dict_landmarks, cmap):
         
         if f"slice_{n_slice}" in dict_landmarks:
             landmarks_x = []
@@ -216,7 +218,12 @@ class GUI_Layout:
             for k in dict_landmarks[f"slice_{n_slice}"].keys():
                 landmarks_x.append(dict_landmarks[f"slice_{n_slice}"][k][0])
                 landmarks_y.append(dict_landmarks[f"slice_{n_slice}"][k][1])
-        
+            
+            self.master.subplot.cla()
+            self.master.subplot.imshow(data[n_slice, :, :], cmap=cmap)
+            self.master.subplot.axis('off')
+            self.master.subplot.text(0.95, 0.05, f"slice number: {n_slice}", transform=self.master.subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+            self.master.canvas.draw()
             self.master.subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
             self.master.canvas.draw()
     

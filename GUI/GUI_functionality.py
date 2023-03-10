@@ -93,8 +93,12 @@ class GUI_Functionality:
         self.button_landmark_extension = self.layout.master.button_landmark_extension
         self.button_landmark_extension.bind('<Button-1>', lambda event: self.landmark_extension(self.start_slice, self.end_slice))
         
+        self.button_compute_parameters = self.layout.master.compute_parameters
+        self.button_compute_parameters.bind('<Button-1>', lambda event: self.test())
+        
         #entrys
         self.slice_entry = self.layout.master.slice_entry
+        self.parameter_menu = self.layout.master.parameter_menu
         
         #table 
         self.output_table = self.layout.master.table
@@ -234,7 +238,9 @@ class GUI_Functionality:
             file_name = dialog.get_input()
             self.df_params.to_csv(f'{file_name}.csv', index=False)
             
-    def landmark_extension(self, start_slice, end_slice): 
+    def landmark_extension(self, start_slice, end_slice):
+        test = self.parameter_menu.get()
+        print(test)
         parameter = self.assymetry_index
         
         #retreive the input seed and put them into the point dicts
@@ -326,6 +332,10 @@ class GUI_Functionality:
 
             
         return next_seed 
+    
+    def test(self):
+        test = self.parameter_menu.get()
+        print(test)
     
 """
     def calc_assymetry_index(self):

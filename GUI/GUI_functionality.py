@@ -210,9 +210,8 @@ class GUI_Functionality:
         if self.image_array is not None:
             if get_points == True:
                 self.get_points(parameter, slice_number)
+                self.layout.show_landmarksshow_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
             
-            self.layout.show_landmarks(slice_number, self.dict_landmarks)
-
             param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3) 
             self.add_parameter(parameter, param_value, slice_number)
             self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_number))

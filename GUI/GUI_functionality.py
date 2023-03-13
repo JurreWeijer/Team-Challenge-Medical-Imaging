@@ -42,11 +42,6 @@ class GUI_Functionality:
         self.pectus_index = "Pectus Index"
         self.sagital_diameter = "Sagital Diameter"
         self.steep_vertebral = "Steep Vertebral"
-        #self.dict_num_points = {self.assymetry_index : 4,
-        #                        self.trunk_rotation: 2,
-        #                        self.pectus_index: 4, 
-        #                        self.sagital_diameter: 2, 
-        #                        self.steep_vertebral: 2}
         self.dict_landmark_num = {self.assymetry_index : [5,6,7,8], 
                                   self.trunk_rotation : [3,4], 
                                   self.pectus_index : [9,10,11,12],
@@ -91,7 +86,7 @@ class GUI_Functionality:
         self.button_end.bind('<Button-1>', lambda event: self.set_slice("end", self.slice_number))
         
         self.button_landmark_extension = self.layout.master.button_landmark_extension
-        self.button_landmark_extension.bind('<Button-1>', lambda event: self.landmark_extension(self.start_slice, self.end_slice))
+        self.button_landmark_extension.bind('<Button-1>', lambda event: self.landmark_extension_test(self.start_slice, self.end_slice))
         
         self.button_change_landmarks = self.layout.master.button_change_landmarks
         self.button_change_landmarks.bind('<Button-1>', lambda event: self.change_landmarks(self.parameter_menu.get(), self.slice_number))
@@ -210,7 +205,7 @@ class GUI_Functionality:
         if self.image_array is not None:
             if get_points == True:
                 self.get_points(parameter, slice_number)
-                self.layout.show_landmarksshow_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+                self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
             
             param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3) 
             self.add_parameter(parameter, param_value, slice_number)
@@ -290,10 +285,50 @@ class GUI_Functionality:
                         
                     self.dict_landmarks[f"slice_{original_seeds[n_seed]+k}"][f"point_{point}"] = next_seed  
                     prev_seed = next_seed
-                
-       
-        
     
+    def landmark_extension_test(self, start_slice, end_slice):
+        parameter = self.parameter_menu.get()
+        
+        #retreive the input seed and put them into the point dicts
+        #save the slice used for seed in the original_seeds list
+        original_seeds = []
+        for i in range(start_slice, end_slice, 25):
+            self.get_points(parameter, i)
+            original_seeds.append(i)
+        
+        print(original_seeds)
+        
+        for point in self.dict_landmark_num[parameter]:
+            for n_seed in range(0,len(original_seeds)-1, 1):
+                up_seed = []
+                down_seed = []
+                prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
+                
+                for i in range(original_seeds[n_seed]+1, original_seeds[n_seed+1], 1):
+                    next_seed = self.GetNextSeed(self.image_array[i,:,:], prev_seed)
+                    up_seed.append(next_seed)
+                    prev_seed = next_seed
+                
+                prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed+1]}"][f"point_{point}"]
+                
+                for j in range(original_seeds[n_seed+1]+1, original_seeds[n_seed], -1):
+                    next_seed = self.GetNextSeed(self.image_array[j,:,:], prev_seed)
+                    down_seed.append(next_seed)
+                    prev_seed = next_seed
+                
+                print(len(up_seed))
+                for k in range(len(up_seed)): 
+                    seed_x = ((23-1-k) * up_seed[k][0] + (k+1) * down_seed[-k][0])/23
+                    seed_y = ((23-1-k) * up_seed[k][1] + (k+1)* down_seed[-k][1])/23
+                    seed = (seed_x, seed_y)
+                    
+                    if f"slice_{original_seeds[n_seed]+k+1}" not in self.dict_landmarks:
+                        # If the key doesn't exist, create it with an empty dictionary as its value
+                        self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"] = {}
+                        
+                    self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"][f"point_{point}"] = seed
+                    
+                
     def GetNextSeed(self, work_slice, seed):
         
         seedx = seed[0]

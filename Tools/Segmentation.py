@@ -34,16 +34,12 @@ OpeningFilter = sitk.BinaryMorphologicalOpeningImageFilter()
 ClosingFilter = sitk.BinaryMorphologicalClosingImageFilter()
 ThinningFilter = sitk.BinaryThinningImageFilter()
 
-def SimpleSegmentation(image):
+def SimpleSegmentation(image, threshold = 150, OpeningSize = 1, ClosingSize = 2):
     #Segments the given grey-scale image based on the following parameters
     #Implements a very basic segmentation with only an opening and closing filter
 
-    threshold = 150
-    OpeningSize = 1
-    ClosingSize = 2
-
     ThresholdFilter.SetLowerThreshold(threshold)
-    ThresholdFilter.SetUpperThreshold(int(np.max(image_array)))
+    ThresholdFilter.SetUpperThreshold(int(np.max(sitk.GetArrayFromImage(image))))
     OpeningFilter.SetKernelRadius(OpeningSize)
     ClosingFilter.SetKernelRadius(ClosingSize)
 

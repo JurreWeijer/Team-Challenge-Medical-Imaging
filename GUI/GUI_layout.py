@@ -24,8 +24,8 @@ class GUI_Layout:
         
         # configure grid layout
         self.master.grid_columnconfigure(0,weight = 1)
-        self.master.grid_columnconfigure((1), weight=3)
-        self.master.grid_columnconfigure((2), weight=2)
+        self.master.grid_columnconfigure(1, weight=3)
+        self.master.grid_columnconfigure(2, weight=2)
         self.master.grid_rowconfigure(0, weight=2)
         self.master.grid_rowconfigure(1, weight=1)
         
@@ -101,8 +101,8 @@ class GUI_Layout:
         
         
     def output_frame(self):
-        self.master.output_frame = customtkinter.CTkFrame(self.master, fg_color = "transparent", corner_radius=(0))
-        self.master.output_frame.grid(row=1, column=1, padx=(10,10), pady=(0,10), sticky='nsew')
+        self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
+        self.master.output_frame.grid(row=1, column=1, padx=(10,10), pady=(0,0), sticky='nsew')
         self.master.output_frame.columnconfigure(0, weight = 1)
         
         self.master.output_label = customtkinter.CTkLabel(self.master.output_frame,  text = "Parameter values", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -187,6 +187,15 @@ class GUI_Layout:
         
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.manual_parameter_label.grid(row= 11, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+
+        self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment automatically", font = ("Arial",18), )
+        self.master.button_segment.grid(row=12, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+
+        self.master.button_contour = customtkinter.CTkButton(self.master.button_frame, text = "Calculate contour", font = ("Arial",18), )
+        self.master.button_contour.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+
+        self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Calculate parameters", font = ("Arial",18), )
+        self.master.button_auto_parameter.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)

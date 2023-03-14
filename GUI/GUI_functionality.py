@@ -12,7 +12,10 @@ import matplotlib.pyplot as plt
 import os
 import SimpleITK as sitk
 import pandas as pd
-from Tools.Deformity_Parameters import calculate_parameter 
+from Tools.Deformity_Parameters import calculate_parameter
+import Tools.Segmentation
+import Tools.Contouring
+
 from scipy.ndimage import gaussian_filter 
 from skimage import feature
 import math
@@ -25,6 +28,9 @@ class GUI_Functionality:
         self.layout = layout
         
         #Variables
+        self.file_path = None
+        self.image = None
+        self.segmented_image = None
         self.image_array = None
         self.slice_number = 200
         self.map = "gray"
@@ -93,6 +99,15 @@ class GUI_Functionality:
         
         self.button_compute_parameters = self.layout.master.compute_parameters
         self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points = False))
+
+        self.button_segment = self.layout.master.button_segment
+        self.button_segment.bind('<Button-1>', lambda event: self.save_segmentation())
+
+        self.button_contour = self.layout.master.button_contour
+        self.button_contour.bind('<Button-1>', lambda event: self.get_contour())
+
+        self.button_auto_parameter = self.layout.master.button_auto_parameter
+        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points=False))
         
         #entrys
         self.slice_entry = self.layout.master.slice_entry
@@ -104,11 +119,11 @@ class GUI_Functionality:
             
     def open_file(self):
         #open directory to find a file
-        file_path = filedialog.askopenfile()
+        self.file_path = filedialog.askopenfile(title = "Open patient image")
         
-        if os.path.splitext(file_path.name)[1] == '.nii':
-            image = sitk.ReadImage(file_path.name)
-            self.image_array = sitk.GetArrayFromImage(image)
+        if os.path.splitext(self.file_path.name)[1] == '.nii':
+            self.image = sitk.ReadImage(self.file_path.name)
+            self.image_array = sitk.GetArrayFromImage(self.image)
             self.layout.draw_image(self.image_array, self.slice_number, self.map)
         else:
             messagebox.showinfo(title="Message", message="incorrect file type")
@@ -367,9 +382,40 @@ class GUI_Functionality:
         self.get_points(parameter, slice_number)
     
         self.layout.show_landmarks(self.image_array, slice_number, self.dict_landmarks, self.map)
-        
-   
-    
+
+    def save_segmentation(self):
+        if self.image is not None:
+            messagebox.showinfo("Segmentation", "Segmentation starting, this can take a while")
+
+            segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
+            self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
+
+            sitk.WriteImage(self.segmented_image, fileName = str(os.getcwd() + "/Segmented.nii"))
+            messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + str(os.getcwd() + "/Segmented.nii"))
+        else:
+            messagebox.showinfo(title="Message", message="Please first select an image")
+
+    def get_contour(self):
+        if self.segmented_image is None:
+            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+            try:
+                self.segmented_image = sitk.ReadImage(segmentation_path.name)
+            except:
+                messagebox.showinfo("Contouring", "Problem with loading the image, please try a different one")
+
+        centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
+
+        print(centroids)
+
+    def progressbar(self, title):
+        # progressbar
+        pb = customtkinter.CTkProgressBar(master = self.master)
+        # place the progressbar
+        pb.grid(column=0, row=0, columnspan=2, padx=10, pady=20)
+        return pb
+
+
+
 """
     def calc_assymetry_index(self):
         self.current_param = self.assymetry_index

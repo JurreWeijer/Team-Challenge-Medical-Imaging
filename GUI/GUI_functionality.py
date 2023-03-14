@@ -385,6 +385,8 @@ class GUI_Functionality:
 
     def save_segmentation(self):
         if self.image is not None:
+            window = self.progressbar("Test")
+            window.grab_set()
             messagebox.showinfo("Segmentation", "Segmentation starting, this can take a while")
 
             segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
@@ -408,11 +410,13 @@ class GUI_Functionality:
         print(centroids)
 
     def progressbar(self, title):
+        window = customtkinter.CTkToplevel(self.master)
         # progressbar
-        pb = customtkinter.CTkProgressBar(master = self.master)
+        pb = customtkinter.CTkProgressBar(master = window)
         # place the progressbar
         pb.grid(column=0, row=0, columnspan=2, padx=10, pady=20)
-        return pb
+        pb.start()
+        return window
 
 
 

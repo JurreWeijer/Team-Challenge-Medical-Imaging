@@ -132,7 +132,7 @@ class GUI_Layout:
         
     def manual_buttons(self):
         self.master.button_frame = customtkinter.CTkFrame(self.master, width = 250, fg_color="transparent", corner_radius=0)
-        self.master.button_frame.grid(row=0, column=2, padx=(5,5), pady=(5,5), sticky="nsew")
+        self.master.button_frame.grid(row=0, column=2, rowspan = 2, padx=(5,5), pady=(5,5), sticky="nsew")
         self.master.button_frame.columnconfigure((0,1), weight = 1)
         
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Manual Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))

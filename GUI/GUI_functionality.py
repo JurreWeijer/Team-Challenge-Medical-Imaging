@@ -385,14 +385,18 @@ class GUI_Functionality:
 
     def save_segmentation(self):
         if self.image is not None:
-            window = self.progressbar("Test")
-            window.grab_set()
-            messagebox.showinfo("Segmentation", "Segmentation starting, this can take a while")
+            window, progressbar = self.progressbar("segmentation")
 
             segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
+
+            progressbar.set(0.5)
+
             self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
 
+            progressbar.set(0.9)
+
             sitk.WriteImage(self.segmented_image, fileName = str(os.getcwd() + "/Segmented.nii"))
+            window.destroy()
             messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + str(os.getcwd() + "/Segmented.nii"))
         else:
             messagebox.showinfo(title="Message", message="Please first select an image")
@@ -409,15 +413,24 @@ class GUI_Functionality:
 
         print(centroids)
 
-    def progressbar(self, title):
+    def progressbar(self, label):
         window = customtkinter.CTkToplevel(self.master)
+        self.master.eval(f"tk::PlaceWindow {str(window)} center")
+
+        window.title(label + " progress")
+        window.geometry("300x150")
+        customtkinter.CTkLabel(window, text = "Please wait for " + label).pack()
         # progressbar
         pb = customtkinter.CTkProgressBar(master = window)
         # place the progressbar
-        pb.grid(column=0, row=0, columnspan=2, padx=10, pady=20)
-        pb.start()
-        return window
+        pb.pack()
 
+        #Make sure the progress bar is set and the window updated
+        window.grab_set()
+        pb.set(0)
+        pb.start()
+        window.update()
+        return window, pb
 
 
 """

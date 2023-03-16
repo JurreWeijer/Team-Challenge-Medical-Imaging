@@ -192,7 +192,10 @@ class GUI_Layout:
         self.master.button_segment.grid(row=12, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_contour = customtkinter.CTkButton(self.master.button_frame, text = "Calculate contour", font = ("Arial",18), )
-        self.master.button_contour.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+
+        self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load contour", font = ("Arial",18), )
+        self.master.button_load_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Calculate parameters", font = ("Arial",18), )
         self.master.button_auto_parameter.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')

@@ -20,6 +20,9 @@ from scipy.ndimage import gaussian_filter
 from skimage import feature
 import math
 
+import cv2 as cv
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 class GUI_Functionality:
     
@@ -33,6 +36,7 @@ class GUI_Functionality:
         self.segmented_image = None
         self.image_array = None
         self.slice_number = 200
+        self.contour_points = None
         self.map = "gray"
         self.df_params = None
         self.param_value = None
@@ -104,7 +108,10 @@ class GUI_Functionality:
         self.button_segment.bind('<Button-1>', lambda event: self.save_segmentation())
 
         self.button_contour = self.layout.master.button_contour
-        self.button_contour.bind('<Button-1>', lambda event: self.get_contour())
+        self.button_contour.bind('<Button-1>', lambda event: self.calc_contour())
+
+        self.button_load_contour = self.layout.master.button_load_contour
+        self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
 
         self.button_auto_parameter = self.layout.master.button_auto_parameter
         self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points=False))
@@ -402,7 +409,7 @@ class GUI_Functionality:
 
         return
 
-    def get_contour(self):
+    def calc_contour(self):
         if self.segmented_image is None:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
@@ -414,7 +421,43 @@ class GUI_Functionality:
         except:
             messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
 
-        print(centroids)
+        slice = sitk.GetArrayFromImage(self.segmented_image)[self.slice_number, :, :]
+        canvas = np.zeros_like(slice)
+        fig = plt.figure()
+        hull = cv.convexHull(centroids[1:])
+        cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
+        plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
+        plt.imshow(canvas, alpha = 1)
+        plt.imshow(slice, alpha= 0.3, cmap = "gray")
+
+        self.contour_points = centroids[1:]
+        print(self.contour_points)
+
+        #Move large canvas out of the way to display the contouring canvas next to it
+        self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
+
+        self.master.canvas2 = FigureCanvasTkAgg(fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
+        self.master.canvas2.draw()
+        self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=2, padx=(10, 10), pady=(0, 10),
+                                                       sticky='news')
+        return
+
+    def get_contour(self):
+        #Get contour from CSO file
+        print("Getting contour")
+        contour_path = filedialog.askopenfile(title="Open contour file")
+        try:
+            #Does not work quite yet
+            f = os.open(contour_path.name)
+            contour = os.read(f, 50)
+            os.close(f)
+        except:
+            messagebox.showerror("Contouring", "Problem with opening the file, please try another one")
+
+        print(contour)
+
+        return
+
 
     def progressbar(self, label):
         window = customtkinter.CTkToplevel(self.master)

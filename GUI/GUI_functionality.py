@@ -395,9 +395,11 @@ class GUI_Functionality:
 
             progressbar.set(0.9)
 
-            sitk.WriteImage(self.segmented_image, fileName = str(os.getcwd() + "/Segmented.nii"))
+            filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
+            sitk.WriteImage(self.segmented_image, fileName = filename)
+            
             window.destroy()
-            messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + str(os.getcwd() + "/Segmented.nii"))
+            messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
         else:
             messagebox.showinfo(title="Message", message="Please first select an image")
 

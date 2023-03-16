@@ -384,24 +384,23 @@ class GUI_Functionality:
         self.layout.show_landmarks(self.image_array, slice_number, self.dict_landmarks, self.map)
 
     def save_segmentation(self):
-        if self.image is not None:
-            window, progressbar = self.progressbar("segmentation")
-
-            segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
-
-            progressbar.set(0.5)
-
-            self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
-
-            progressbar.set(0.9)
-
-            filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
-            sitk.WriteImage(self.segmented_image, fileName = filename)
-            
-            window.destroy()
-            messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
-        else:
+        if self.image is None:
             messagebox.showinfo(title="Message", message="Please first select an image")
+            return
+
+        window, progressbar = self.progressbar("segmentation")
+
+        segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
+
+        self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
+
+        filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
+        sitk.WriteImage(self.segmented_image, fileName=filename)
+
+        window.destroy()
+        messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
+
+        return
 
     def get_contour(self):
         if self.segmented_image is None:
@@ -409,9 +408,11 @@ class GUI_Functionality:
             try:
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
             except:
-                messagebox.showinfo("Contouring", "Problem with loading the image, please try a different one")
-
-        centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
+                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
+        try:
+            centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
+        except:
+            messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
 
         print(centroids)
 
@@ -423,7 +424,7 @@ class GUI_Functionality:
         window.geometry("300x150")
         customtkinter.CTkLabel(window, text = "Please wait for " + label).pack()
         # progressbar
-        pb = customtkinter.CTkProgressBar(master = window)
+        pb = customtkinter.CTkProgressBar(master = window, mode = "indeterminate")
         # place the progressbar
         pb.pack()
 

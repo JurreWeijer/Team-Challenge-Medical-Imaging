@@ -56,11 +56,11 @@ class GUI_Layout:
     def image_frame(self):
         self.master.image_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400,fg_color = 'transparent', corner_radius=0)
         self.master.image_frame.grid(row=0, column=1, sticky = "nsew")
-        self.master.image_frame.columnconfigure((0,3), weight=1)
+        self.master.image_frame.columnconfigure((0,4), weight=1)
         self.master.image_frame.rowconfigure((0,1,2), weight=1)
         
         self.master.image_label = customtkinter.CTkLabel(self.master.image_frame,  text = "Patient Image", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.image_label.grid(row =0, column = 0, columnspan = 5, padx=(10, 10), pady=(10, 10))
+        self.master.image_label.grid(row =0, column = 0, columnspan = 6, padx=(10, 10), pady=(10, 10))
         
         #tab views
         #self.master.tabview = customtkinter.CTkTabview(self.master.image_frame)
@@ -75,6 +75,7 @@ class GUI_Layout:
         #---------------------------------------- Image tab ----------------------------------------
         self.master.fig = plt.Figure(figsize=(4,4),dpi=100)
         self.master.fig.set_facecolor(color = "white")
+        
         self.master.subplot = self.master.fig.add_subplot()
         self.master.subplot.axis("off")
         self.master.subplot.set_facecolor(color = "white")
@@ -82,23 +83,22 @@ class GUI_Layout:
         #https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
         self.master.canvas = FigureCanvasTkAgg(self.master.fig, master=self.master.image_frame)  # A tk.DrawingArea.
         self.master.canvas.draw()
-        self.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=5, padx=(10,10), pady=(0,10), sticky = 'news')
+        self.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky = 'news')
         
         self.master.button_open_image = customtkinter.CTkButton(self.master.image_frame, width = 200, text="Open Image", )
         self.master.button_open_image.grid(row=2, column=0,padx=(10,10), pady=(0,0), sticky = "w")
         
         self.master.button_min = customtkinter.CTkButton(self.master.image_frame, width = 50, text="-", )
-        self.master.button_min.grid(row=2, column=1,padx=(10,0), pady=(0,0), sticky = 'ew')
+        self.master.button_min.grid(row=2, column=2,padx=(10,0), pady=(0,0), sticky = 'ew')
         
         self.master.button_plus = customtkinter.CTkButton(self.master.image_frame, width = 50, text="+", )
-        self.master.button_plus.grid(row=2, column=2,padx=(0,10), pady=(0,0), sticky = 'e')
+        self.master.button_plus.grid(row=2, column=3,padx=(0,10), pady=(0,0), sticky = 'ew')
         
         self.master.slice_entry = customtkinter.CTkEntry(self.master.image_frame, width = 100, placeholder_text="Slice Number")
-        self.master.slice_entry.grid(row=2, column=3, columnspan=1, padx=(0, 0), pady=(0, 0), sticky="e")
+        self.master.slice_entry.grid(row=2, column=4, columnspan=1, padx=(0, 0), pady=(0, 0), sticky="e")
         
         self.master.button_goto_slice = customtkinter.CTkButton(self.master.image_frame, width = 100, text="go to", )
-        self.master.button_goto_slice.grid(row=2, column=4 ,padx=(0,10), pady=(0,0), sticky = 'e')
-        
+        self.master.button_goto_slice.grid(row=2, column=5 ,padx=(0,10), pady=(0,0), sticky = 'e')
         
     def output_frame(self):
         self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
@@ -191,14 +191,17 @@ class GUI_Layout:
         self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment automatically", font = ("Arial",18), )
         self.master.button_segment.grid(row=12, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
-        self.master.button_contour = customtkinter.CTkButton(self.master.button_frame, text = "Calculate contour", font = ("Arial",18), )
-        self.master.button_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-
+        self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Calculate contour", font = ("Arial",18), )
+        self.master.button_calculate_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove contour", font = ("Arial",18), )
+        self.master.button_remove_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
         self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load contour", font = ("Arial",18), )
-        self.master.button_load_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_load_contour.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Calculate parameters", font = ("Arial",18), )
-        self.master.button_auto_parameter.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_auto_parameter.grid(row=15, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -217,6 +220,7 @@ class GUI_Layout:
         self.master.subplot.axis('off')
         self.master.subplot.text(0.95, 0.05, f"slice number: {n_slice}", transform=self.master.subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.canvas.draw()
+
     
     def draw_landmarks(self, landmarks):
         self.master.subplot.scatter(landmarks[:,0],landmarks[:,1], c="red", marker = "x")

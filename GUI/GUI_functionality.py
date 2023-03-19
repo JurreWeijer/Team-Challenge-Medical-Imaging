@@ -19,6 +19,7 @@ import Tools.Contouring
 from scipy.ndimage import gaussian_filter 
 from skimage import feature
 import math
+import time 
 
 import cv2 as cv
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -45,6 +46,8 @@ class GUI_Functionality:
         self.dict_parameters = {}
         self.start_slice = None
         self.end_slice = None
+        self.contour_fig = None
+        self.contour_exists = False
         
         #parameters
         self.assymetry_index = "Assymetry Index"
@@ -96,7 +99,7 @@ class GUI_Functionality:
         self.button_end.bind('<Button-1>', lambda event: self.set_slice("end", self.slice_number))
         
         self.button_landmark_extension = self.layout.master.button_landmark_extension
-        self.button_landmark_extension.bind('<Button-1>', lambda event: self.landmark_extension_test(self.start_slice, self.end_slice))
+        self.button_landmark_extension.bind('<Button-1>', lambda event: self.weighted_landmark_extension(self.start_slice, self.end_slice))
         
         self.button_change_landmarks = self.layout.master.button_change_landmarks
         self.button_change_landmarks.bind('<Button-1>', lambda event: self.change_landmarks(self.parameter_menu.get(), self.slice_number))
@@ -105,10 +108,13 @@ class GUI_Functionality:
         self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points = False))
 
         self.button_segment = self.layout.master.button_segment
-        self.button_segment.bind('<Button-1>', lambda event: self.save_segmentation())
+        self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
 
-        self.button_contour = self.layout.master.button_contour
-        self.button_contour.bind('<Button-1>', lambda event: self.calc_contour())
+        self.button_calculate_contour = self.layout.master.button_calculate_contour
+        self.button_calculate_contour.bind('<Button-1>', lambda event: self.calc_contour())
+        
+        self.button_remove_contour = self.layout.master.button_remove_contour
+        self.button_remove_contour.bind('<Button-1>', lambda event: self.remove_contour())
 
         self.button_load_contour = self.layout.master.button_load_contour
         self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
@@ -125,29 +131,51 @@ class GUI_Functionality:
 
             
     def open_file(self):
-        #open directory to find a file
-        self.file_path = filedialog.askopenfile(title = "Open patient image")
+        try:
+            #open directory to find a file
+            self.file_path = filedialog.askopenfile(title = "Open patient image")
         
-        if os.path.splitext(self.file_path.name)[1] == '.nii':
-            self.image = sitk.ReadImage(self.file_path.name)
-            self.image_array = sitk.GetArrayFromImage(self.image)
-            self.layout.draw_image(self.image_array, self.slice_number, self.map)
-        else:
-            messagebox.showinfo(title="Message", message="incorrect file type")
+            if os.path.splitext(self.file_path.name)[1] == '.nii':
+                self.image = sitk.ReadImage(self.file_path.name)
+                self.image_array = sitk.GetArrayFromImage(self.image)
+                self.layout.draw_image(self.image_array, self.slice_number, self.map)
+            else:
+                messagebox.showinfo(title="Message", message="incorrect file type")
+        except:
+            messagebox.showerror("opening file", "Problem with opening the file, please try another one")
             
     def next_slice(self):
-        if self.image_array is not None:
-            if 0 < self.slice_number < np.shape(self.image_array)[0]:
-                self.slice_number += 1
-                self.layout.draw_image(self.image_array, self.slice_number, self.map)
-                self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+        if self.image_array is None:
+            return
+        
+        if 0 < self.slice_number < np.shape(self.image_array)[0]:
+            self.slice_number += 1
+            self.layout.draw_image(self.image_array, self.slice_number, self.map)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            
+            if self.contour_exists: 
+                try:
+                    centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
+                except:
+                    messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
+                
+                self.draw_contour(self.slice_number, centroids)
     
     def previous_slice(self):
-        if self.image_array is not None:
-            if 0 < self.slice_number < np.shape(self.image_array)[0]:
-                self.slice_number -= 1
-                self.layout.draw_image(self.image_array, self.slice_number, self.map)
-                self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+        if self.image_array is None:
+            return
+        
+        if 0 < self.slice_number < np.shape(self.image_array)[0]:
+            self.slice_number -= 1
+            self.layout.draw_image(self.image_array, self.slice_number, self.map)
+            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            if self.contour_exists: 
+                try:
+                    centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
+                except:
+                    messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
+                
+                self.draw_contour(self.slice_number, centroids)
     
     def go_to_slice(self):
         try:
@@ -168,7 +196,6 @@ class GUI_Functionality:
         finally:
             self.slice_entry.delete(0, "end")
             
-    
     def set_slice(self, position, slice_number):
         if position == "start":
             if self.end_slice == None or self.end_slice > slice_number:
@@ -308,7 +335,7 @@ class GUI_Functionality:
                     self.dict_landmarks[f"slice_{original_seeds[n_seed]+k}"][f"point_{point}"] = next_seed  
                     prev_seed = next_seed
     
-    def landmark_extension_test(self, start_slice, end_slice):
+    def weighted_landmark_extension(self, start_slice, end_slice):
         parameter = self.parameter_menu.get()
         
         #retreive the input seed and put them into the point dicts
@@ -318,8 +345,10 @@ class GUI_Functionality:
             self.get_points(parameter, i)
             original_seeds.append(i)
         
-        print(original_seeds)
+        window, progressbar = self.progressbar("Landmark Extension")
+        window.update()
         
+        progress = 0
         for point in self.dict_landmark_num[parameter]:
             for n_seed in range(0,len(original_seeds)-1, 1):
                 up_seed = []
@@ -349,7 +378,12 @@ class GUI_Functionality:
                         self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"] = {}
                         
                     self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"][f"point_{point}"] = seed
-                    
+            progress += 1/len(self.dict_landmark_num[parameter])
+            progressbar.set(progress)
+            window.update()
+        
+        time.sleep(2)
+        window.destroy()
                 
     def GetNextSeed(self, work_slice, seed):
         
@@ -390,21 +424,23 @@ class GUI_Functionality:
     
         self.layout.show_landmarks(self.image_array, slice_number, self.dict_landmarks, self.map)
 
-    def save_segmentation(self):
+    def automatic_segmentation(self):
         if self.image is None:
             messagebox.showinfo(title="Message", message="Please first select an image")
             return
 
-        window, progressbar = self.progressbar("segmentation")
+        self.segmentation_window, self.segmentation_progressbar = self.progressbar("segmentation")
 
         segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
-
+        self.segmentation_progressbar.set(0.5)
+        
         self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
-
+        self.segmentation_progressbar.set(1.0)
         filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
         sitk.WriteImage(self.segmented_image, fileName=filename)
-
-        window.destroy()
+        
+        time.sleep(2)
+        self.segmentation_window.destroy()
         messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
 
         return
@@ -420,28 +456,60 @@ class GUI_Functionality:
             centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
         except:
             messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
+        
+        self.draw_contour(self.slice_number, centroids)
+        self.contour_exists = True
 
-        slice = sitk.GetArrayFromImage(self.segmented_image)[self.slice_number, :, :]
+    def draw_contour(self, slice_num, centroids): 
+        slice = sitk.GetArrayFromImage(self.segmented_image)[slice_num, :, :]
         canvas = np.zeros_like(slice)
-        fig = plt.figure()
+        
+        if self.contour_fig is not None:
+            self.contour_fig.clf()
+            plt.close(self.contour_fig)
+        
+        self.contour_fig = plt.figure()
+    
         hull = cv.convexHull(centroids[1:])
         cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
         plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
+        plt.axis("off")
         plt.imshow(canvas, alpha = 1)
         plt.imshow(slice, alpha= 0.3, cmap = "gray")
-
+        
         self.contour_points = centroids[1:]
         print(self.contour_points)
+        
+        #Move large canvas out of the way to display the contouring canvas next to it
+        self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
+
+        self.master.canvas2 = FigureCanvasTkAgg(self.contour_fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
+        self.master.canvas2.draw()
+        self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=3, padx=(10, 10), pady=(0, 10),
+                                                       sticky='news')
+        return
 
         #Move large canvas out of the way to display the contouring canvas next to it
         self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
 
         self.master.canvas2 = FigureCanvasTkAgg(fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
         self.master.canvas2.draw()
-        self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=2, padx=(10, 10), pady=(0, 10),
+        self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=3, padx=(10, 10), pady=(0, 10),
                                                        sticky='news')
         return
-
+    
+    def remove_contour(self):
+        self.contour_fig.clf()
+        plt.close(self.contour_fig)
+        #self.master.canvas2.draw()
+        
+        self.master.canvas2.get_tk_widget().grid_forget()  # Remove the old canvas widget
+        #self.master.canvas2 = None
+        self.contour_exists = False
+        self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky='nwes')
+    
+    
+        
     def get_contour(self):
         #Get contour from CSO file
         print("Getting contour")
@@ -458,7 +526,6 @@ class GUI_Functionality:
 
         return
 
-
     def progressbar(self, label):
         window = customtkinter.CTkToplevel(self.master)
         self.master.eval(f"tk::PlaceWindow {str(window)} center")
@@ -467,7 +534,7 @@ class GUI_Functionality:
         window.geometry("300x150")
         customtkinter.CTkLabel(window, text = "Please wait for " + label).pack()
         # progressbar
-        pb = customtkinter.CTkProgressBar(master = window, mode = "indeterminate")
+        pb = customtkinter.CTkProgressBar(master = window, mode = "determinate")
         # place the progressbar
         pb.pack()
 

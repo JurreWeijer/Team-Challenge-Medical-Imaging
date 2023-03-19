@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import SimpleITK as sitk
 import cv2 as cv
+import GUI.GUI_functionality
 
 
 # datapath to map with Scoliotic and Nonscoliotic data, assumed to be in the same folder as your code
@@ -72,8 +73,10 @@ def FilterLargestComponents(image, size= 100000):
     RelabelComponentFilter.SetMinimumObjectSize(MinSize)
 
     component_image = ConnectedComponentFilter.Execute(image)
+    
     sorted_component_image = RelabelComponentFilter.Execute(component_image)
-
+    
+    
     print("Objects in image larger than " + str(MinSize) + " are " + str(RelabelComponentFilter.GetSizeOfObjectsInPixels()) + " Pixels")
     print("Filtering objects larger than " + str(size))
 

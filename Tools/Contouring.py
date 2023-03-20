@@ -143,7 +143,7 @@ def MultiSliceContour(image_array, slice_num = 100, plot = False):
         centroid_array = np.array(centroid_list)
         centroid_array = centroid_array[np.all(centroid_array != 0, axis = 1)]
 
-        Multi_slice_centroids = np.append(Multi_slice_centroids, np.reshape(centroid_array, (len(centroid_array), 1, 2)), axis = 0)
+        Multi_slice_centroids = np.append(Multi_slice_centroids, np.reshape(centroid_array, (-1, 1, 2)), axis = 0)
 
     #Plot results if necessary
     if (plot == True):

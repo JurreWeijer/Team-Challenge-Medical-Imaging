@@ -24,7 +24,6 @@ import time
 import cv2 as cv
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-
 class GUI_Functionality:
     
     def __init__(self, master, layout):
@@ -120,7 +119,7 @@ class GUI_Functionality:
         self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
 
         self.button_auto_parameter = self.layout.master.button_auto_parameter
-        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points=False))
+        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_params(self.slice_number))
         
         #entrys
         self.slice_entry = self.layout.master.slice_entry
@@ -268,8 +267,7 @@ class GUI_Functionality:
             
         new_row = {'Parameter': parameter, 'Value': param_value, "Slice": slice_number}
         self.df_params = self.df_params.append(new_row, ignore_index=True)
-        
-      
+
         if f"slice_{slice_number}" not in self.dict_parameters:
             # If the key doesn't exist, create it with an empty dictionary as its value
             self.dict_parameters[f"{slice_number}"] = {}
@@ -450,6 +448,7 @@ class GUI_Functionality:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
+                self.image_array = sitk.GetArrayFromImage(self.segmented_image)
             except:
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
         try:
@@ -474,25 +473,15 @@ class GUI_Functionality:
         cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
         plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
         plt.axis("off")
-        plt.imshow(canvas, alpha = 1)
-        plt.imshow(slice, alpha= 0.3, cmap = "gray")
+        plt.imshow(canvas, alpha = 1, cmap= "gray")
+        plt.imshow(slice, alpha= 0.3, cmap = "gray", vmax = 1)
         
-        self.contour_points = centroids[1:]
-        print(self.contour_points)
+        self.contour_points = centroids[1:].reshape((-1,2))
         
         #Move large canvas out of the way to display the contouring canvas next to it
         self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
 
         self.master.canvas2 = FigureCanvasTkAgg(self.contour_fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
-        self.master.canvas2.draw()
-        self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=3, padx=(10, 10), pady=(0, 10),
-                                                       sticky='news')
-        return
-
-        #Move large canvas out of the way to display the contouring canvas next to it
-        self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
-
-        self.master.canvas2 = FigureCanvasTkAgg(fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
         self.master.canvas2.draw()
         self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=3, padx=(10, 10), pady=(0, 10),
                                                        sticky='news')
@@ -507,22 +496,45 @@ class GUI_Functionality:
         #self.master.canvas2 = None
         self.contour_exists = False
         self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky='nwes')
-    
-    
-        
+
     def get_contour(self):
         #Get contour from CSO file
         print("Getting contour")
         contour_path = filedialog.askopenfile(title="Open contour file")
         try:
             #Does not work quite yet
-            f = os.open(contour_path.name)
-            contour = os.read(f, 50)
+            f = os.open(contour_path.name, os.O_RDONLY)
+            contour = os.read(f, 1000)
+            print(contour.decode('utf-8'))
             os.close(f)
         except:
             messagebox.showerror("Contouring", "Problem with opening the file, please try another one")
 
         print(contour)
+
+        return
+
+    def get_contour_params(self, slice_number):
+        if self.image_array is None:
+            messagebox.showerror("Parameters", "Please calculate or load the contour first")
+            return
+
+        if f"slice_{slice_number}" not in self.dict_landmarks:
+            # If the key doesn't exist, create it with an empty dictionary as its value
+            self.dict_landmarks[f"slice_{slice_number}"] = {}
+
+        image_half = np.array(self.image_array.shape)/2
+
+        Left_top = self.contour_points[self.contour_points[:,0] > image_half[-1]]
+        Left_top = Left_top[np.argmin(Left_top[:,1]),:]
+
+        Right_top = self.contour_points[self.contour_points[:,0] < image_half[-1]]
+        Right_top = Right_top[np.argmin(Right_top[:,1]),:]
+
+        self.dict_landmarks[f"slice_{slice_number}"]["point_3"] = Right_top.astype(int)
+        self.dict_landmarks[f"slice_{slice_number}"]["point_4"] = Left_top.astype(int)
+
+        self.get_parameter("Angle Trunk Rotation", slice_number, get_points=False)
 
         return
 

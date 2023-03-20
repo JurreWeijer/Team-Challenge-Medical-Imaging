@@ -14,7 +14,7 @@ def calculate_parameter(dict_landmarks, parameter, n_slice):
     if parameter == "Angle Trunk Rotation":
         # Angle of trunk rotation = angle between line 1 -> 2 and line 3 -> 4
         # angle = cos(aanliggend/schuin) = cos(deltax/dis(3,4))
-        angle_trunk = np.cos((points["point_3"][0]-points["point_4"][0])/np.sqrt((points["point_3"][0]-points["point_4"][0])**2+(points["point_3"][1]-points["point_4"][1])**2)) # add calculation 
+        angle_trunk = np.arccos((points["point_3"][0]-points["point_4"][0])/np.sqrt((points["point_3"][0]-points["point_4"][0])**2+(points["point_3"][1]-points["point_4"][1])**2)) # add calculation
         return angle_trunk
     elif parameter == "Assymetry Index":
         # Assymetry index = 1-(dis(5,6)/dis(7,8))

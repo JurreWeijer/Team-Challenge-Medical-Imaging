@@ -472,11 +472,12 @@ class GUI_Functionality:
         hull = cv.convexHull(centroids[1:])
         cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
         plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
-        plt.axis("off")
+        plt.axis("off", emit = False)
         plt.imshow(canvas, alpha = 1, cmap= "gray")
         plt.imshow(slice, alpha= 0.3, cmap = "gray", vmax = 1)
-        
-        self.contour_points = centroids[1:].reshape((-1,2))
+
+        #Only takes hull, as there is a lot of noise because of the multiple slices
+        self.contour_points = hull.reshape((-1,2))
         
         #Move large canvas out of the way to display the contouring canvas next to it
         self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
@@ -493,6 +494,7 @@ class GUI_Functionality:
         #self.master.canvas2.draw()
         
         self.master.canvas2.get_tk_widget().grid_forget()  # Remove the old canvas widget
+        self.master.canvas2.draw()
         #self.master.canvas2 = None
         self.contour_exists = False
         self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky='nwes')
@@ -525,16 +527,66 @@ class GUI_Functionality:
 
         image_half = np.array(self.image_array.shape)/2
 
-        Left_top = self.contour_points[self.contour_points[:,0] > image_half[-1]]
-        Left_top = Left_top[np.argmin(Left_top[:,1]),:]
+        #Split the image in right and left points
+        Left_points = self.contour_points[self.contour_points[:,0] < image_half[-1]]
+        Left_top = Left_points[np.argmin(Left_points[:,1]),:]
 
-        Right_top = self.contour_points[self.contour_points[:,0] < image_half[-1]]
-        Right_top = Right_top[np.argmin(Right_top[:,1]),:]
+        Right_points = self.contour_points[self.contour_points[:,0] > image_half[-1]]
+        Right_top = Right_points[np.argmin(Right_points[:,1]),:]
 
         self.dict_landmarks[f"slice_{slice_number}"]["point_3"] = Right_top.astype(int)
         self.dict_landmarks[f"slice_{slice_number}"]["point_4"] = Left_top.astype(int)
 
         self.get_parameter("Angle Trunk Rotation", slice_number, get_points=False)
+
+        #Pectus index
+        maxdist = 0
+        leftmaxidx = 0
+        rightmaxidx = 0
+        #quick solution that does not take all edge cases into account, like points that are not opposite of eachother
+        # for i, (x,y) in enumerate(Left_points):
+        #     #Find the two points on the left and right that are the farthest apart
+        #     idx = (np.abs(Right_points[:,1] - y).argmin())
+        #     xdist = np.abs(x - Right_points[idx,0])
+        #     if xdist > maxdist:
+        #         maxdist = xdist
+        #         leftmaxidx = i
+        #         rightmaxidx = idx
+        #
+        # leftmaxPoint = Left_points[leftmaxidx]
+        # rightmaxPoint = Right_points[rightmaxidx]
+        maxdist, leftmaxPoint, rightmaxPoint = Tools.Deformity_Parameters.Find_Longest(Left_points, Right_points)
+
+        self.dict_landmarks[f"slice_{slice_number}"]["point_9"] = Left_points[leftmaxidx].astype(int)
+        self.dict_landmarks[f"slice_{slice_number}"]["point_10"] = Right_points[rightmaxidx].astype(int)
+
+        #TODO calculate the sternum and top of vertebra, but the segmentation does not yet allow for that
+
+        #Asymmetry index
+        TopRight_points = Right_points[Right_points[:,1] < image_half[-2]] #divide the contour into quarters, pay attention to the flipped axis!
+        BotRight_points = Right_points[Right_points[:,1] > image_half[-2]]
+        TopLeft_points = Left_points[Left_points[:,1] < image_half[-2]]
+        BotLeft_points = Left_points[Left_points[:,1] > image_half[-2]]
+
+        #Does not interpolate between contour points yet
+        maxdist, maxright, minright = Tools.Deformity_Parameters.Find_Longest(TopRight_points, BotRight_points, c = 1)
+        maxdist, maxleft, minleft = Tools.Deformity_Parameters.Find_Longest(TopLeft_points, BotLeft_points, c = 1)
+
+        self.dict_landmarks[f"slice_{slice_number}"]["point_5"] = maxright.astype(int)
+        self.dict_landmarks[f"slice_{slice_number}"]["point_6"] = minright.astype(int)
+        self.dict_landmarks[f"slice_{slice_number}"]["point_7"] = maxleft.astype(int)
+        self.dict_landmarks[f"slice_{slice_number}"]["point_8"] = minleft.astype(int)
+
+        self.get_parameter("Assymetry Index", slice_number, get_points=False)
+
+        #Quick debug plot
+        plt.figure()
+        plt.imshow(sitk.GetArrayFromImage(self.segmented_image)[slice_number,:,:])
+        plt.scatter(self.contour_points[:,0], self.contour_points[:,1], s=1)
+        plt.scatter([maxright[0], maxleft[0]], [maxright[1], maxleft[1]], c = 'b')
+        plt.scatter([minright[0], minleft[0]], [minright[1], minleft[1]], c = 'r')
+        plt.show()
+
 
         return
 

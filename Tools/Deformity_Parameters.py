@@ -5,7 +5,9 @@ Created on Sat Feb 18 19:52:02 2023
 @author: 20182371
 """
 
-import numpy as np 
+import numpy as np
+from matplotlib import pyplot as plt
+
 
 def calculate_parameter(dict_landmarks, parameter, n_slice):
     
@@ -103,3 +105,58 @@ def steep_vertebral(pts):
     steep_vertebral = np.sqrt((Bx-Ax)^2 + (By-Ay)^2)
     
     return steep_vertebral
+
+def Find_Longest(Points1, Points2, c = 0):
+    #Helper function to find longest distance on two contours given by Points1 and Points2
+    # c = 0 for longest in x direction, c = 1 for longest in y direction
+    max1 = True
+    maxdist = 0
+    for i, coords in enumerate(Points1):
+        # Find the two points that are the farthest apart
+        idx = (np.abs(Points2[:, c-1] - coords[c-1]).argmin())
+        dist = np.abs(coords[c] - Points2[idx, c])
+        if dist > maxdist:
+            maxdist = dist
+            max1idx = i
+            max2idx = idx
+
+    for i, coords in enumerate(Points2):
+        # Find the two points that are the farthest apart, but reverse in case there are more points in 2 than in 1
+        idx = (np.abs(Points1[:, c-1] - coords[c-1]).argmin())
+        dist = np.abs(coords[c] - Points1[idx, c])
+        if dist > maxdist:
+            maxdist = dist
+            max1idx = idx
+            max2idx = i
+            max1 = False
+
+    maxPoints1 = Points1[max1idx]
+    maxPoints2 = Points2[max2idx]
+
+    #INTERPOLATION CODE, NOT WORKING YET
+    # if max1:
+    #     Pointsnew = np.take(Points2, np.where(Points2!=Points2[max2idx])[0][::2], axis = 0)
+    #     secondidx = (np.abs(Pointsnew[:,c-1]) - Points1[max1idx,c-1]).argmin()
+    #     m = (Points2[secondidx,c] - Points2[max2idx,c]) / (Points2[secondidx,c-1]-Points2[max2idx,c-1])
+    #     newc = (Points1[max1idx,c] - Points2[max2idx,c]) * m + Points2[max2idx,c-1]
+    #
+    #     plt.figure()
+    #     plt.scatter(newc,Points1[max1idx,c-1], c = 'r')
+    #     plt.scatter(Points2[secondidx,c], Points2[secondidx,c-1], c = 'b')
+    #     plt.scatter(Points2[max2idx,c], Points2[max2idx,c-1], c = 'g')
+    #     maxPoints1 = Points1[max1idx,:]
+    #     if c == 0:
+    #         maxPoints2 = [newc, Points1[max1idx, c - 1]]
+    #     else:
+    #         maxPoints2 = [Points1[max1idx, c], newc]
+    # else:
+    #     Pointsnew = np.take(Points1, np.where(Points1 != Points1[max1idx])[0][::2], axis=0)
+    #     secondidx = (np.abs(Pointsnew[:,c-1]) - Points2[max2idx,c-1]).argmin()
+    #     newc = np.interp(Points2[max2idx,c], [Points1[max1idx,c],Points1[secondidx,c]], [Points1[max1idx,c-1], Points1[secondidx,c-1]])
+    #     maxPoints2 = Points2[max2idx,:]
+    #     if c == 0:
+    #         maxPoints1 = [newc, Points2[max2idx, c - 1]]
+    #     else:
+    #         maxPoints1 = [Points2[max2idx, c], newc]
+
+    return dist, maxPoints1, maxPoints2

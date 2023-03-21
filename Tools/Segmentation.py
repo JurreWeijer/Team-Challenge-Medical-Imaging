@@ -120,7 +120,7 @@ def BanikSegmentation(image):
 
     return img_processed
 
-GetSegmented = False
+GetSegmented = True
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -128,6 +128,7 @@ if __name__ == '__main__':
     img_scoliosis = OpenScoliosis(scoliosis_path, "1preop.nii")
     image_array = sitk.GetArrayFromImage(img_scoliosis) #Image array has values based on Houndsfield units
     print("Maximal value " + str(np.max(image_array)) + " Minimal value " + str(np.min(image_array)))
+    print("Shape of image " + str(image_array.shape))
 
     #Quick if statement for skipping the segmentation if it already has been run once. To run segmentation again, make sure GetSegmented = False above the __main__ function
     if GetSegmented == False:
@@ -141,16 +142,17 @@ if __name__ == '__main__':
 
     segmentation_mask = sitk.GetArrayFromImage(img_largest)
 
-    slice_num = 100
+    slice_num = 150
 
+    #IMAGE_ARRAY[Transverse, Coronal, Sagital]
     plt.figure()
-    plt.imshow(image_array[slice_num,:,:], cmap="gray")
+    plt.imshow(image_array[:,slice_num,:], cmap="gray")
     plt.title("Original Image")
     plt.figure()
-    plt.imshow(segmentation_mask[slice_num,:,:], cmap="gray")
+    plt.imshow(segmentation_mask[:,slice_num,:], cmap="gray")
     plt.title("Segmentation mask")
     plt.figure()
-    plt.imshow(image_array[slice_num,:,:] * segmentation_mask[slice_num,:,:], cmap="gray", vmin = 0)
+    plt.imshow(image_array[:,slice_num,:] * segmentation_mask[:,slice_num,:], cmap="gray", vmin = 0)
     plt.title("Segmented Image")
     plt.show()
 

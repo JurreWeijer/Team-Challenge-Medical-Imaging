@@ -30,25 +30,12 @@ class GUI_Functionality:
         self.master = master
         self.layout = layout
         
-        #Variables
-        self.file_path = None
-        self.image = None
-        self.segmented_image = None
-        self.image_array = None
-        self.slice_number = 200
-        self.contour_points = None
-        self.map = "gray"
-        self.df_params = None
-        self.param_value = None
-        self.current_param = None
-        self.dict_landmarks = {}
-        self.dict_parameters = {}
-        self.start_slice = None
-        self.end_slice = None
-        self.contour_fig = None
-        self.contour_exists = False
-        
         #parameters
+        self.map = "gray"
+        self.coronal = "coronal"
+        self.transverse = "transverse"
+        self.plus = '+'
+        self.minus = '-'
         self.assymetry_index = "Assymetry Index"
         self.trunk_rotation = "Angle Trunk Rotation"
         self.pectus_index = "Pectus Index"
@@ -60,51 +47,79 @@ class GUI_Functionality:
                                   self.sagital_diameter: [11,13], 
                                   self.steep_vertebral: [11,12]}
         
+        
+        #Variables
+        self.file_path = None
+        self.image = None
+        self.segmented_image = None
+        self.image_array = None
+        self.trans_slice = 200
+        self.coronal_slice = 135
+        self.contour_points = None
+        self.df_params = None
+        self.param_value = None
+        self.current_param = None
+        self.dict_landmarks = {}
+        self.dict_parameters = {}
+        self.start_slice = None
+        self.end_slice = None
+        self.contour_fig = None
+        self.contour_exists = False
+        
         #Buttons
         self.button_open_image = self.layout.master.button_open_image
         self.button_open_image.bind('<Button-1>', lambda event: self.open_file())
-        
+
         self.button_plus = self.layout.master.button_plus
-        self.button_plus.bind('<Button-1>', lambda event: self.next_slice())
-        
+        self.button_plus.bind('<Button-1>', lambda event: self.change_slice(self.transverse, self.plus))
+
         self.button_min = self.layout.master.button_min
-        self.button_min.bind('<Button-1>', lambda event: self.previous_slice())
-        
+        self.button_min.bind('<Button-1>', lambda event: self.change_slice(self.transverse, self.minus))
+
+        self.button_forward = self.layout.master.button_forward
+        self.button_forward.bind('<Button-1>', lambda event: self.change_slice(self.coronal, self.plus))
+
+        self.button_backward = self.layout.master.button_backward
+        self.button_backward.bind('<Button-1>', lambda event: self.change_slice(self.coronal, self.minus))
+
         self.button_goto_slice = self.layout.master.button_goto_slice
-        self.button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice())
+        self.button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice(self.transverse))
+
+        self.coronal_button_goto_slice = self.layout.master.coronal_button_goto_slice
+        self.coronal_button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice(self.coronal))
         
         self.button_assymetry_index = self.layout.master.button_assymetry_index
-        self.button_assymetry_index.bind('<Button-1>', lambda event: self.get_parameter(self.assymetry_index, self.slice_number))
+        self.button_assymetry_index.bind('<Button-1>', lambda event: self.get_parameter(self.assymetry_index, self.trans_slice))
         
         self.button_trunk_angle = self.layout.master.button_trunk_angle
-        self.button_trunk_angle.bind('<Button-1>', lambda event: self.get_parameter(self.trunk_rotation, self.slice_number))
+        self.button_trunk_angle.bind('<Button-1>', lambda event: self.get_parameter(self.trunk_rotation, self.trans_slice))
         
         self.button_pectus_index = self.layout.master.button_pectus_index
-        self.button_pectus_index.bind('<Button-1>', lambda event: self.get_parameter(self.pectus_index, self.slice_number))
+        self.button_pectus_index.bind('<Button-1>', lambda event: self.get_parameter(self.pectus_index, self.trans_slice))
         
         self.button_sagital_diameter = self.layout.master.button_sagital_diameter
-        self.button_sagital_diameter.bind('<Button-1>', lambda event: self.get_parameter(self.sagital_diameter, self.slice_number))
+        self.button_sagital_diameter.bind('<Button-1>', lambda event: self.get_parameter(self.sagital_diameter, self.trans_slice))
         
         self.button_steep_vertebral = self.layout.master.button_steep_vertebral
-        self.button_steep_vertebral.bind('<Button-1>', lambda event: self.get_parameter(self.steep_vertebral, self.slice_number))
+        self.button_steep_vertebral.bind('<Button-1>', lambda event: self.get_parameter(self.steep_vertebral, self.trans_slice))
         
         self.button_save_parameters = self.layout.master.button_save_parameters
         self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
         
         self.button_begin = self.layout.master.button_begin
-        self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start", self.slice_number))
+        self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start", self.trans_slice))
         
         self.button_end = self.layout.master.button_end
-        self.button_end.bind('<Button-1>', lambda event: self.set_slice("end", self.slice_number))
+        self.button_end.bind('<Button-1>', lambda event: self.set_slice("end", self.trans_slice))
         
         self.button_landmark_extension = self.layout.master.button_landmark_extension
         self.button_landmark_extension.bind('<Button-1>', lambda event: self.weighted_landmark_extension(self.start_slice, self.end_slice))
         
         self.button_change_landmarks = self.layout.master.button_change_landmarks
-        self.button_change_landmarks.bind('<Button-1>', lambda event: self.change_landmarks(self.parameter_menu.get(), self.slice_number))
+        self.button_change_landmarks.bind('<Button-1>', lambda event: self.change_landmarks(self.parameter_menu.get(), self.trans_slice))
         
         self.button_compute_parameters = self.layout.master.compute_parameters
-        self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points = False))
+        self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice, get_points = False))
 
         self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
         self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_rotation(self.dict_landmarks))
@@ -122,16 +137,18 @@ class GUI_Functionality:
         self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
 
         self.button_auto_parameter = self.layout.master.button_auto_parameter
-        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_params(self.slice_number))
+        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_params(self.trans_slice))
         
         #entrys
         self.slice_entry = self.layout.master.slice_entry
+        self.coronal_slice_entry = self.layout.master.coronal_slice_entry
+        
         self.parameter_menu = self.layout.master.parameter_menu
         
         #table 
         self.output_table = self.layout.master.table
 
-            
+    
     def open_file(self):
         try:
             #open directory to find a file
@@ -140,64 +157,62 @@ class GUI_Functionality:
             if os.path.splitext(self.file_path.name)[1] == '.nii':
                 self.image = sitk.ReadImage(self.file_path.name)
                 self.image_array = sitk.GetArrayFromImage(self.image)
-                self.layout.draw_image(self.image_array, self.slice_number, self.map)
+                self.layout.draw_image(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             else:
                 messagebox.showinfo(title="Message", message="incorrect file type")
         except:
             messagebox.showerror("opening file", "Problem with opening the file, please try another one")
-            
-    def next_slice(self):
+    
+    def change_slice(self, view, direction): 
+
+
         if self.image_array is None:
             return
-        
+
+        if view == self.transverse: 
+            if self.trans_slice < 0 and self.trans_slice > np.shape(self.image_array)[0]:
+                return
+
+            if direction == self.plus: 
+                self.trans_slice += 1
+            elif direction == self.minus: 
+                self.trans_slice -= 1
+
+        elif view == self.coronal: 
+            if self.coronal_slice < 0 and self.coronal_slice > np.shape(self.image_array)[0]:
+                return
+
+            if direction == self.plus: 
+                self.coronal_slice += 1
+            elif direction == self.minus: 
+                self.coronal_slice -= 1
+
+        self.layout.draw_image(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+        self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
     
-        if 0 < self.slice_number < np.shape(self.image_array)[0]:
-            self.slice_number += 1
-            self.layout.draw_image(self.image_array, self.slice_number, self.map)
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
-            
-            if self.contour_exists: 
-                try:
-                    centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
-                except:
-                    messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
-                
-                self.draw_contour(self.slice_number, centroids)
-    
-    def previous_slice(self):
-        if self.image_array is None:
-            return
-        
-        if 0 < self.slice_number < np.shape(self.image_array)[0]:
-            self.slice_number -= 1
-            self.layout.draw_image(self.image_array, self.slice_number, self.map)
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
-            if self.contour_exists: 
-                try:
-                    centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
-                except:
-                    messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
-                
-                self.draw_contour(self.slice_number, centroids)
-    
-    def go_to_slice(self):
+    def go_to_slice(self, view):
         try:
-            dialog_input = self.slice_entry.get()
-            self.slice_number = int(dialog_input)
+            if view == self.transverse:
+                dialog_input = self.slice_entry.get()
+                self.trans_slice = int(dialog_input)
+            elif view == self.coronal: 
+                dialog_input = self.coronal_slice_entry.get()
+                self.coronal_slice = int(dialog_input)
         except ValueError:
             # error message if the input is not an integer
             messagebox.showinfo(title="Message", message="Must input an integer to change the slice.")
         else:
             if self.image_array is not None:
                 # check if the slice number is within the range of the image
-                if 0 <= self.slice_number <= np.shape(self.image_array)[0]:
-                    self.layout.draw_image(self.image_array, self.slice_number, self.map)
-                    self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+                if 0 <= self.trans_slice <= np.shape(self.image_array)[0] and 0 <= self.coronal_slice <= np.shape(self.image_array)[0] :
+                    self.layout.draw_image(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+                    self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
                 else:
                     # error message in the text frame that the slice number is out of range
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
         finally:
             self.slice_entry.delete(0, "end")
+            self.coronal_slice_entry.delete(0, "end")
             
     def set_slice(self, position, slice_number):
         if position == "start":
@@ -257,7 +272,7 @@ class GUI_Functionality:
         if self.image_array is not None:
             if get_points == True:
                 self.get_points(parameter, slice_number)
-                self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+                self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             
             param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3) 
             self.add_parameter(parameter, param_value, slice_number)
@@ -464,11 +479,11 @@ class GUI_Functionality:
             except:
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
         try:
-            centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.slice_number)
+            centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.trans_slice)
         except:
             messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
         
-        self.draw_contour(self.slice_number, centroids)
+        self.draw_contour(self.trans_slice, centroids)
         self.contour_exists = True
 
     def draw_contour(self, slice_num, centroids): 
@@ -628,21 +643,21 @@ class GUI_Functionality:
         if self.image_array is not None:
             pts = self.get_points(self.assymetry_index)
             
-            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
                 
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_5"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_6"] = pts[1,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_7"] = pts[2,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_8"] = pts[3,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_5"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_6"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_7"] = pts[2,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_8"] = pts[3,:]
             
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
 
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
             
             self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
     
@@ -652,19 +667,19 @@ class GUI_Functionality:
             pts = self.get_points(self.trunk_rotation)
             
             
-            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
                 
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_3"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_4"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_3"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_4"] = pts[1,:]
             
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
             
             self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
     
@@ -673,21 +688,21 @@ class GUI_Functionality:
         if self.image_array is not None:
             pts = self.get_points(self.pectus_index)
             
-            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
                 
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_9"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_10"] = pts[1,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[2,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_12"] = pts[3,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_9"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_10"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_11"] = pts[2,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_12"] = pts[3,:]
             
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
             
             self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
     
@@ -697,20 +712,20 @@ class GUI_Functionality:
             pts = self.get_points(self.sagital_diameter)
             
             
-            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
                 
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_13"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_11"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_13"] = pts[1,:]
             
             
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
         
             self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
     
@@ -720,20 +735,20 @@ class GUI_Functionality:
             pts = self.get_points(num_points=2)
             
             
-            if f"slice_{self.slice_number}" not in self.dict_landmarks:
+            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
                 # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.slice_number}"] = {}
+                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
                 
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_11"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.slice_number}"]["point_12"] = pts[1,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_11"] = pts[0,:]
+            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_12"] = pts[1,:]
             
             
-            self.layout.show_landmarks(self.image_array, self.slice_number, self.dict_landmarks, self.map)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.slice_number),3)
+            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
             
             self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.slice_number))
+            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
         else:
             messagebox.showinfo(title="Message", message="must open image first")
    

@@ -106,6 +106,9 @@ class GUI_Functionality:
         self.button_compute_parameters = self.layout.master.compute_parameters
         self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.slice_number, get_points = False))
 
+        self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
+        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_rotation(self.dict_landmarks))
+
         self.button_segment = self.layout.master.button_segment
         self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
 
@@ -147,6 +150,7 @@ class GUI_Functionality:
         if self.image_array is None:
             return
         
+    
         if 0 < self.slice_number < np.shape(self.image_array)[0]:
             self.slice_number += 1
             self.layout.draw_image(self.image_array, self.slice_number, self.map)
@@ -382,7 +386,15 @@ class GUI_Functionality:
         
         time.sleep(2)
         window.destroy()
-                
+        
+    def computer_rib_rotation(self, dict_landmarks):
+        for i in range(np.shape(self.image_array)[0]):
+            if f"slice_{i}" in dict_landmarks:
+                if "point_3" in self.dict_landmarks[f"slice_{i}"] and "point_4" in self.dict_landmarks[f"slice_{i}"]:
+                      img = self.image_array[i, :, :]
+                      
+
+
     def GetNextSeed(self, work_slice, seed):
         
         seedx = seed[0]

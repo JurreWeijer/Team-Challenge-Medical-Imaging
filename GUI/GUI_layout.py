@@ -56,11 +56,11 @@ class GUI_Layout:
     def image_frame(self):
         self.master.image_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400,fg_color = 'transparent', corner_radius=0)
         self.master.image_frame.grid(row=0, column=1, sticky = "nsew")
-        self.master.image_frame.columnconfigure((0,4), weight=1)
+        self.master.image_frame.columnconfigure((4,5), weight=1)
         self.master.image_frame.rowconfigure((0,1,2), weight=1)
         
         self.master.image_label = customtkinter.CTkLabel(self.master.image_frame,  text = "Patient Image", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.image_label.grid(row =0, column = 0, columnspan = 6, padx=(10, 10), pady=(10, 10))
+        self.master.image_label.grid(row =0, column = 0, columnspan = 10, padx=(10, 10), pady=(10, 10))
         
         #tab views
         #self.master.tabview = customtkinter.CTkTabview(self.master.image_frame)
@@ -73,20 +73,36 @@ class GUI_Layout:
         #self.master.tabview.tab("Table").grid_rowconfigure((0), weight=1)
         
         #---------------------------------------- Image tab ----------------------------------------
-        self.master.fig = plt.Figure(figsize=(4,4),dpi=100)
-        self.master.fig.set_facecolor(color = "white")
+        #transverse figure 
+        self.master.trans_fig = plt.Figure(figsize=(4,4),dpi=100)
+        self.master.trans_fig.set_facecolor(color = "white")
+       
+        self.master.trans_subplot = self.master.trans_fig.add_subplot()
+        self.master.trans_subplot.axis("off")
+        self.master.trans_subplot.set_facecolor(color = "white")
         
-        self.master.subplot = self.master.fig.add_subplot()
-        self.master.subplot.axis("off")
-        self.master.subplot.set_facecolor(color = "white")
+        #coronal figure
+        self.master.coronal_fig = plt.Figure(figsize=(4,4),dpi=100)
+        self.master.coronal_fig.set_facecolor(color = "white")
         
+        self.master.coronal_subplot = self.master.coronal_fig.add_subplot()
+        self.master.coronal_subplot.axis("off")
+        self.master.coronal_subplot.set_facecolor(color = "white")
         #https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
-        self.master.canvas = FigureCanvasTkAgg(self.master.fig, master=self.master.image_frame)  # A tk.DrawingArea.
-        self.master.canvas.draw()
-        self.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky = 'news')
         
-        self.master.button_open_image = customtkinter.CTkButton(self.master.image_frame, width = 200, text="Open Image", )
-        self.master.button_open_image.grid(row=2, column=0,padx=(10,10), pady=(0,0), sticky = "w")
+        self.master.trans_canvas = FigureCanvasTkAgg(self.master.trans_fig, master=self.master.image_frame)  # A tk.DrawingArea.
+        self.master.trans_canvas.draw()
+        self.master.trans_canvas.get_tk_widget().grid(row=1, column=0, columnspan=5, padx=(10,10), pady=(0,10), sticky = 'news')
+        
+        self.master.coronal_canvas = FigureCanvasTkAgg(self.master.coronal_fig, master=self.master.image_frame)  # A tk.DrawingArea.
+        self.master.coronal_canvas.draw()
+        self.master.coronal_canvas.get_tk_widget().grid(row=1, column=5, columnspan=5, padx=(10,10), pady=(0,10), sticky = 'news')
+        
+        self.master.button_goto_slice = customtkinter.CTkButton(self.master.image_frame, width = 100, text="go to", )
+        self.master.button_goto_slice.grid(row=2, column=0 ,padx=(10,0), pady=(0,0), sticky = 'ew')
+        
+        self.master.slice_entry = customtkinter.CTkEntry(self.master.image_frame, width = 100, placeholder_text="Slice Number")
+        self.master.slice_entry.grid(row=2, column=1, columnspan=1, padx=(0, 10), pady=(0, 0), sticky="ew")
         
         self.master.button_min = customtkinter.CTkButton(self.master.image_frame, width = 50, text="-", )
         self.master.button_min.grid(row=2, column=2,padx=(10,0), pady=(0,0), sticky = 'ew')
@@ -94,11 +110,21 @@ class GUI_Layout:
         self.master.button_plus = customtkinter.CTkButton(self.master.image_frame, width = 50, text="+", )
         self.master.button_plus.grid(row=2, column=3,padx=(0,10), pady=(0,0), sticky = 'ew')
         
-        self.master.slice_entry = customtkinter.CTkEntry(self.master.image_frame, width = 100, placeholder_text="Slice Number")
-        self.master.slice_entry.grid(row=2, column=4, columnspan=1, padx=(0, 0), pady=(0, 0), sticky="e")
+        self.master.button_open_image = customtkinter.CTkButton(self.master.image_frame, width = 200, text="Open Image", )
+        self.master.button_open_image.grid(row=2, column=4, columnspan = 2, padx=(10,10), pady=(0,0), sticky = "ew")
         
-        self.master.button_goto_slice = customtkinter.CTkButton(self.master.image_frame, width = 100, text="go to", )
-        self.master.button_goto_slice.grid(row=2, column=5 ,padx=(0,10), pady=(0,0), sticky = 'e')
+        self.master.button_backward = customtkinter.CTkButton(self.master.image_frame, width = 50, text="-", )
+        self.master.button_backward.grid(row=2, column=6,padx=(10,0), pady=(0,0), sticky = 'ew')
+        
+        self.master.button_forward = customtkinter.CTkButton(self.master.image_frame, width = 50, text="+", )
+        self.master.button_forward.grid(row=2, column=7,padx=(0,10), pady=(0,0), sticky = 'ew')
+       
+        self.master.coronal_slice_entry = customtkinter.CTkEntry(self.master.image_frame, width = 100, placeholder_text="Slice Number")
+        self.master.coronal_slice_entry.grid(row=2, column=8, padx=(0, 0), pady=(0, 0), sticky="ew")
+        
+        self.master.coronal_button_goto_slice = customtkinter.CTkButton(self.master.image_frame, width = 100, text="go to", )
+        self.master.coronal_button_goto_slice.grid(row=2, column=9, padx=(0,10), pady=(0,0), sticky = 'ew')
+        
         
     def output_frame(self):
         self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
@@ -217,34 +243,61 @@ class GUI_Layout:
         for i in self.table.selection():
             self.table.delete(i)
     
-    def draw_image(self, data, n_slice, cmap):
-        self.master.subplot.cla()
-        self.master.subplot.imshow(data[n_slice, :, :], cmap=cmap)
-        self.master.subplot.axis('off')
-        self.master.subplot.text(0.95, 0.05, f"slice number: {n_slice}", transform=self.master.subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
-        self.master.canvas.draw()
+    def draw_image(self, data, trans_slice, coronal_slice, dict_landmarks, cmap):
+        
+        landmarks_x = None
+        landmarks_y = None
+        if f"slice_{trans_slice}" in dict_landmarks:
+            landmarks_x = []
+            landmarks_y = []
+            for k in dict_landmarks[f"slice_{trans_slice}"].keys():
+                landmarks_x.append(dict_landmarks[f"slice_{trans_slice}"][k][0])
+                landmarks_y.append(dict_landmarks[f"slice_{trans_slice}"][k][1])
+                
+        self.master.trans_subplot.cla()
+        self.master.trans_subplot.imshow(data[trans_slice, :, :], cmap=cmap)
+        self.master.trans_subplot.axis('off')
+        self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+        self.master.trans_subplot.set_ylim(0,data.shape[0])
+        self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
+        self.master.trans_canvas.draw()
+        
+        self.master.coronal_subplot.cla()
+        self.master.coronal_subplot.imshow(data[:, coronal_slice, :], cmap=cmap)
+        self.master.coronal_subplot.axis('off')
+        self.master.coronal_subplot.invert_yaxis()
+        self.master.coronal_subplot.axhline(y=trans_slice, color='r', linewidth=1)
+        self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+        self.master.coronal_canvas.draw()
+        
+        if landmarks_x is not None and landmarks_y is not None: 
+            self.master.trans_subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
 
     
     def draw_landmarks(self, landmarks):
-        self.master.subplot.scatter(landmarks[:,0],landmarks[:,1], c="red", marker = "x")
-        self.master.canvas.draw()
+        self.master.trans_subplot.scatter(landmarks[:,0],landmarks[:,1], c="red", marker = "x")
+        self.master.trans_canvas.draw()
     
-    def show_landmarks(self, data, n_slice, dict_landmarks, cmap):
+    def show_landmarks(self, data, trans_slice, coronal_slice, dict_landmarks, cmap):
         
-        if f"slice_{n_slice}" in dict_landmarks:
+        if f"slice_{trans_slice}" in dict_landmarks:
             landmarks_x = []
             landmarks_y = []
-            for k in dict_landmarks[f"slice_{n_slice}"].keys():
-                landmarks_x.append(dict_landmarks[f"slice_{n_slice}"][k][0])
-                landmarks_y.append(dict_landmarks[f"slice_{n_slice}"][k][1])
+            for k in dict_landmarks[f"slice_{trans_slice}"].keys():
+                landmarks_x.append(dict_landmarks[f"slice_{trans_slice}"][k][0])
+                landmarks_y.append(dict_landmarks[f"slice_{trans_slice}"][k][1])
             
-            self.master.subplot.cla()
-            self.master.subplot.imshow(data[n_slice, :, :], cmap=cmap)
-            self.master.subplot.axis('off')
-            self.master.subplot.text(0.95, 0.05, f"slice number: {n_slice}", transform=self.master.subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
-            self.master.canvas.draw()
-            self.master.subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
-            self.master.canvas.draw()
+            
+            self.master.trans_subplot.cla()
+            self.master.trans_subplot.imshow(data[trans_slice, :, :], cmap=cmap)
+            self.master.trans_subplot.axis('off')
+            self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+            self.master.trans_subplot.set_ylim(0,data.shape[0])
+            self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
+            self.master.trans_canvas.draw()
+            self.master.trans_subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
+            self.master.trans_canvas.draw()
+            self.master.coronal_canvas.draw()
     
     
     

@@ -15,6 +15,7 @@ import pandas as pd
 from Tools.Deformity_Parameters import calculate_parameter
 import Tools.Segmentation
 import Tools.Contouring
+import GUI.GUI_utils
 
 from scipy.ndimage import gaussian_filter 
 from skimage import feature
@@ -66,7 +67,7 @@ class GUI_Functionality:
         self.contour_fig = None
         self.contour_exists = False
         
-        #Buttons
+        #---------------------------------------------- image frame buttons ----------------------------------------------
         self.button_open_image = self.layout.master.button_open_image
         self.button_open_image.bind('<Button-1>', lambda event: self.open_file())
 
@@ -88,6 +89,7 @@ class GUI_Functionality:
         self.coronal_button_goto_slice = self.layout.master.coronal_button_goto_slice
         self.coronal_button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice(self.coronal))
         
+        #---------------------------------------------- manual parameter buttons -----------------------------------------
         self.button_assymetry_index = self.layout.master.button_assymetry_index
         self.button_assymetry_index.bind('<Button-1>', lambda event: self.get_parameter(self.assymetry_index, self.trans_slice))
         
@@ -106,6 +108,7 @@ class GUI_Functionality:
         self.button_save_parameters = self.layout.master.button_save_parameters
         self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
         
+        #---------------------------------------------- landmark extension buttons --------------------------------------
         self.button_begin = self.layout.master.button_begin
         self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start", self.trans_slice))
         
@@ -123,7 +126,8 @@ class GUI_Functionality:
 
         self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
         self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_rotation(self.dict_landmarks))
-
+        
+        #---------------------------------------------- segmentation buttons ---------------------------------------------
         self.button_segment = self.layout.master.button_segment
         self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
 
@@ -139,16 +143,19 @@ class GUI_Functionality:
         self.button_auto_parameter = self.layout.master.button_auto_parameter
         self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_params(self.trans_slice))
         
-        #entrys
+        #----------------------------------------------------- entrys -----------------------------------------------------
         self.slice_entry = self.layout.master.slice_entry
         self.coronal_slice_entry = self.layout.master.coronal_slice_entry
         
+        #----------------------------------------------------- menus ------------------------------------------------------
         self.parameter_menu = self.layout.master.parameter_menu
         
-        #table 
+        #--------------------------------------------------- output table -------------------------------------------------
         self.output_table = self.layout.master.table
 
     
+    
+        
     def open_file(self):
         try:
             #open directory to find a file
@@ -164,8 +171,6 @@ class GUI_Functionality:
             messagebox.showerror("opening file", "Problem with opening the file, please try another one")
     
     def change_slice(self, view, direction): 
-
-
         if self.image_array is None:
             return
 
@@ -230,13 +235,13 @@ class GUI_Functionality:
     def get_points(self, parameter, slice_num):
         #show the image in new window
         plt.imshow(self.image_array[slice_num, :, :],cmap=self.map)
+        plt.gca().invert_yaxis()
 
+        
         #retreive points
         points = []
         points = np.asarray(plt.ginput(len(self.dict_landmark_num[parameter]), timeout=-1))
-
         plt.close()
-        
         
         if f"slice_{slice_num}" not in self.dict_landmarks:
             # If the key doesn't exist, create it with an empty dictionary as its value
@@ -261,9 +266,6 @@ class GUI_Functionality:
         elif parameter == self.steep_vertebral:
             self.dict_landmarks[f"slice_{slice_num}"]["point_11"] = points[0,:].astype(int)
             self.dict_landmarks[f"slice_{slice_num}"]["point_12"] = points[1,:].astype(int)
-        
-        #display the marked point in the GUI
-        #self.layout.draw_landmarks(pts)
         
         return points
 
@@ -298,59 +300,6 @@ class GUI_Functionality:
             dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")
             file_name = dialog.get_input()
             self.df_params.to_csv(f'{file_name}.csv', index=False)
-            
-    def landmark_extension(self, start_slice, end_slice):
-        parameter = self.parameter_menu.get()
-        
-        #retreive the input seed and put them into the point dicts
-        #save the slice used for seed in the original_seeds list
-        original_seeds = []
-        for i in range(start_slice, end_slice, 50):
-            self.get_points(parameter, i)
-            original_seeds.append(i)
-        
-        for point in self.dict_landmark_num[parameter]:
-            n_seed = 0
-            prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
-            for i in range(26):
-                next_seed = self.GetNextSeed(self.image_array[start_slice+i+1,:,:], prev_seed)
-                
-                if f"slice_{original_seeds[0]+i}" not in self.dict_landmarks:
-                    # If the key doesn't exist, create it with an empty dictionary as its value
-                    self.dict_landmarks[f"slice_{original_seeds[n_seed]+i}"] = {}
-                    
-                self.dict_landmarks[f"slice_{original_seeds[n_seed]+i}"][f"point_{point}"] = next_seed  
-                prev_seed = next_seed
-            
-            
-            #after first 25 propagate from next seed up
-            for i in range(start_slice+50,end_slice, 50):
-                n_seed += 1
-                
-                prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
-
-                for j in range(25):
-                    next_seed = self.GetNextSeed(self.image_array[start_slice+j-1,:,:], prev_seed)
-                    
-                    if f"slice_{original_seeds[n_seed]-j}" not in self.dict_landmarks:
-                        # If the key doesn't exist, create it with an empty dictionary as its value
-                        self.dict_landmarks[f"slice_{original_seeds[n_seed]-j}"] = {}
-                        
-                    self.dict_landmarks[f"slice_{original_seeds[n_seed]-j}"][f"point_{point}"] = next_seed  
-                    prev_seed = next_seed
-                
-                #set prev_seed back to input seed point
-                prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
-                
-                for k in range(26):
-                    next_seed = self.GetNextSeed(self.image_array[start_slice+k+1,:,:], prev_seed)
-                    
-                    if f"slice_{original_seeds[n_seed]+k}" not in self.dict_landmarks:
-                        # If the key doesn't exist, create it with an empty dictionary as its value
-                        self.dict_landmarks[f"slice_{original_seeds[n_seed]+k}"] = {}
-                        
-                    self.dict_landmarks[f"slice_{original_seeds[n_seed]+k}"][f"point_{point}"] = next_seed  
-                    prev_seed = next_seed
     
     def weighted_landmark_extension(self, start_slice, end_slice):
         parameter = self.parameter_menu.get()
@@ -373,14 +322,14 @@ class GUI_Functionality:
                 prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
                 
                 for i in range(original_seeds[n_seed]+1, original_seeds[n_seed+1], 1):
-                    next_seed = self.GetNextSeed(self.image_array[i,:,:], prev_seed)
+                    next_seed = GUI.GUI_utils.GetNextSeed(self.image_array[i,:,:], prev_seed)
                     up_seed.append(next_seed)
                     prev_seed = next_seed
                 
                 prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed+1]}"][f"point_{point}"]
                 
                 for j in range(original_seeds[n_seed+1]+1, original_seeds[n_seed], -1):
-                    next_seed = self.GetNextSeed(self.image_array[j,:,:], prev_seed)
+                    next_seed = GUI.GUI_utils.GetNextSeed(self.image_array[j,:,:], prev_seed)
                     down_seed.append(next_seed)
                     prev_seed = next_seed
                 
@@ -402,52 +351,15 @@ class GUI_Functionality:
         time.sleep(2)
         window.destroy()
         
+    def change_landmarks(self,parameter, slice_number):
+        self.get_points(parameter, slice_number)    
+        
     def computer_rib_rotation(self, dict_landmarks):
         for i in range(np.shape(self.image_array)[0]):
             if f"slice_{i}" in dict_landmarks:
                 if "point_3" in self.dict_landmarks[f"slice_{i}"] and "point_4" in self.dict_landmarks[f"slice_{i}"]:
                       img = self.image_array[i, :, :]
-                      
 
-
-    def GetNextSeed(self, work_slice, seed):
-        
-        seedx = seed[0]
-        seedy = seed[1]
-        
-        gaussian = gaussian_filter(work_slice, sigma=3)
-        edges1 = feature.canny(gaussian, sigma = 3)
-        #window = edges1[seedy-100:seedy+100,seedx-100:seedx+100]
-        
-        #find closest gradient points within an increading radius i 
-        i = 1
-        near_points = []
-        looking = True
-        while(looking):
-            for k in range((seedx-i),(seedx+i+1)):
-                for j in range(seedy-i,seedy+i+1):
-                    if edges1[k,j]:
-                        near_points.append((k,j))
-            i += 1
-            if len(near_points) != 0:
-                looking = False
-            #stops looking when we find the first gradient points 
-            
-        # now we need to determine which one is the closest
-        #get the euclidean distance from all and decide on the new seed
-        min_distance = math.dist((seedx,seedy), (near_points[0]))
-        next_seed = near_points[0]
-        for point in near_points:
-            if math.dist((seedx,seedy), point) < min_distance:
-                min_distance = math.dist((seedx,seedy), point)
-                next_seed = point
-                
-        return next_seed 
-    
-    def change_landmarks(self,parameter, slice_number):
-        self.get_points(parameter, slice_number)
-    
-        self.layout.show_landmarks(self.image_array, slice_number, self.dict_landmarks, self.map)
 
     def automatic_segmentation(self):
         if self.image is None:
@@ -637,121 +549,3 @@ class GUI_Functionality:
         return window, pb
 
 
-"""
-    def calc_assymetry_index(self):
-        self.current_param = self.assymetry_index
-        if self.image_array is not None:
-            pts = self.get_points(self.assymetry_index)
-            
-            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
-                
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_5"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_6"] = pts[1,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_7"] = pts[2,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_8"] = pts[3,:]
-            
-            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
-            
-            self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
-    
-    def calc_trunk_angle(self):
-        self.current_param = self.trunk_rotation
-        if self.image_array is not None:
-            pts = self.get_points(self.trunk_rotation)
-            
-            
-            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
-                
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_3"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_4"] = pts[1,:]
-            
-            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-            
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
-            
-            self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
-    
-    def calc_pectus_index(self):
-        self.current_param = self.pectus_index
-        if self.image_array is not None:
-            pts = self.get_points(self.pectus_index)
-            
-            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
-                
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_9"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_10"] = pts[1,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_11"] = pts[2,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_12"] = pts[3,:]
-            
-            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-            
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
-            
-            self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
-    
-    def calc_sagital_diameter(self):
-        self.current_param = self.sagital_diameter
-        if self.image_array is not None:
-            pts = self.get_points(self.sagital_diameter)
-            
-            
-            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
-                
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_11"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_13"] = pts[1,:]
-            
-            
-            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-            
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
-        
-            self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
-    
-    def calc_steep_vertebral(self):
-        self.current_param = "steep vertebral"
-        if self.image_array is not None:
-            pts = self.get_points(num_points=2)
-            
-            
-            if f"slice_{self.trans_slice}" not in self.dict_landmarks:
-                # If the key doesn't exist, create it with an empty dictionary as its value
-                self.dict_landmarks[f"slice_{self.trans_slice}"] = {}
-                
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_11"] = pts[0,:]
-            self.dict_landmarks[f"slice_{self.trans_slice}"]["point_12"] = pts[1,:]
-            
-            
-            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-            
-            self.param_value = round(calculate_parameter(self.dict_landmarks, self.current_param, self.trans_slice),3)
-            
-            self.add_parameter()
-            self.output_table.insert(parent= '', index = tk.END, values = (self.current_param, self.param_value, self.trans_slice))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
-   
-"""
-
-            

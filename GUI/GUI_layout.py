@@ -38,12 +38,15 @@ class GUI_Layout:
         self.automatic_buttons()
         
     def sidebar(self):
+        #creation of the sidebar frame 
         self.master.sidebar_frame = customtkinter.CTkFrame(self.master, width=140, corner_radius=0)
         self.master.sidebar_frame.grid(row=0, column=0, rowspan=2, sticky="nsew")
         
+        #sidebar configure 
         self.master.sidebar_frame.columnconfigure(0, weight = 1)
         self.master.sidebar_frame.grid_rowconfigure(4, weight=1)
         
+        #components sidebar
         self.master.logo_label = customtkinter.CTkLabel(self.master.sidebar_frame, text="Menu", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.logo_label.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky = 'ew')
         
@@ -54,25 +57,14 @@ class GUI_Layout:
         self.master.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10), sticky = 'ew')
         
     def image_frame(self):
+        #creation of the image frame
         self.master.image_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400,fg_color = 'transparent', corner_radius=0)
         self.master.image_frame.grid(row=0, column=1, sticky = "nsew")
+        
+        #congifure of the image frame 
         self.master.image_frame.columnconfigure((4,5), weight=1)
         self.master.image_frame.rowconfigure((0,1,2), weight=1)
         
-        self.master.image_label = customtkinter.CTkLabel(self.master.image_frame,  text = "Patient Image", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.image_label.grid(row =0, column = 0, columnspan = 10, padx=(10, 10), pady=(10, 10))
-        
-        #tab views
-        #self.master.tabview = customtkinter.CTkTabview(self.master.image_frame)
-        #self.master.tabview.grid(row=1, column=0, sticky = "nsew")
-        #self.master.tabview.add("Image")
-        #self.master.tabview.add("Table")
-        #self.master.tabview.tab("Image").grid_columnconfigure((0,3), weight=1)
-        #self.master.tabview.tab("Image").grid_rowconfigure((0,1,2), weight=1)
-        #self.master.tabview.tab("Table").grid_columnconfigure((0), weight=1)
-        #self.master.tabview.tab("Table").grid_rowconfigure((0), weight=1)
-        
-        #---------------------------------------- Image tab ----------------------------------------
         #transverse figure 
         self.master.trans_fig = plt.Figure(figsize=(4,4),dpi=100)
         self.master.trans_fig.set_facecolor(color = "white")
@@ -88,7 +80,11 @@ class GUI_Layout:
         self.master.coronal_subplot = self.master.coronal_fig.add_subplot()
         self.master.coronal_subplot.axis("off")
         self.master.coronal_subplot.set_facecolor(color = "white")
+        
+        #components of the image frame
         #https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
+        self.master.image_label = customtkinter.CTkLabel(self.master.image_frame,  text = "Patient Image", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.master.image_label.grid(row =0, column = 0, columnspan = 10, padx=(10, 10), pady=(10, 10))
         
         self.master.trans_canvas = FigureCanvasTkAgg(self.master.trans_fig, master=self.master.image_frame)  # A tk.DrawingArea.
         self.master.trans_canvas.draw()
@@ -98,11 +94,11 @@ class GUI_Layout:
         self.master.coronal_canvas.draw()
         self.master.coronal_canvas.get_tk_widget().grid(row=1, column=5, columnspan=5, padx=(10,10), pady=(0,10), sticky = 'news')
         
-        self.master.button_goto_slice = customtkinter.CTkButton(self.master.image_frame, width = 100, text="go to", )
-        self.master.button_goto_slice.grid(row=2, column=0 ,padx=(10,0), pady=(0,0), sticky = 'ew')
-        
         self.master.slice_entry = customtkinter.CTkEntry(self.master.image_frame, width = 100, placeholder_text="Slice Number")
-        self.master.slice_entry.grid(row=2, column=1, columnspan=1, padx=(0, 10), pady=(0, 0), sticky="ew")
+        self.master.slice_entry.grid(row=2, column=0, columnspan=1, padx=(10, 0), pady=(0, 0), sticky="ew")
+        
+        self.master.button_goto_slice = customtkinter.CTkButton(self.master.image_frame, width = 100, text="go to", )
+        self.master.button_goto_slice.grid(row=2, column=1 ,padx=(0,10), pady=(0,0), sticky = 'ew')
         
         self.master.button_min = customtkinter.CTkButton(self.master.image_frame, width = 50, text="-", )
         self.master.button_min.grid(row=2, column=2,padx=(10,0), pady=(0,0), sticky = 'ew')
@@ -126,10 +122,14 @@ class GUI_Layout:
         self.master.coronal_button_goto_slice.grid(row=2, column=9, padx=(0,10), pady=(0,0), sticky = 'ew')
         
     def output_frame(self):
+        #creation of the output frame
         self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
         self.master.output_frame.grid(row=1, column=1, padx=(10,10), pady=(0,0), sticky='nsew')
+        
+        #configure of the output frame
         self.master.output_frame.columnconfigure(0, weight = 1)
         
+        #components of the output frame
         self.master.output_label = customtkinter.CTkLabel(self.master.output_frame,  text = "Parameter values", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.output_label.grid(row =0, column = 0, padx=(10, 10), pady=(10, 10))
         
@@ -138,7 +138,6 @@ class GUI_Layout:
         self.master.table.heading("parameter", text = "Parameter")
         self.master.table.heading("value", text = "Value")
         self.master.table.heading("slice", text = "Slice")
-        #self.master.table.pack(fill = "both", expand = True)
         self.master.table.grid(row=1, column=0, sticky = "news", padx = (5,5), pady = (5,0))
         
         self.master.table.bind('<Delete>', self.delete_items)
@@ -146,113 +145,94 @@ class GUI_Layout:
         self.master.button_save_parameters = customtkinter.CTkButton(self.master.output_frame, text="Save Parameters", )
         self.master.button_save_parameters.grid(row=3, column=0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        #self.master.output_label = customtkinter.CTkLabel(self.master.output_frame,  text = "Output", font=customtkinter.CTkFont(size=20, weight="bold"))
-        #self.master.output_label.grid(row =0, column = 0)
-        
-        #self.master.results_label = customtkinter.CTkLabel(self.master.output_frame, text=" ", height = 50)
-        #self.master.results_label.grid(row =1, column = 0)
-        
-        #self.master.keep_btn = customtkinter.CTkButton(self.master.output_frame, text = "Keep", font = ("Arial",18), )
-        #self.master.keep_btn.grid(row=2, column = 0)
-        
     def manual_buttons(self):
+        #creation of the button frame 
         self.master.button_frame = customtkinter.CTkFrame(self.master, width = 250, fg_color="transparent", corner_radius=0)
         self.master.button_frame.grid(row=0, column=2, rowspan = 2, padx=(5,5), pady=(5,5), sticky="nsew")
+        
+        #configure of the button frame
         self.master.button_frame.columnconfigure((0,1), weight = 1)
         
+        #manual components of the button frame
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Manual Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.manual_parameter_label.grid(row=0, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-        self.master.param_info_btn = customtkinter.CTkButton(self.master.button_frame, text = "show landmarks", font = ("Arial",18), )
-        self.master.param_info_btn.grid(row=1, column = 0, columnspan = 2, padx=(5,5), pady=(0,5), sticky= 'ew')
-        
         self.master.button_assymetry_index = customtkinter.CTkButton(self.master.button_frame, text = "assymetry index", font = ("Arial",18), )
-        self.master.button_assymetry_index.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
+        self.master.button_assymetry_index.grid(row=1, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
         
         self.master.button_trunk_angle = customtkinter.CTkButton(self.master.button_frame, text = "trunk angle", font = ("Arial",18), )
-        self.master.button_trunk_angle.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_trunk_angle.grid(row=1, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_pectus_index = customtkinter.CTkButton(self.master.button_frame, text = "pectus index", font = ("Arial",18), )
-        self.master.button_pectus_index.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_pectus_index.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_sagital_diameter = customtkinter.CTkButton(self.master.button_frame, text = "sagital diameter", font = ("Arial",18), )
-        self.master.button_sagital_diameter.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_sagital_diameter.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_steep_vertebral = customtkinter.CTkButton(self.master.button_frame, text = "steep vertebral", font = ("Arial",18), )
-        self.master.button_steep_vertebral.grid(row=4, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.param_btn6 = customtkinter.CTkButton(self.master.button_frame, text = "Param 6", font = ("Arial",18), )
-        self.master.param_btn6.grid(row=4, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_steep_vertebral.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def landmark_extension_buttons(self):
-        
-        self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Landmark Extension", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.manual_parameter_label.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        #landmark extenstion components of the button frame
+        self.master.landmark_extention_label = customtkinter.CTkLabel(self.master.button_frame, text="Landmark Extension", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.master.landmark_extention_label.grid(row=4, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
         self.master.parameter_menu = customtkinter.CTkOptionMenu(self.master.button_frame, dynamic_resizing=False,
                                                         values=["Angle Trunk Rotation", "Assymetry Index", "Pectus Index", "Saggital Diameter", "Steep Vertebral"])
-        self.master.parameter_menu.grid(row=6, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
+        self.master.parameter_menu.grid(row=5, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
         
         self.master.button_begin = customtkinter.CTkButton(self.master.button_frame, text = "set startpoint", font = ("Arial",18), )
-        self.master.button_begin.grid(row=7, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_begin.grid(row=6, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_end = customtkinter.CTkButton(self.master.button_frame, text = "set endpoint", font = ("Arial",18), )
-        self.master.button_end.grid(row=7, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_end.grid(row=6, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_landmark_extension = customtkinter.CTkButton(self.master.button_frame, text = "compute landmarks", font = ("Arial",18), )
-        self.master.button_landmark_extension.grid(row=8, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_landmark_extension.grid(row=7, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_change_landmarks = customtkinter.CTkButton(self.master.button_frame, text = "change landmarks", font = ("Arial",18), )
-        self.master.button_change_landmarks.grid(row=9, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_change_landmarks.grid(row=8, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "compute parameter", font = ("Arial",18), )
-        self.master.compute_parameters.grid(row=10, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.compute_parameters.grid(row=9, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "compute rib rotation", font = ("Arial",18), )
-        self.master.button_compute_rib_rotation.grid(row=10, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_compute_rib_rotation.grid(row=9, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def automatic_buttons(self):
-        
+        #automatic landmarks components of the button frame
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.manual_parameter_label.grid(row= 11, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        self.master.manual_parameter_label.grid(row= 10, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
 
         self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment automatically", font = ("Arial",18), )
-        self.master.button_segment.grid(row=12, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_segment.grid(row=11, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Calculate contour", font = ("Arial",18), )
-        self.master.button_calculate_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_calculate_contour.grid(row=12, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove contour", font = ("Arial",18), )
-        self.master.button_remove_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_remove_contour.grid(row=12, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load contour", font = ("Arial",18), )
-        self.master.button_load_contour.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_load_contour.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Calculate parameters", font = ("Arial",18), )
-        self.master.button_auto_parameter.grid(row=15, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_auto_parameter.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
     
-    def on_closing(self):
-        self.master.destroy()  # Close the window
-        raise SystemExit  # Stop the kernel
-    
     def delete_items(self):
         for i in self.table.selection():
             self.table.delete(i)
+            
+    def on_closing(self):
+        self.master.destroy()  
+        raise SystemExit  
     
     def draw_image(self, data, trans_slice, coronal_slice, dict_landmarks, cmap):
         
-        landmarks_x = None
-        landmarks_y = None
-        if f"slice_{trans_slice}" in dict_landmarks:
-            landmarks_x = []
-            landmarks_y = []
-            for k in dict_landmarks[f"slice_{trans_slice}"].keys():
-                landmarks_x.append(dict_landmarks[f"slice_{trans_slice}"][k][0])
-                landmarks_y.append(dict_landmarks[f"slice_{trans_slice}"][k][1])
-                
+        #transverse subplot 
         self.master.trans_subplot.cla()
         self.master.trans_subplot.imshow(data[trans_slice, :, :], cmap=cmap)
         self.master.trans_subplot.axis('off')
@@ -261,6 +241,7 @@ class GUI_Layout:
         self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
         self.master.trans_canvas.draw()
         
+        #coronal subplot
         self.master.coronal_subplot.cla()
         self.master.coronal_subplot.imshow(data[:, coronal_slice, :], cmap=cmap)
         self.master.coronal_subplot.axis('off')
@@ -269,12 +250,9 @@ class GUI_Layout:
         self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.coronal_canvas.draw()
         
-        if landmarks_x is not None and landmarks_y is not None: 
-            self.master.trans_subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
-
-
     def show_landmarks(self, data, trans_slice, coronal_slice, dict_landmarks, cmap):
         
+        #check if there are landmarks for the slice and retreive them
         if f"slice_{trans_slice}" in dict_landmarks:
             landmarks_x = []
             landmarks_y = []
@@ -289,7 +267,6 @@ class GUI_Layout:
             self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
             self.master.trans_subplot.set_ylim(0,data.shape[0])
             self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
-            self.master.trans_canvas.draw()
             self.master.trans_subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
             self.master.trans_canvas.draw()
             self.master.coronal_canvas.draw()

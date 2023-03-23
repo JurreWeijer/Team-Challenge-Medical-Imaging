@@ -8,6 +8,9 @@ import customtkinter
 from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
+import cv2 as cv
+import Tools.Contouring
 
 
 class GUI_Layout:
@@ -236,11 +239,11 @@ class GUI_Layout:
         self.master.destroy()  
         raise SystemExit  
     
-    def draw_image(self, trans_image, coronal_image, trans_slice, coronal_slice, dict_landmarks, cmap):
+    def draw_image(self, trans_image, coronal_image, trans_slice, coronal_slice, contour, cmap):
         
         #transverse subplot 
         self.master.trans_subplot.cla()
-        self.master.trans_subplot.imshow(trans_image[trans_slice, :, :], cmap=cmap)
+        self.master.trans_subplot.imshow(trans_image[trans_slice, :, :],  cmap=cmap)
         self.master.trans_subplot.axis('off')
         self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.trans_subplot.set_ylim(0,trans_image.shape[0])
@@ -254,6 +257,19 @@ class GUI_Layout:
         self.master.coronal_subplot.invert_yaxis()
         self.master.coronal_subplot.axhline(y=trans_slice, color='r', linewidth=1)
         self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+        self.master.coronal_canvas.draw()
+        
+        if contour == True:
+            centroids = Tools.Contouring.MultiSliceContour(trans_image, trans_slice)
+            hull = cv.convexHull(centroids[1:])
+            slice = trans_image[trans_slice,:,:]
+            canvas = np.zeros_like(slice)
+            
+            cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
+            self.master.trans_subplot.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
+            self.master.trans_subplot.imshow(canvas, alpha = 1, cmap= "gray")
+        
+        self.master.trans_canvas.draw()
         self.master.coronal_canvas.draw()
         
     def show_landmarks(self, trans_image, trans_slice, coronal_slice, dict_landmarks, cmap):
@@ -277,8 +293,5 @@ class GUI_Layout:
             self.master.trans_canvas.draw()
             self.master.coronal_canvas.draw()
     
-    
-    
-        
         
         

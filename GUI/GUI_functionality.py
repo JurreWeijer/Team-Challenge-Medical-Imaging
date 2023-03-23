@@ -71,8 +71,9 @@ class GUI_Functionality:
         self.dict_parameters = {}
         self.start_slice = None
         self.end_slice = None
-        self.contour_fig = None
-        self.contour_exists = False
+        self.contour = False
+        #self.contour_fig = None
+        #self.contour_exists = False
         
         #---------------------------------------------- image frame buttons ----------------------------------------------
         self.button_open_image = self.layout.master.button_open_image
@@ -145,7 +146,7 @@ class GUI_Functionality:
         self.button_show_coronal_segment.bind('<Button-1>', lambda event: self.change_image_view(self.coronal))
         
         self.button_calculate_contour = self.layout.master.button_calculate_contour
-        self.button_calculate_contour.bind('<Button-1>', lambda event: self.calc_contour())
+        self.button_calculate_contour.bind('<Button-1>', lambda event: self.draw_contour())
         
         self.button_remove_contour = self.layout.master.button_remove_contour
         self.button_remove_contour.bind('<Button-1>', lambda event: self.remove_contour())
@@ -181,7 +182,7 @@ class GUI_Functionality:
                 self.trans_array_state = self.non_segmented
                 self.coronal_image_array = self.image_array
                 self.coronal_array_state = self.non_segmented
-                self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+                self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
             else:
                 messagebox.showinfo(title="Message", message="incorrect file type")
         except:
@@ -209,7 +210,7 @@ class GUI_Functionality:
             elif direction == self.minus: 
                 self.coronal_slice -= 1
 
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
     
     def go_to_slice(self, view):
@@ -227,7 +228,7 @@ class GUI_Functionality:
             if self.image_array is not None:
                 # check if the slice number is within the range of the image
                 if 0 <= self.trans_slice <= np.shape(self.image_array)[0] and 0 <= self.coronal_slice <= np.shape(self.image_array)[0] :
-                    self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+                    self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
                     self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
                 else:
                     # error message in the text frame that the slice number is out of range
@@ -254,7 +255,7 @@ class GUI_Functionality:
                     self.coronal_image_array = self.image_array
                     self.coronal_array_state = self.non_segmented
             
-            self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+            self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
             
     def set_slice(self, position, slice_number):
         if position == "start":
@@ -403,78 +404,32 @@ class GUI_Functionality:
             messagebox.showinfo(title="Message", message="Please first select an image")
             return
 
-        self.segmentation_window, self.segmentation_progressbar = self.progressbar("segmentation")
-
         segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
-        self.segmentation_progressbar.set(0.5)
-        
         self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
         self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
-        self.segmentation_progressbar.set(1.0)
+        
+        #save segmentation
         filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
         sitk.WriteImage(self.segmented_image, fileName=filename)
-        
-        time.sleep(2)
-        self.segmentation_window.destroy()
         messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
-
-        return
-
-    def calc_contour(self):
-        if self.segmented_image is None:
-            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
-            try:
-                self.segmented_image = sitk.ReadImage(segmentation_path.name)
-                self.image_array = sitk.GetArrayFromImage(self.segmented_image)
-            except:
-                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
-        try:
-            centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.trans_slice)
-        except:
-            messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
-        
-        self.draw_contour(self.trans_slice, centroids)
-        self.contour_exists = True
-
-    def draw_contour(self, slice_num, centroids): 
-        slice = sitk.GetArrayFromImage(self.segmented_image)[slice_num, :, :]
-        canvas = np.zeros_like(slice)
-        
-        if self.contour_fig is not None:
-            self.contour_fig.clf()
-            plt.close(self.contour_fig)
-        
-        self.contour_fig = plt.figure()
     
-        hull = cv.convexHull(centroids[1:])
-        cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
-        plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
-        plt.axis("off", emit = False)
-        plt.imshow(canvas, alpha = 1, cmap= "gray")
-        plt.imshow(slice, alpha= 0.3, cmap = "gray", vmax = 1)
-
-        #Only takes hull, as there is a lot of noise because of the multiple slices
-        self.contour_points = hull.reshape((-1,2))
-        
-        #Move large canvas out of the way to display the contouring canvas next to it
-        self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
-
-        self.master.canvas2 = FigureCanvasTkAgg(self.contour_fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
-        self.master.canvas2.draw()
-        self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=3, padx=(10, 10), pady=(0, 10),
-                                                       sticky='news')
         return
+
+    def draw_contour(self):
+        if self.segmented_image_array is None: 
+            messagebox.showerror("Contouring", "must segement the image first")
+            return 
+        
+        self.contour = True 
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        
     
     def remove_contour(self):
-        self.contour_fig.clf()
-        plt.close(self.contour_fig)
-        #self.master.canvas2.draw()
+        self.contour = False 
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
         
-        self.master.canvas2.get_tk_widget().grid_forget()  # Remove the old canvas widget
-        self.master.canvas2.draw()
-        #self.master.canvas2 = None
-        self.contour_exists = False
-        self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky='nwes')
+        
+    
 
     def get_contour(self):
         #Get contour from CSO file
@@ -587,3 +542,58 @@ class GUI_Functionality:
         return window, pb
 
 
+"""def calc_contour(self):
+    if self.segmented_image is None:
+        segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+        try:
+            self.segmented_image = sitk.ReadImage(segmentation_path.name)
+            self.image_array = sitk.GetArrayFromImage(self.segmented_image)
+        except:
+            messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
+    try:
+        centroids = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), self.trans_slice)
+    except:
+        messagebox.showerror("Contouring", "Problem with retrieving contour, please try a different segmentation")
+    
+    self.draw_contour(self.trans_slice, centroids)
+    self.contour_exists = True"""
+
+"""def draw_contour_test(self, slice_num, centroids): 
+    slice = sitk.GetArrayFromImage(self.segmented_image)[slice_num, :, :]
+    canvas = np.zeros_like(slice)
+    
+    if self.contour_fig is not None:
+        self.contour_fig.clf()
+        plt.close(self.contour_fig)
+    
+    self.contour_fig = plt.figure()
+
+    hull = cv.convexHull(centroids[1:])
+    cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
+    plt.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
+    plt.axis("off", emit = False)
+    plt.imshow(canvas, alpha = 1, cmap= "gray")
+    plt.imshow(slice, alpha= 0.3, cmap = "gray", vmax = 1)
+
+    #Only takes hull, as there is a lot of noise because of the multiple slices
+    self.contour_points = hull.reshape((-1,2))
+    
+    #Move large canvas out of the way to display the contouring canvas next to it
+    self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=3, padx=(10,10), pady=(0,10), sticky = 'nwes')
+
+    self.master.canvas2 = FigureCanvasTkAgg(self.contour_fig, master=self.layout.master.image_frame)  # A tk.DrawingArea.
+    self.master.canvas2.draw()
+    self.layout.master.canvas2.get_tk_widget().grid(row=1, column=3, columnspan=3, padx=(10, 10), pady=(0, 10),
+                                                   sticky='news')
+    return"""
+
+"""def remove_contour(self):
+    self.contour_fig.clf()
+    plt.close(self.contour_fig)
+    #self.master.canvas2.draw()
+    
+    self.master.canvas2.get_tk_widget().grid_forget()  # Remove the old canvas widget
+    self.master.canvas2.draw()
+    #self.master.canvas2 = None
+    self.contour_exists = False
+    self.layout.master.canvas.get_tk_widget().grid(row=1, column=0, columnspan=6, padx=(10,10), pady=(0,10), sticky='nwes')"""

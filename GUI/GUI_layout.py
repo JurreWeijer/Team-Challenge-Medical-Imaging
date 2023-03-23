@@ -204,20 +204,26 @@ class GUI_Layout:
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.manual_parameter_label.grid(row= 10, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
 
-        self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment automatically", font = ("Arial",18), )
+        self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment Image", font = ("Arial",18), )
         self.master.button_segment.grid(row=11, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
-
-        self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Calculate contour", font = ("Arial",18), )
-        self.master.button_calculate_contour.grid(row=12, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove contour", font = ("Arial",18), )
-        self.master.button_remove_contour.grid(row=12, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_show_trans_segment = customtkinter.CTkButton(self.master.button_frame, text = "Transverse Segmentation", font = ("Arial",18), )
+        self.master.button_show_trans_segment.grid(row=12, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load contour", font = ("Arial",18), )
-        self.master.button_load_contour.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_show_coronal_segment = customtkinter.CTkButton(self.master.button_frame, text = "Coronal Segmentation", font = ("Arial",18), )
+        self.master.button_show_coronal_segment.grid(row=12, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Show Contour", font = ("Arial",18), )
+        self.master.button_calculate_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove Contour", font = ("Arial",18), )
+        self.master.button_remove_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load Contour", font = ("Arial",18), )
+        self.master.button_load_contour.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Calculate parameters", font = ("Arial",18), )
-        self.master.button_auto_parameter.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_auto_parameter.grid(row=15, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -230,27 +236,27 @@ class GUI_Layout:
         self.master.destroy()  
         raise SystemExit  
     
-    def draw_image(self, data, trans_slice, coronal_slice, dict_landmarks, cmap):
+    def draw_image(self, trans_image, coronal_image, trans_slice, coronal_slice, dict_landmarks, cmap):
         
         #transverse subplot 
         self.master.trans_subplot.cla()
-        self.master.trans_subplot.imshow(data[trans_slice, :, :], cmap=cmap)
+        self.master.trans_subplot.imshow(trans_image[trans_slice, :, :], cmap=cmap)
         self.master.trans_subplot.axis('off')
         self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
-        self.master.trans_subplot.set_ylim(0,data.shape[0])
+        self.master.trans_subplot.set_ylim(0,trans_image.shape[0])
         self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
         self.master.trans_canvas.draw()
         
         #coronal subplot
         self.master.coronal_subplot.cla()
-        self.master.coronal_subplot.imshow(data[:, coronal_slice, :], cmap=cmap)
+        self.master.coronal_subplot.imshow(coronal_image[:, coronal_slice, :], cmap=cmap)
         self.master.coronal_subplot.axis('off')
         self.master.coronal_subplot.invert_yaxis()
         self.master.coronal_subplot.axhline(y=trans_slice, color='r', linewidth=1)
         self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.coronal_canvas.draw()
         
-    def show_landmarks(self, data, trans_slice, coronal_slice, dict_landmarks, cmap):
+    def show_landmarks(self, trans_image, trans_slice, coronal_slice, dict_landmarks, cmap):
         
         #check if there are landmarks for the slice and retreive them
         if f"slice_{trans_slice}" in dict_landmarks:
@@ -262,10 +268,10 @@ class GUI_Layout:
             
             
             self.master.trans_subplot.cla()
-            self.master.trans_subplot.imshow(data[trans_slice, :, :], cmap=cmap)
+            self.master.trans_subplot.imshow(trans_image[trans_slice, :, :], cmap=cmap)
             self.master.trans_subplot.axis('off')
             self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
-            self.master.trans_subplot.set_ylim(0,data.shape[0])
+            self.master.trans_subplot.set_ylim(0,trans_image.shape[0])
             self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
             self.master.trans_subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")
             self.master.trans_canvas.draw()

@@ -32,6 +32,8 @@ class GUI_Functionality:
         self.layout = layout
         
         #parameters
+        self.non_segmented = "normal image"
+        self.segmentation = "segmentation"
         self.map = "gray"
         self.coronal = "coronal"
         self.transverse = "transverse"
@@ -52,8 +54,13 @@ class GUI_Functionality:
         #Variables
         self.file_path = None
         self.image = None
-        self.segmented_image = None
         self.image_array = None
+        self.segmented_image = None
+        self.segmented_image_array = None
+        self.trans_image_array = None
+        self.trans_array_state = None
+        self.coronal_image_array = None
+        self.coronal_array_state = None
         self.trans_slice = 200
         self.coronal_slice = 135
         self.contour_points = None
@@ -130,7 +137,13 @@ class GUI_Functionality:
         #---------------------------------------------- segmentation buttons ---------------------------------------------
         self.button_segment = self.layout.master.button_segment
         self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
-
+        
+        self.button_show_trans_segment = self.layout.master.button_show_trans_segment
+        self.button_show_trans_segment.bind('<Button-1>', lambda event: self.change_image_view(self.transverse))
+        
+        self.button_show_coronal_segment = self.layout.master.button_show_coronal_segment
+        self.button_show_coronal_segment.bind('<Button-1>', lambda event: self.change_image_view(self.coronal))
+        
         self.button_calculate_contour = self.layout.master.button_calculate_contour
         self.button_calculate_contour.bind('<Button-1>', lambda event: self.calc_contour())
         
@@ -164,7 +177,11 @@ class GUI_Functionality:
             if os.path.splitext(self.file_path.name)[1] == '.nii':
                 self.image = sitk.ReadImage(self.file_path.name)
                 self.image_array = sitk.GetArrayFromImage(self.image)
-                self.layout.draw_image(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+                self.trans_image_array = self.image_array
+                self.trans_array_state = self.non_segmented
+                self.coronal_image_array = self.image_array
+                self.coronal_array_state = self.non_segmented
+                self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             else:
                 messagebox.showinfo(title="Message", message="incorrect file type")
         except:
@@ -192,7 +209,7 @@ class GUI_Functionality:
             elif direction == self.minus: 
                 self.coronal_slice -= 1
 
-        self.layout.draw_image(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
     
     def go_to_slice(self, view):
@@ -210,7 +227,7 @@ class GUI_Functionality:
             if self.image_array is not None:
                 # check if the slice number is within the range of the image
                 if 0 <= self.trans_slice <= np.shape(self.image_array)[0] and 0 <= self.coronal_slice <= np.shape(self.image_array)[0] :
-                    self.layout.draw_image(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+                    self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
                     self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
                 else:
                     # error message in the text frame that the slice number is out of range
@@ -218,6 +235,26 @@ class GUI_Functionality:
         finally:
             self.slice_entry.delete(0, "end")
             self.coronal_slice_entry.delete(0, "end")
+    
+    def change_image_view(self, view):
+        if self.segmented_image_array is not None: 
+            
+            if view == self.transverse:
+                if self.trans_array_state == self.non_segmented:
+                    self.trans_image_array = self.segmented_image_array
+                    self.trans_array_state = self.segmentation
+                elif self.trans_array_state == self.segmentation:
+                    self.trans_image_array = self.image_array
+                    self.trans_array_state = self.non_segmented
+            elif view == self.coronal:
+                if self.coronal_array_state == self.non_segmented: 
+                    self.coronal_image_array = self.segmented_image_array
+                    self.coronal_array_state = self.segmentation
+                elif self.coronal_array_state == self.segmentation:
+                    self.coronal_image_array = self.image_array
+                    self.coronal_array_state = self.non_segmented
+            
+            self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
             
     def set_slice(self, position, slice_number):
         if position == "start":
@@ -362,7 +399,7 @@ class GUI_Functionality:
 
 
     def automatic_segmentation(self):
-        if self.image is None:
+        if self.image_array is None:
             messagebox.showinfo(title="Message", message="Please first select an image")
             return
 
@@ -372,6 +409,7 @@ class GUI_Functionality:
         self.segmentation_progressbar.set(0.5)
         
         self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
+        self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
         self.segmentation_progressbar.set(1.0)
         filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
         sitk.WriteImage(self.segmented_image, fileName=filename)

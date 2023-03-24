@@ -155,7 +155,7 @@ class GUI_Functionality:
         self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
 
         self.button_auto_parameter = self.layout.master.button_auto_parameter
-        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_params(self.trans_slice))
+        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_landmarks(self.trans_slice))
         
         #----------------------------------------------------- entrys -----------------------------------------------------
         self.slice_entry = self.layout.master.slice_entry
@@ -461,17 +461,15 @@ class GUI_Functionality:
 
         return
 
-    def get_contour_params(self, slice_number):
+    def get_contour_landmarks(self, slice_number):
         if self.image_array is None:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
                 self.image_array = sitk.GetArrayFromImage(self.segmented_image)
-                self.trans_image_array = self.image_array
-                self.coronal_image_array = self.image_array
             except:
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
-            return
+
         if self.contour_points is None:
             try:
                 centroids = Tools.Contouring.MultiSliceContour(self.image_array, slice_number)
@@ -495,8 +493,6 @@ class GUI_Functionality:
 
         self.dict_landmarks[f"slice_{slice_number}"]["point_3"] = Right_top.astype(int)
         self.dict_landmarks[f"slice_{slice_number}"]["point_4"] = Left_top.astype(int)
-
-        self.get_parameter("Angle Trunk Rotation", slice_number, get_points=False)
 
         #Pectus index
         maxdist = 0
@@ -523,8 +519,6 @@ class GUI_Functionality:
         self.dict_landmarks[f"slice_{slice_number}"]["point_6"] = minright.astype(int)
         self.dict_landmarks[f"slice_{slice_number}"]["point_7"] = maxleft.astype(int)
         self.dict_landmarks[f"slice_{slice_number}"]["point_8"] = minleft.astype(int)
-
-        self.get_parameter("Assymetry Index", slice_number, get_points=False)
 
         #Quick debug plot
         plt.figure()

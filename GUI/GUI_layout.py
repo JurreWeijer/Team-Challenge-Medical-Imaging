@@ -163,19 +163,19 @@ class GUI_Layout:
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Manual Parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.manual_parameter_label.grid(row=0, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-        self.master.button_assymetry_index = customtkinter.CTkButton(self.master.button_frame, text = "assymetry index", font = ("Arial",18), )
+        self.master.button_assymetry_index = customtkinter.CTkButton(self.master.button_frame, text = "assymetry index", font = ("Arial",18), fg_color = "sky blue")
         self.master.button_assymetry_index.grid(row=1, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
         
-        self.master.button_trunk_angle = customtkinter.CTkButton(self.master.button_frame, text = "trunk angle", font = ("Arial",18), )
+        self.master.button_trunk_angle = customtkinter.CTkButton(self.master.button_frame, text = "trunk angle", font = ("Arial",18), fg_color = "dodger blue")
         self.master.button_trunk_angle.grid(row=1, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_pectus_index = customtkinter.CTkButton(self.master.button_frame, text = "pectus index", font = ("Arial",18), )
+        self.master.button_pectus_index = customtkinter.CTkButton(self.master.button_frame, text = "pectus index", font = ("Arial",18), fg_color = "SlateBlue3")
         self.master.button_pectus_index.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_sagital_diameter = customtkinter.CTkButton(self.master.button_frame, text = "sagital diameter", font = ("Arial",18), )
+        self.master.button_sagital_diameter = customtkinter.CTkButton(self.master.button_frame, text = "sagital diameter", font = ("Arial",18), fg_color = "medium blue")
         self.master.button_sagital_diameter.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_steep_vertebral = customtkinter.CTkButton(self.master.button_frame, text = "steep vertebral", font = ("Arial",18), )
+        self.master.button_steep_vertebral = customtkinter.CTkButton(self.master.button_frame, text = "steep vertebral", font = ("Arial",18), fg_color = "midnight blue")
         self.master.button_steep_vertebral.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def landmark_extension_buttons(self):

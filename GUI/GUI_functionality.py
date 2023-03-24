@@ -402,7 +402,7 @@ class GUI_Functionality:
             if f"slice_{slice_num}" in dict_landmarks:
                 if parameter == "Angle Trunk Rotation":
                     if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
-                          contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1)
+                        contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1)
 
                     else:
                         messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter))

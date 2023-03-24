@@ -79,8 +79,12 @@ def ActiveContour(slice):
 def SingleSliceContour(slice, plot = False):
     #Compute the contour of each blob on a single slice using the OpenCV toolkit
     #Adapted from the hull tutorial https://docs.opencv.org/3.4.2/d7/d1d/tutorial_hull.html
-
-    canny_output = cv.Canny(image = slice, threshold1=0.5, threshold2=2)
+    try:
+        canny_output = cv.Canny(image = slice, threshold1=0.5, threshold2=2)
+    except:
+        warnings.warn("SingleSliceContour: Something wrong with slice, trying again with converted array")
+        slice = slice.astype(np.uint8)
+        canny_output = cv.Canny(image=slice, threshold1=0.5, threshold2=2)
 
     try:
         contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -156,7 +160,7 @@ def MultiSliceContour(image_array, slice_num = 100, dist = 50, interval = 10, pl
         plt.imshow(canvas, alpha = 1)
         plt.imshow(slice, alpha= 0.3, cmap = "gray")
 
-    return Multi_slice_centroids
+    return Multi_slice_centroids[1:,0,0]
 
 if __name__ == '__main__':
 

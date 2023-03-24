@@ -344,6 +344,9 @@ class GUI_Functionality:
     
     def weighted_landmark_extension(self, start_slice, end_slice):
         parameter = self.parameter_menu.get()
+        if start_slice == None or end_slice == None:
+            messagebox.showerror("Landmark extension", "Start or end slice not set, please set them and try again")
+            return
         
         #retreive the input seed and put them into the point dicts
         #save the slice used for seed in the original_seeds list
@@ -395,15 +398,22 @@ class GUI_Functionality:
     def change_landmarks(self,parameter, slice_number):
         self.get_points(parameter, slice_number)    
         
-    def computer_rib_params(self, dict_landmarks, maxdist = 10):
-        window, progressbar = self.progressbar("Landmark Extension")
+    def computer_rib_params(self, dict_landmarks, maxdist = 100):
+        window, progressbar = self.progressbar("Parameter calculation")
         window.update()
         parameter = self.parameter_menu.get()
+        if self.segmented_image is None:
+            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+            try:
+                self.segmented_image = sitk.ReadImage(segmentation_path.name)
+            except:
+                messagebox.showerror("Segmentation", "Problem with loading the segmented image, please try a different one or run the segmentation function")
         for slice_num in range(np.shape(self.image_array)[0]):
+            progressbar.set(slice_num/np.shape(self.image_array)[0])
             if f"slice_{slice_num}" in dict_landmarks:
                 if parameter == "Angle Trunk Rotation":
                     if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
-                        contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1, verbose = False)
+                        contour_points = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), slice_num, dist = 10, interval=1, verbose = False)
                         contour_points = contour_points.reshape(-1,2)
                         point3 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_3"])
                         point4 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_4"])

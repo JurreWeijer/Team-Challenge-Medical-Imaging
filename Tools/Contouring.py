@@ -131,11 +131,11 @@ def SingleSliceContour(slice, plot = False):
 
     return hull_list, centroid_list
 
-def MultiSliceContour(image_array, slice_num = 100, plot = False):
+def MultiSliceContour(image_array, slice_num = 100, dist = 50, interval = 10, plot = False):
     Multi_slice_centroids = np.empty((1,1,2), dtype = np.int32)
 
     #Get centroids for multiple slices and put them in a single array
-    for i in range(slice_num, slice_num + 50,10):
+    for i in range(slice_num - (dist//2), slice_num + (dist//2),interval):
         slice = image_array[i,:,:]
 
         hull_list, centroid_list = SingleSliceContour(slice)

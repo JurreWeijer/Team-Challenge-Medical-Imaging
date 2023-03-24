@@ -164,6 +164,10 @@ class GUI_Functionality:
         #----------------------------------------------------- menus ------------------------------------------------------
         self.parameter_menu = self.layout.master.parameter_menu
         
+        #--------------------------------------------------- help button ---------------------------------------------
+        self.button_help = self.layout.master.button_help 
+        self.button_help.bind('<Button-1>', lambda event: self.help_button())
+        
         #--------------------------------------------------- output table -------------------------------------------------
         self.output_table = self.layout.master.table
 
@@ -540,6 +544,14 @@ class GUI_Functionality:
         pb.start()
         window.update()
         return window, pb
+    
+    def help_button(self):
+       
+       # configure window 
+       self.window = customtkinter.CTk()
+       self.window.title("Help page")
+
+       self.window.mainloop()
 
 
 """def calc_contour(self):

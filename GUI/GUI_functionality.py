@@ -398,11 +398,12 @@ class GUI_Functionality:
         
     def computer_rib_params(self, dict_landmarks):
         parameter = self.parameter_menu.get()
-        for i in range(np.shape(self.image_array)[0]):
-            if f"slice_{i}" in dict_landmarks:
+        for slice_num in range(np.shape(self.image_array)[0]):
+            if f"slice_{slice_num}" in dict_landmarks:
                 if parameter == "Angle Trunk Rotation":
-                    if "point_3" in self.dict_landmarks[f"slice_{i}"] and "point_4" in self.dict_landmarks[f"slice_{i}"]:
-                          img = self.image_array[i, :, :]
+                    if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
+                          contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1)
+
                     else:
                         messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter))
 
@@ -435,7 +436,6 @@ class GUI_Functionality:
             except:
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
 
-        self.contour_points = Tools.Contouring.MultiSliceContour(self.image_array, self.trans_slice)
         self.contour = True 
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
         
@@ -463,11 +463,22 @@ class GUI_Functionality:
 
     def get_contour_params(self, slice_number):
         if self.image_array is None:
-            messagebox.showerror("Parameters", "Please calculate or load the contour first")
+            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+            try:
+                self.segmented_image = sitk.ReadImage(segmentation_path.name)
+                self.image_array = sitk.GetArrayFromImage(self.segmented_image)
+                self.trans_image_array = self.image_array
+                self.coronal_image_array = self.image_array
+            except:
+                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
             return
         if self.contour_points is None:
-            messagebox.showerror("Contour", "Please calculate the contour before the parameters")
-            return
+            try:
+                centroids = Tools.Contouring.MultiSliceContour(self.image_array, slice_number)
+                hull = cv.convexHull(centroids[1:])
+                self.contour_points = hull.reshape(-1,2)
+            except:
+                messagebox.showerror("Contouring", "Problem with calculating the contour points")
 
         if f"slice_{slice_number}" not in self.dict_landmarks:
             # If the key doesn't exist, create it with an empty dictionary as its value

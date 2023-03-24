@@ -160,7 +160,7 @@ def MultiSliceContour(image_array, slice_num = 100, dist = 50, interval = 10, pl
         plt.imshow(canvas, alpha = 1)
         plt.imshow(slice, alpha= 0.3, cmap = "gray")
 
-    return Multi_slice_centroids[1:,0,0]
+    return Multi_slice_centroids[1:,:,:]
 
 if __name__ == '__main__':
 

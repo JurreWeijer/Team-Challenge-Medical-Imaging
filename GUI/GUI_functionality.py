@@ -17,8 +17,7 @@ import Tools.Segmentation
 import Tools.Contouring
 import GUI.GUI_utils
 
-from scipy.ndimage import gaussian_filter 
-from skimage import feature
+import scipy as sc
 import math
 import time 
 
@@ -396,17 +395,28 @@ class GUI_Functionality:
     def change_landmarks(self,parameter, slice_number):
         self.get_points(parameter, slice_number)    
         
-    def computer_rib_params(self, dict_landmarks):
+    def computer_rib_params(self, dict_landmarks, maxdist = 10):
+        window, progressbar = self.progressbar("Landmark Extension")
+        window.update()
         parameter = self.parameter_menu.get()
         for slice_num in range(np.shape(self.image_array)[0]):
             if f"slice_{slice_num}" in dict_landmarks:
                 if parameter == "Angle Trunk Rotation":
                     if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
                         contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1)
-
+                        contour_points = contour_points.reshape(-1,2)
+                        point3 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_3"])
+                        point4 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_4"])
+                        #Not quite sure if the distance calculation is right
+                        dist3 = np.dot((contour_points - point3)**2, np.ones(2))
+                        dist4 = np.dot((contour_points - point4)**2, np.ones(2))
+                        print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))
+                        if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
+                            self.get_parameter("Angle Trunk Rotation", slice_num, get_points=False)
                     else:
-                        messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter))
-
+                        messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter) + " at slice " + str(slice_num))
+        window.destroy()
+        return
 
     def automatic_segmentation(self):
         if self.image_array is None:

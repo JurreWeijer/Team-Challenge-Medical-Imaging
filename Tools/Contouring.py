@@ -76,13 +76,14 @@ def ActiveContour(slice):
     ax.plot(snake[:, 1], snake[:, 0], '-b', lw=3)
     return
 
-def SingleSliceContour(slice, plot = False):
+def SingleSliceContour(slice, plot = False, verbose = True):
     #Compute the contour of each blob on a single slice using the OpenCV toolkit
     #Adapted from the hull tutorial https://docs.opencv.org/3.4.2/d7/d1d/tutorial_hull.html
     try:
         canny_output = cv.Canny(image = slice, threshold1=0.5, threshold2=2)
     except:
-        warnings.warn("SingleSliceContour: Something wrong with slice, trying again with converted array")
+        if verbose == True:
+            warnings.warn("SingleSliceContour: Something wrong with slice, trying again with converted array")
         slice = slice.astype(np.uint8)
         canny_output = cv.Canny(image=slice, threshold1=0.5, threshold2=2)
 
@@ -104,7 +105,8 @@ def SingleSliceContour(slice, plot = False):
         except:
             cX = 0
             cY = 0
-            warnings.warn("Contour not fully segmented, returning 0 at index " + str(i), RuntimeWarning)
+            if verbose == True:
+                warnings.warn("Contour not fully segmented, returning 0 at index " + str(i), RuntimeWarning)
 
         centroid_list.append([cX, cY])
 
@@ -135,14 +137,14 @@ def SingleSliceContour(slice, plot = False):
 
     return hull_list, centroid_list
 
-def MultiSliceContour(image_array, slice_num = 100, dist = 50, interval = 10, plot = False):
+def MultiSliceContour(image_array, slice_num = 100, dist = 50, interval = 10, plot = False, verbose = True):
     Multi_slice_centroids = np.empty((1,1,2), dtype = np.int32)
 
     #Get centroids for multiple slices and put them in a single array
     for i in range(slice_num - (dist//2), slice_num + (dist//2),interval):
         slice = image_array[i,:,:]
 
-        hull_list, centroid_list = SingleSliceContour(slice)
+        hull_list, centroid_list = SingleSliceContour(slice, verbose = verbose)
 
         centroid_array = np.array(centroid_list)
         centroid_array = centroid_array[np.all(centroid_array != 0, axis = 1)]

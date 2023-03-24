@@ -403,7 +403,7 @@ class GUI_Functionality:
             if f"slice_{slice_num}" in dict_landmarks:
                 if parameter == "Angle Trunk Rotation":
                     if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
-                        contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1)
+                        contour_points = Tools.Contouring.MultiSliceContour(self.image_array, slice_num, dist = 10, interval=1, verbose = False)
                         contour_points = contour_points.reshape(-1,2)
                         point3 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_3"])
                         point4 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_4"])

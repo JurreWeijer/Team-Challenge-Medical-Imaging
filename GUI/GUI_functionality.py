@@ -133,7 +133,7 @@ class GUI_Functionality:
         self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice, get_points = False))
 
         self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
-        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_rotation(self.dict_landmarks))
+        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks))
         
         #---------------------------------------------- segmentation buttons ---------------------------------------------
         self.button_segment = self.layout.master.button_segment
@@ -392,11 +392,15 @@ class GUI_Functionality:
     def change_landmarks(self,parameter, slice_number):
         self.get_points(parameter, slice_number)    
         
-    def computer_rib_rotation(self, dict_landmarks):
+    def computer_rib_params(self, dict_landmarks):
+        parameter = self.parameter_menu.get()
         for i in range(np.shape(self.image_array)[0]):
             if f"slice_{i}" in dict_landmarks:
-                if "point_3" in self.dict_landmarks[f"slice_{i}"] and "point_4" in self.dict_landmarks[f"slice_{i}"]:
-                      img = self.image_array[i, :, :]
+                if parameter == "Angle Trunk Rotation":
+                    if "point_3" in self.dict_landmarks[f"slice_{i}"] and "point_4" in self.dict_landmarks[f"slice_{i}"]:
+                          img = self.image_array[i, :, :]
+                    else:
+                        messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter))
 
 
     def automatic_segmentation(self):
@@ -416,10 +420,18 @@ class GUI_Functionality:
         return
 
     def draw_contour(self):
-        if self.segmented_image_array is None: 
-            messagebox.showerror("Contouring", "must segement the image first")
-            return 
-        
+
+        if self.segmented_image_array is None:
+            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+            try:
+                self.segmented_image = sitk.ReadImage(segmentation_path.name)
+                self.image_array = sitk.GetArrayFromImage(self.segmented_image)
+                self.trans_image_array = self.image_array
+                self.coronal_image_array = self.image_array
+            except:
+                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
+
+        self.contour_points = Tools.Contouring.MultiSliceContour(self.image_array, self.trans_slice)
         self.contour = True 
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
         
@@ -427,9 +439,6 @@ class GUI_Functionality:
     def remove_contour(self):
         self.contour = False 
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
-        
-        
-    
 
     def get_contour(self):
         #Get contour from CSO file
@@ -451,6 +460,9 @@ class GUI_Functionality:
     def get_contour_params(self, slice_number):
         if self.image_array is None:
             messagebox.showerror("Parameters", "Please calculate or load the contour first")
+            return
+        if self.contour_points is None:
+            messagebox.showerror("Contour", "Please calculate the contour before the parameters")
             return
 
         if f"slice_{slice_number}" not in self.dict_landmarks:
@@ -475,18 +487,6 @@ class GUI_Functionality:
         maxdist = 0
         leftmaxidx = 0
         rightmaxidx = 0
-        #quick solution that does not take all edge cases into account, like points that are not opposite of eachother
-        # for i, (x,y) in enumerate(Left_points):
-        #     #Find the two points on the left and right that are the farthest apart
-        #     idx = (np.abs(Right_points[:,1] - y).argmin())
-        #     xdist = np.abs(x - Right_points[idx,0])
-        #     if xdist > maxdist:
-        #         maxdist = xdist
-        #         leftmaxidx = i
-        #         rightmaxidx = idx
-        #
-        # leftmaxPoint = Left_points[leftmaxidx]
-        # rightmaxPoint = Right_points[rightmaxidx]
         maxdist, leftmaxPoint, rightmaxPoint = Tools.Deformity_Parameters.Find_Longest(Left_points, Right_points)
 
         self.dict_landmarks[f"slice_{slice_number}"]["point_9"] = Left_points[leftmaxidx].astype(int)

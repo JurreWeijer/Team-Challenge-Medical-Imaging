@@ -137,16 +137,16 @@ class GUI_Functionality:
         self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
         
         self.button_show_trans_segment = self.layout.master.button_show_trans_segment
-        self.button_show_trans_segment.bind('<Button-1>', lambda event: self.draw_contour())
+        self.button_show_trans_segment.bind('<Button-1>', lambda event: self.change_image_view(self.transverse))
         
         self.button_show_coronal_segment = self.layout.master.button_show_coronal_segment
         self.button_show_coronal_segment.bind('<Button-1>', lambda event: self.change_image_view(self.coronal))
         
-        self.button_calculate_contour = self.layout.master.button_calculate_contour
-        self.button_calculate_contour.bind('<Button-1>', lambda event: self.draw_contour())
+        #self.button_calculate_contour = self.layout.master.button_calculate_contour
+        #self.button_calculate_contour.bind('<Button-1>', lambda event: self.draw_contour())
         
-        self.button_remove_contour = self.layout.master.button_remove_contour
-        self.button_remove_contour.bind('<Button-1>', lambda event: self.remove_contour())
+        #self.button_remove_contour = self.layout.master.button_remove_contour
+        #self.button_remove_contour.bind('<Button-1>', lambda event: self.remove_contour())
 
         self.button_load_contour = self.layout.master.button_load_contour
         self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
@@ -172,47 +172,85 @@ class GUI_Functionality:
         try:
             #open directory to find a file
             self.file_path = filedialog.askopenfile(title = "Open patient image")
-        
-            if os.path.splitext(self.file_path.name)[1] == '.nii':
-                self.image = sitk.ReadImage(self.file_path.name)
-                self.image_array = sitk.GetArrayFromImage(self.image)
-                self.trans_image_array = self.image_array
-                self.trans_array_state = self.non_segmented
-                self.coronal_image_array = self.image_array
-                self.coronal_array_state = self.non_segmented
-                self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
-            else:
+            
+            #only proceed if the selected file is .nii
+            if os.path.splitext(self.file_path.name)[1] != '.nii':
                 messagebox.showinfo(title="Message", message="incorrect file type")
+                return 
+            
+            #read the image and get the array
+            self.image = sitk.ReadImage(self.file_path.name)
+            self.image_array = sitk.GetArrayFromImage(self.image)
+            
+            #initialize the trans array image and state 
+            self.trans_image_array = self.image_array
+            self.trans_array_state = self.non_segmented
+            
+            #initialize the coronal image array and state
+            self.coronal_image_array = self.image_array
+            self.coronal_array_state = self.non_segmented
+            
+            #reset variables upon opening an image
+            self.segmented_image = None
+            self.segmented_image_array = None
+            self.trans_slice = 200
+            self.coronal_slice = 135
+            self.contour_points = None
+            self.df_params = None
+            self.param_value = None
+            self.current_param = None
+            self.dict_landmarks = {}
+            self.dict_parameters = {}
+            self.start_slice = None
+            self.end_slice = None
+            self.contour = False
+            
+            #draw the image in the GUI
+            self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
+
         except:
-            messagebox.showerror("opening file", "Problem with opening the file, please try another one")
+            messagebox.showerror("opening file", "Problem with opening the file, plealf. try another one")
     
-    def change_slice(self, view, direction): 
+    def change_slice(self, view, direction):
+        """Handle changing the slice using plus and minus buttons below the 
+        transverse and coronal images"""
+        
+        
         if self.image_array is None:
+            #if there is no opened image then do nothing
             return
 
         if view == self.transverse: 
-            if self.trans_slice < 0 and self.trans_slice > np.shape(self.image_array)[0]:
+            if self.trans_slice <= 0 and self.trans_slice >= np.shape(self.image_array)[0]:
+                #if the slice goes out of range, do nothing
                 return
-
+            
+            #if the slice is within range change the slice number in the correct direction
             if direction == self.plus: 
                 self.trans_slice += 1
             elif direction == self.minus: 
                 self.trans_slice -= 1
-
-        elif view == self.coronal: 
-            if self.coronal_slice < 0 and self.coronal_slice > np.shape(self.image_array)[0]:
+        
+        elif view == self.coronal:
+            if self.coronal_slice <= 0 and self.coronal_slice >= np.shape(self.image_array)[1]:
+                #if the slice goes out of range, do nothing
                 return
-
+            
+            #if the slice is within range change the slice number in the correct direction
             if direction == self.plus: 
                 self.coronal_slice += 1
             elif direction == self.minus: 
                 self.coronal_slice -= 1
-
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        
+        #update the image and the landmarks to the slice change
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
     
     def go_to_slice(self, view):
+        """handle changing the slice of both views based on the entry input"""
+        
         try:
+            #retrieve the slice number from the entry and assign it to the correct slice number, transverse or coronal
             if view == self.transverse:
                 dialog_input = self.slice_entry.get()
                 self.trans_slice = int(dialog_input)
@@ -223,37 +261,64 @@ class GUI_Functionality:
             # error message if the input is not an integer
             messagebox.showinfo(title="Message", message="Must input an integer to change the slice.")
         else:
-            if self.image_array is not None:
-                # check if the slice number is within the range of the image
-                if 0 <= self.trans_slice <= np.shape(self.image_array)[0] and 0 <= self.coronal_slice <= np.shape(self.image_array)[0] :
-                    self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
-                    self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-                else:
-                    # error message in the text frame that the slice number is out of range
+            if self.image_array is None:
+                #stop if there is no opened image
+                return 
+            
+            if view == self.transverse:
+                if self.trans_slice <= 0 and self.trans_slice >= np.shape(self.image_array)[1]:
+                    #if the slice is out of range give an error message and stop 
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
+                    return 
+            
+            if view == self.coronal:
+                if self.coronal_slice <= 0 and self.coronal_slice >= np.shape(self.image_array)[0]:
+                    #if the slice is out of range give an error message and stop 
+                    messagebox.showinfo(title="Message", message="Slice is out of range.")
+                    return
+            
+            #if the slice number is withing the range update the image and landmarks
+            self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+                    
         finally:
+            #clear the entry for future user input
             self.slice_entry.delete(0, "end")
             self.coronal_slice_entry.delete(0, "end")
     
     def change_image_view(self, view):
-        if self.segmented_image_array is not None: 
+        if self.image_array is None: 
+            messagebox.showerror("Segmentation", "Must open an normal image first")
+            return 
+        
+        if self.segmented_image_array is None:
+            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+            try:
+                self.segmented_image = sitk.ReadImage(segmentation_path.name)
+                self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
+            except ValueError:
+                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
+        
+        if view == self.transverse:
+            if self.trans_array_state == self.non_segmented:
+                self.trans_image_array = self.segmented_image_array
+                self.contour = True
+                self.trans_array_state = self.segmentation
+            elif self.trans_array_state == self.segmentation:
+                self.trans_image_array = self.image_array
+                self.trans_array_state = self.non_segmented
+                self.contour = False
+        elif view == self.coronal:
+            if self.coronal_array_state == self.non_segmented: 
+                self.coronal_image_array = self.segmented_image_array
+                self.coronal_array_state = self.segmentation
+            elif self.coronal_array_state == self.segmentation:
+                self.coronal_image_array = self.image_array
+                self.coronal_array_state = self.non_segmented
             
-            if view == self.transverse:
-                if self.trans_array_state == self.non_segmented:
-                    self.trans_image_array = self.segmented_image_array
-                    self.trans_array_state = self.segmentation
-                elif self.trans_array_state == self.segmentation:
-                    self.trans_image_array = self.image_array
-                    self.trans_array_state = self.non_segmented
-            elif view == self.coronal:
-                if self.coronal_array_state == self.non_segmented: 
-                    self.coronal_image_array = self.segmented_image_array
-                    self.coronal_array_state = self.segmentation
-                elif self.coronal_array_state == self.segmentation:
-                    self.coronal_image_array = self.image_array
-                    self.coronal_array_state = self.non_segmented
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
             
-            self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        
             
     def set_slice(self, position, slice_number):
         if position == "start":
@@ -389,7 +454,7 @@ class GUI_Functionality:
             progressbar.set(progress-0.1)
             window.update()
         
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
         
         time.sleep(2)
@@ -457,12 +522,12 @@ class GUI_Functionality:
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
 
         self.contour = True 
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         
     
     def remove_contour(self):
         self.contour = False 
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
 
     def get_contour(self):
         #Get contour from CSO file

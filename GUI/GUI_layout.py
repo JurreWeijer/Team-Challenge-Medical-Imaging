@@ -219,17 +219,17 @@ class GUI_Layout:
         self.master.button_show_coronal_segment = customtkinter.CTkButton(self.master.button_frame, text = "Coronal Segmentation", font = ("Arial",18), )
         self.master.button_show_coronal_segment.grid(row=12, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Show Contour", font = ("Arial",18), )
-        self.master.button_calculate_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        #self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Show Contour", font = ("Arial",18), )
+        #self.master.button_calculate_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove Contour", font = ("Arial",18), )
-        self.master.button_remove_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        #self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove Contour", font = ("Arial",18), )
+        #self.master.button_remove_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load Contour", font = ("Arial",18), )
-        self.master.button_load_contour.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_load_contour.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
         self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Calculate landmarks", font = ("Arial",18), )
-        self.master.button_auto_parameter.grid(row=15, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_auto_parameter.grid(row=14, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -242,7 +242,7 @@ class GUI_Layout:
         self.master.destroy()  
         raise SystemExit  
     
-    def draw_image(self, trans_image, coronal_image, trans_slice, coronal_slice, contour, cmap):
+    def draw_image(self, trans_image, coronal_image, trans_slice, coronal_slice, contour, start_le, end_le, cmap):
         
         #transverse subplot 
         self.master.trans_subplot.cla()
@@ -259,6 +259,10 @@ class GUI_Layout:
         self.master.coronal_subplot.axis('off')
         self.master.coronal_subplot.invert_yaxis()
         self.master.coronal_subplot.axhline(y=trans_slice, color='r', linewidth=1)
+        if start_le is not None: 
+            self.master.coronal_subplot.axhline(y=start_le, color='b', linewidth=1)
+        if end_le is not None: 
+            self.master.coronal_subplot.axhline(y=end_le, color = 'b', linewidth=1)
         self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.coronal_canvas.draw()
         
@@ -268,9 +272,9 @@ class GUI_Layout:
             slice = trans_image[trans_slice,:,:]
             canvas = np.zeros_like(slice)
             
-            cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 1)
+            cv.drawContours(canvas, [hull], 0, color = (255,255,255), thickness= 2)  
             self.master.trans_subplot.scatter(hull[:,0,0], hull[:,0,1], c = "blue")
-            self.master.trans_subplot.imshow(canvas, alpha = 1, cmap= "gray")
+            self.master.trans_subplot.imshow(canvas, alpha = 0.3, cmap= "gray")
         
         self.master.trans_canvas.draw()
         self.master.coronal_canvas.draw()

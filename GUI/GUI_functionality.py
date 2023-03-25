@@ -139,7 +139,7 @@ class GUI_Functionality:
         self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
         
         self.button_show_trans_segment = self.layout.master.button_show_trans_segment
-        self.button_show_trans_segment.bind('<Button-1>', lambda event: self.change_image_view(self.transverse))
+        self.button_show_trans_segment.bind('<Button-1>', lambda event: self.draw_contour())
         
         self.button_show_coronal_segment = self.layout.master.button_show_coronal_segment
         self.button_show_coronal_segment.bind('<Button-1>', lambda event: self.change_image_view(self.coronal))

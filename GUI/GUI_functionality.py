@@ -71,8 +71,6 @@ class GUI_Functionality:
         self.start_slice = None
         self.end_slice = None
         self.contour = False
-        #self.contour_fig = None
-        #self.contour_exists = False
         
         #---------------------------------------------- image frame buttons ----------------------------------------------
         self.button_open_image = self.layout.master.button_open_image
@@ -170,9 +168,6 @@ class GUI_Functionality:
         #--------------------------------------------------- output table -------------------------------------------------
         self.output_table = self.layout.master.table
 
-    
-    
-        
     def open_file(self):
         try:
             #open directory to find a file
@@ -354,7 +349,9 @@ class GUI_Functionality:
         for i in range(start_slice, end_slice, 25):
             self.get_points(parameter, i)
             original_seeds.append(i)
-        
+        self.get_points(parameter, end_slice)
+        original_seeds.append(end_slice)
+
         window, progressbar = self.progressbar("Landmark Extension")
         window.update()
         
@@ -364,7 +361,7 @@ class GUI_Functionality:
                 up_seed = []
                 down_seed = []
                 prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
-                
+                    
                 for i in range(original_seeds[n_seed]+1, original_seeds[n_seed+1], 1):
                     next_seed = GUI.GUI_utils.GetNextSeed(self.image_array[i,:,:], prev_seed)
                     up_seed.append(next_seed)
@@ -377,7 +374,7 @@ class GUI_Functionality:
                     down_seed.append(next_seed)
                     prev_seed = next_seed
                 
-                print(len(up_seed))
+                
                 for k in range(len(up_seed)): 
                     seed_x = ((23-1-k) * up_seed[k][0] + (k+1) * down_seed[-k][0])/23
                     seed_y = ((23-1-k) * up_seed[k][1] + (k+1)* down_seed[-k][1])/23
@@ -389,8 +386,11 @@ class GUI_Functionality:
                         
                     self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"][f"point_{point}"] = seed
             progress += 1/len(self.dict_landmark_num[parameter])
-            progressbar.set(progress)
+            progressbar.set(progress-0.1)
             window.update()
+        
+        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.map)
+        self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
         
         time.sleep(2)
         window.destroy()

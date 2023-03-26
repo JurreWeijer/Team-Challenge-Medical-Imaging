@@ -115,10 +115,10 @@ class GUI_Functionality:
         
         #---------------------------------------------- landmark extension buttons --------------------------------------
         self.button_begin = self.layout.master.button_begin
-        self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start", self.trans_slice))
+        self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start"))
         
         self.button_end = self.layout.master.button_end
-        self.button_end.bind('<Button-1>', lambda event: self.set_slice("end", self.trans_slice))
+        self.button_end.bind('<Button-1>', lambda event: self.set_slice("end"))
         
         self.button_landmark_extension = self.layout.master.button_landmark_extension
         self.button_landmark_extension.bind('<Button-1>', lambda event: self.weighted_landmark_extension(self.start_slice, self.end_slice))
@@ -169,6 +169,9 @@ class GUI_Functionality:
         self.output_table = self.layout.master.table
 
     def open_file(self):
+        """function that opens the filedialog and allows for opening of an image 
+        which is then displayed in the transverse and coronal view"""
+        
         try:
             #open directory to find a file
             self.file_path = filedialog.askopenfile(title = "Open patient image")
@@ -208,46 +211,72 @@ class GUI_Functionality:
             
             #draw the image in the GUI
             self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
-
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+            
         except:
-            messagebox.showerror("opening file", "Problem with opening the file, plealf. try another one")
+            messagebox.showerror("opening file", "Problem with opening the file, please. try another one")
     
     def change_slice(self, view, direction):
         """Handle changing the slice using plus and minus buttons below the 
-        transverse and coronal images"""
+        transverse and coronal images
+        
+        Parameters
+        ----------
+        view: string
+            the view, transverse or coronal, of which the 
+            slice is changed 
+        direction: string
+            the direction, plus or minus, in which the slice
+            is changed
+        """
         
         if self.image_array is None:
             #if there is no opened image then do nothing
             return
         
         if view == self.transverse:
-            #if the slice is within range change the slice number in the correct direction
+            #if the view is transverse, check the direction, plus or minus, in which the slice is changed
             if direction == self.plus: 
+                #if the direction is plus, check whether the slice is still within range
                 if self.trans_slice >= 0 and self.trans_slice < np.shape(self.image_array)[0]-1:
+                    #if the slice is withing range, change the slice number
                     self.trans_slice += 1
             elif direction == self.minus:
+                #if the direction is minus, check whether the slice is still within range
                 if self.trans_slice > 0 and self.trans_slice <= np.shape(self.image_array)[0]-1:
+                    #if the slice is within range, change the slice number
                     self.trans_slice -= 1
 
         elif view == self.coronal:
-            #if the slice is within range change the slice number in the correct direction
+            #if the view is coronal, check the direction, plus or minus, in which the slice is changed
             if direction == self.plus:
+                #if the direction is plus, check whether the slice is still within range
                 if self.coronal_slice >= 0 and self.coronal_slice < np.shape(self.image_array)[1]-1:
+                    #if the slice is withing range, change the slice number
                     self.coronal_slice += 1
             elif direction == self.minus:
+                #if the direction is minus, check whether the slice is still within range
                 if self.coronal_slice > 0 and self.coronal_slice <= np.shape(self.image_array)[1]-1:
+                    #if the slice is withing range, change the slice number
                     self.coronal_slice -= 1
                 
             
-        #update the image and the landmarks to the slice change
+        #update the image and the landmarks to the chage in slice number
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
     
     def go_to_slice(self, view):
-        """handle changing the slice of both views based on the entry input"""
+        """handle changing the slice of both views based on the entry input
+        
+        Parameters
+        ----------
+        view: string
+            the view, transverse or coronal, of which the 
+            slice is changed 
+        """
         
         try:
-            #retrieve the slice number from the entry and assign it to the correct slice number, transverse or coronal
+            #retrieve the slice number from the entry and assign it to the dialog_input
             if view == self.transverse:
                 dialog_input = int(self.slice_entry.get())-1
             elif view == self.coronal: 
@@ -257,27 +286,31 @@ class GUI_Functionality:
             messagebox.showinfo(title="Message", message="Must input an integer to change the slice.")
         else:
             if self.image_array is None:
-                #stop if there is no opened image
+                #if there is no opened image then do nothing
                 return 
             
-            print(dialog_input)
             if view == self.transverse:
+                #if the view is transverse, check whether the slice is in range
                 if dialog_input >= 0 and dialog_input <= np.shape(self.trans_image_array)[1]:
+                    #if the slice is within range, assign it to the trans_slice variable
                     self.trans_slice = dialog_input
-                    #if the slice is out of range give an error message and stop 
+                    
                 else: 
+                    #if the slice is out of range give an error message and stop 
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
                     return 
             
             if view == self.coronal:
+               #if the view is coronal, check whether the slice is in range
                if dialog_input >= 0 and dialog_input <= np.shape(self.coronal_image_array)[1]:
+                   #if the slice is within range, assign it to the coronal_slice variable 
                    self.coronal_slice = dialog_input
-                   #if the slice is out of range give an error message and stop 
                else:
+                   #if the slice is out of range give an error message and stop
                    messagebox.showinfo(title="Message", message="Slice is out of range.")
                    return
             
-            #if the slice number is withing the range update the image and landmarks
+            #update the image and the landmarks to the chage in slice number
             self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
             self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
                     
@@ -287,68 +320,112 @@ class GUI_Functionality:
             self.coronal_slice_entry.delete(0, "end")
     
     def change_image_view(self, view):
+        """handle changing from the normal image to the segmentated image
+        
+        Parameters
+        ----------
+        view: string
+            the view, transverse or coronal, of which the 
+            slice is changed 
+        """
+        
         if self.image_array is None: 
+            #if there is no opened image then do nothing
             messagebox.showerror("Segmentation", "Must open an normal image first")
             return 
         
         if self.segmented_image_array is None:
+            #if there is no opened image then open the file dialog to allow the user to select an segmented image
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
+                #read the image and get the array
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
                 self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
             except ValueError:
+                #if there is a problem with opening the image then give an error
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
         
         if view == self.transverse:
+            #if the view is transverse then check what the current state is
             if self.trans_array_state == self.non_segmented:
+                #if the current state is non segmented then change the image and state to segmented and enable contouring
                 self.trans_image_array = self.segmented_image_array
                 self.contour = True
                 self.trans_array_state = self.segmentation
             elif self.trans_array_state == self.segmentation:
+                #if the current state is segmented then change the image and state to non segmented and disable contouring
                 self.trans_image_array = self.image_array
                 self.trans_array_state = self.non_segmented
                 self.contour = False
         elif view == self.coronal:
-            if self.coronal_array_state == self.non_segmented: 
+            #if the view is transverse then check what the current state is
+            if self.coronal_array_state == self.non_segmented:
+                #if the current state is non segmented then change the image and state to segmented and enable contouring 
                 self.coronal_image_array = self.segmented_image_array
                 self.coronal_array_state = self.segmentation
             elif self.coronal_array_state == self.segmentation:
+                #if the current state is segmented then change the image and state to non segmented and disable contouring
                 self.coronal_image_array = self.image_array
                 self.coronal_array_state = self.non_segmented
             
+        #update the image 
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         if self.trans_array_state == self.non_segmented: 
+            #if the transverse state is non segemented update the landmarks
             self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
         
             
-    def set_slice(self, position, slice_number):
+    def set_slice(self, position):
+        """handle changing from the normal image to the segmentated image
+        
+        Parameters
+        ----------
+        position: string
+            the position, start or end, of the point that is set
+        """
+        
         if position == "start":
-            if self.end_slice == None or self.end_slice > slice_number:
-                self.start_slice = slice_number
+            #if the position is start then check if the slice is lower than the set end slice
+            if self.end_slice == None or self.end_slice > self.trans_slice:
+                self.start_slice = self.trans_slice
             else: 
+                #if the slice is higher then the end slice then give an error 
                 messagebox.showinfo(title="Error", message="Starting slice has to come before the end slice")
             
         elif position == "end":
-            if self.start_slice == None or self.start_slice < slice_number:
-                self.end_slice = slice_number
+            #if the position is end then check if the slice is higher than the set start slice
+            if self.start_slice == None or self.start_slice < self.trans_slice:
+                self.end_slice = self.trans_slice
             else:
+                #if the slice is lower than the start slice then give an error 
                 messagebox.showinfo(title="Error", message="End slice has to come after the starting slice")
     
     def get_points(self, parameter, slice_num):
+        """get landmarks position based on user input
+        
+        Parameters
+        ----------
+        parameter: string
+            the parameter for which the points are retreived 
+        slice_num: int
+            the slice number for which points have to be retreived
+        """
+        
         #show the image in new window
         plt.imshow(self.image_array[slice_num, :, :],cmap=self.map)
         plt.gca().invert_yaxis()
 
         
-        #retreive points
+        #retreive points by user input 
         points = []
         points = np.asarray(plt.ginput(len(self.dict_landmark_num[parameter]), timeout=-1))
         plt.close()
         
         if f"slice_{slice_num}" not in self.dict_landmarks:
-            # If the key doesn't exist, create it with an empty dictionary as its value
+            # if the key doesn't exist, create it with an empty dictionary as its value
             self.dict_landmarks[f"slice_{slice_num}"] = {}
-            
+        
+        #assign the retreived point to the correct keys in the dictionary based on the parameter 
         if parameter == self.trunk_rotation:
             self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = points[0,:].astype(int)
             self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = points[1,:].astype(int)
@@ -371,39 +448,89 @@ class GUI_Functionality:
         
         return points
 
-    def get_parameter(self, parameter, slice_number, get_points = True):
-        self.current_param = parameter
-        if self.image_array is not None:
-            if get_points == True:
-                self.get_points(parameter, slice_number)
-                self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-            
-            param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_number),3) 
-            self.add_parameter(parameter, param_value, slice_number)
-            self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_number))
-        else:
-            messagebox.showinfo(title="Message", message="must open image first")
+    def get_parameter(self, parameter, slice_num, get_points = True):
+        """calculate the parameter value and store in the dictionary 
         
-    def add_parameter(self, parameter, param_value, slice_number):
-        if self.df_params is None:  
+        Parameters
+        ----------
+        parameter: string
+            the parameter for which the points are retreived 
+        slice_num: int
+            the slice number for which points have to be retreived
+        get_points: boolean
+            whether the landmarks still have to be retreived via user input or not
+        """
+        
+        
+        if self.image_array is None:
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="must open image first")
+            return 
+        
+        #set the current parameter value to the parameter value that is passed 
+        self.current_param = parameter
+        if get_points == True:
+            #if get points is True then call function for retreiving landmarks and update the landmarks in the image
+            self.get_points(parameter, slice_num)
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+        
+        #calculate the parameters value
+        param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),3)
+        #add the parameter to the dictionary 
+        self.add_parameter(parameter, param_value, slice_num)
+        #insert the parameter value to the output table
+        self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_num))
+        
+    def add_parameter(self, parameter, param_value, slice_num):
+        """store the parameter value in the correct locations 
+        
+        Parameters
+        ----------
+        parameter: string
+            the parameter for which the points are retreived 
+        param__value: float 
+            the value of the calculated parameter
+        slice_num: int
+            the slice number for which points have to be retreived
+        """
+        if self.df_params is None:
+            #if the parameter dataframe does not exist yet then create it 
             self.df_params = pd.DataFrame({'Parameter': [], 'Value': [], "Slice":[]})
             
-        new_row = {'Parameter': parameter, 'Value': param_value, "Slice": slice_number}
+        #creat a new row and add it to the dataframe 
+        new_row = {'Parameter': parameter, 'Value': param_value, "Slice": slice_num}
         self.df_params = self.df_params.append(new_row, ignore_index=True)
 
-        if f"slice_{slice_number}" not in self.dict_parameters:
-            # If the key doesn't exist, create it with an empty dictionary as its value
-            self.dict_parameters[f"{slice_number}"] = {}
-            
-        self.dict_parameters[f"{slice_number}"][f"{parameter}"] = param_value
+        
+        if f"slice_{slice_num}" not in self.dict_parameters:
+            # if the key doesn't exist, create it with an empty dictionary as its value
+            self.dict_parameters[f"{slice_num}"] = {}
+        
+        #add the parameter value to the dictionary
+        self.dict_parameters[f"{slice_num}"][f"{parameter}"] = param_value
         
     def save_parameters(self):
-        if self.df_params is not None:
-            dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")
-            file_name = dialog.get_input()
-            self.df_params.to_csv(f'{file_name}.csv', index=False)
-            path = str(os.getcwd())
-            messagebox.showinfo("Parameters", "File " + file_name + " saved at " + path )
+        """save the calculated parameters in a .csv file
+        
+        Parameters
+        ----------
+        
+        """
+        
+        if self.df_params is None:
+            #if there are not calculated parameters then do nothing
+            return 
+        
+        #ask for a file name and retreive it from the input dialog
+        dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")
+        file_name = dialog.get_input()
+        
+        #save the file as .csv
+        self.df_params.to_csv(f'{file_name}.csv', index=False)
+        
+        #show a message to inform that the parameters are save and where
+        path = str(os.getcwd())
+        messagebox.showinfo("Parameters", "File " + file_name + " saved at " + path )
     
     def weighted_landmark_extension(self, start_slice, end_slice):
         parameter = self.parameter_menu.get()

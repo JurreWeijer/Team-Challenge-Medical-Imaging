@@ -263,7 +263,7 @@ class GUI_Layout:
             self.master.coronal_subplot.axhline(y=start_le, color='b', linewidth=1)
         if end_le is not None: 
             self.master.coronal_subplot.axhline(y=end_le, color = 'b', linewidth=1)
-        self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+        self.master.coronal_subplot.text(0.95, 0.03, f"slice number: {coronal_slice+1}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.coronal_canvas.draw()
         
         if contour == True:

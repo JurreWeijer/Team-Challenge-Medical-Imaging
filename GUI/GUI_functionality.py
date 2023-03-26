@@ -317,7 +317,8 @@ class GUI_Functionality:
                 self.coronal_array_state = self.non_segmented
             
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
-            
+        if self.trans_array_state == self.non_segmented: 
+            self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
         
             
     def set_slice(self, position, slice_number):

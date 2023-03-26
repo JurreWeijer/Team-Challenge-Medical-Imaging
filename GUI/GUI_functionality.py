@@ -401,6 +401,8 @@ class GUI_Functionality:
             dialog = customtkinter.CTkInputDialog(text="give a name for the file:", title="save parameters")
             file_name = dialog.get_input()
             self.df_params.to_csv(f'{file_name}.csv', index=False)
+            path = str(os.getcwd())
+            messagebox.showinfo("Parameters", "File " + file_name + " saved at " + path )
     
     def weighted_landmark_extension(self, start_slice, end_slice):
         parameter = self.parameter_menu.get()

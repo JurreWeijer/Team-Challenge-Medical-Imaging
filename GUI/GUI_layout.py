@@ -248,7 +248,7 @@ class GUI_Layout:
         self.master.trans_subplot.cla()
         self.master.trans_subplot.imshow(trans_image[trans_slice, :, :],  cmap=cmap)
         self.master.trans_subplot.axis('off')
-        self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+        self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice+1}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
         self.master.trans_subplot.set_ylim(0,trans_image.shape[0])
         self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
         self.master.trans_canvas.draw()

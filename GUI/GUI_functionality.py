@@ -181,6 +181,7 @@ class GUI_Functionality:
             #read the image and get the array
             self.image = sitk.ReadImage(self.file_path.name)
             self.image_array = sitk.GetArrayFromImage(self.image)
+            print(self.image_array.shape)
             
             #initialize the trans array image and state 
             self.trans_image_array = self.image_array
@@ -215,33 +216,29 @@ class GUI_Functionality:
         """Handle changing the slice using plus and minus buttons below the 
         transverse and coronal images"""
         
-        
         if self.image_array is None:
             #if there is no opened image then do nothing
             return
+        
+        if view == self.transverse:
+            #if the slice is within range change the slice number in the correct direction
+            if direction == self.plus: 
+                if self.trans_slice >= 0 and self.trans_slice < np.shape(self.image_array)[0]-1:
+                    self.trans_slice += 1
+            elif direction == self.minus:
+                if self.trans_slice > 0 and self.trans_slice <= np.shape(self.image_array)[0]-1:
+                    self.trans_slice -= 1
 
-        if view == self.transverse: 
-            if self.trans_slice <= 0 and self.trans_slice >= np.shape(self.image_array)[0]:
-                #if the slice goes out of range, do nothing
-                return
-            
-            #if the slice is within range change the slice number in the correct direction
-            if direction == self.plus: 
-                self.trans_slice += 1
-            elif direction == self.minus: 
-                self.trans_slice -= 1
-        
         elif view == self.coronal:
-            if self.coronal_slice <= 0 and self.coronal_slice >= np.shape(self.image_array)[1]:
-                #if the slice goes out of range, do nothing
-                return
-            
             #if the slice is within range change the slice number in the correct direction
-            if direction == self.plus: 
-                self.coronal_slice += 1
-            elif direction == self.minus: 
-                self.coronal_slice -= 1
-        
+            if direction == self.plus:
+                if self.coronal_slice >= 0 and self.coronal_slice < np.shape(self.image_array)[1]-1:
+                    self.coronal_slice += 1
+            elif direction == self.minus:
+                if self.coronal_slice > 0 and self.coronal_slice <= np.shape(self.image_array)[1]-1:
+                    self.coronal_slice -= 1
+                
+            
         #update the image and the landmarks to the slice change
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
@@ -252,11 +249,9 @@ class GUI_Functionality:
         try:
             #retrieve the slice number from the entry and assign it to the correct slice number, transverse or coronal
             if view == self.transverse:
-                dialog_input = self.slice_entry.get()
-                self.trans_slice = int(dialog_input)
+                dialog_input = int(self.slice_entry.get())-1
             elif view == self.coronal: 
-                dialog_input = self.coronal_slice_entry.get()
-                self.coronal_slice = int(dialog_input)
+                dialog_input = int(self.coronal_slice_entry.get())-1 
         except ValueError:
             # error message if the input is not an integer
             messagebox.showinfo(title="Message", message="Must input an integer to change the slice.")
@@ -265,17 +260,22 @@ class GUI_Functionality:
                 #stop if there is no opened image
                 return 
             
+            print(dialog_input)
             if view == self.transverse:
-                if self.trans_slice <= 0 and self.trans_slice >= np.shape(self.image_array)[1]:
+                if dialog_input >= 0 and dialog_input <= np.shape(self.trans_image_array)[1]:
+                    self.trans_slice = dialog_input
                     #if the slice is out of range give an error message and stop 
+                else: 
                     messagebox.showinfo(title="Message", message="Slice is out of range.")
                     return 
             
             if view == self.coronal:
-                if self.coronal_slice <= 0 and self.coronal_slice >= np.shape(self.image_array)[0]:
-                    #if the slice is out of range give an error message and stop 
-                    messagebox.showinfo(title="Message", message="Slice is out of range.")
-                    return
+               if dialog_input >= 0 and dialog_input <= np.shape(self.coronal_image_array)[1]:
+                   self.coronal_slice = dialog_input
+                   #if the slice is out of range give an error message and stop 
+               else:
+                   messagebox.showinfo(title="Message", message="Slice is out of range.")
+                   return
             
             #if the slice number is withing the range update the image and landmarks
             self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)

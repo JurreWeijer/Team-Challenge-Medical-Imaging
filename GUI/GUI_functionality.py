@@ -594,14 +594,19 @@ class GUI_Functionality:
         self.get_points(parameter, slice_number)    
         
     def computer_rib_params(self, dict_landmarks, maxdist = 200):
+        #Compute selected parameter between the selected start slice and end slice
+        #and only if it is no further than maxdist from the closest rib and if it has the largest deformity of this rib
+        #It is assumed that there are at least slidesize slices between each rib and the next
         maxrot = 0
         maxsym = 0
         maxparamslice = 0
         slidesize = 10
 
+        #Progressbar to show progress for the parameter calculation
         window, progressbar = self.progressbar("Parameter calculation")
         window.update()
         parameter = self.parameter_menu.get()
+        #Ask for segmentation image if this has not been generated yet
         if self.segmented_image is None:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
@@ -609,6 +614,7 @@ class GUI_Functionality:
                 self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
             except:
                 messagebox.showerror("Segmentation", "Problem with loading the segmented image, please try a different one or run the segmentation function")
+        #Loop over all slices between start_slice and end_slice and compute the selected landmark
         for slice_num in range(self.start_slice, self.end_slice):
             progressbar.set(slice_num/np.shape(self.image_array)[0])
             window.update_idletasks()
@@ -619,7 +625,7 @@ class GUI_Functionality:
                         contour_points = contour_points.reshape(-1,2)
                         point3 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_3"])
                         point4 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_4"])
-                        #Not quite sure if the distance calculation is right
+                        #Distance calculation
                         dist3 = np.dot((contour_points - point3)**2, np.ones(2))
                         dist4 = np.dot((contour_points - point4)**2, np.ones(2))
                         print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))

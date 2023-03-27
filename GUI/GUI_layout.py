@@ -202,7 +202,7 @@ class GUI_Layout:
         self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "compute parameter", font = ("Arial",18), )
         self.master.compute_parameters.grid(row=9, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "compute rib rotation", font = ("Arial",18), )
+        self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "compute rib parameter", font = ("Arial",18), )
         self.master.button_compute_rib_rotation.grid(row=9, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def automatic_buttons(self):

@@ -582,7 +582,7 @@ class GUI_Functionality:
                     self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"][f"point_{point}"] = seed
             progress += 1/len(self.dict_landmark_num[parameter])
             progressbar.set(progress-0.1)
-            window.update()
+            window.update_idletasks()
         
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
@@ -593,7 +593,11 @@ class GUI_Functionality:
     def change_landmarks(self,parameter, slice_number):
         self.get_points(parameter, slice_number)    
         
-    def computer_rib_params(self, dict_landmarks, maxdist = 100):
+    def computer_rib_params(self, dict_landmarks, maxdist = 200):
+        maxrot = 0
+        maxrotslice = 0
+        slidesize = 10
+
         window, progressbar = self.progressbar("Parameter calculation")
         window.update()
         parameter = self.parameter_menu.get()
@@ -601,14 +605,16 @@ class GUI_Functionality:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
+                self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
             except:
                 messagebox.showerror("Segmentation", "Problem with loading the segmented image, please try a different one or run the segmentation function")
-        for slice_num in range(np.shape(self.image_array)[0]):
+        for slice_num in range(self.start_slice, self.end_slice):
             progressbar.set(slice_num/np.shape(self.image_array)[0])
+            window.update_idletasks()
             if f"slice_{slice_num}" in dict_landmarks:
                 if parameter == "Angle Trunk Rotation":
                     if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
-                        contour_points = Tools.Contouring.MultiSliceContour(sitk.GetArrayFromImage(self.segmented_image), slice_num, dist = 10, interval=1, verbose = False)
+                        contour_points = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num, dist = 10, interval=1, verbose = False)
                         contour_points = contour_points.reshape(-1,2)
                         point3 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_3"])
                         point4 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_4"])
@@ -617,9 +623,18 @@ class GUI_Functionality:
                         dist4 = np.dot((contour_points - point4)**2, np.ones(2))
                         print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))
                         if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
-                            self.get_parameter("Angle Trunk Rotation", slice_num, get_points=False)
+                            Rotation = calculate_parameter(dict_landmarks, "Angle Trunk Rotation", slice_num)
+                            if (maxrot < Rotation):
+                                maxrot = Rotation
+                                maxrotslice = slice_num
+                        if (slice_num - maxrotslice) > slidesize and maxrotslice != 0:
+                            self.get_parameter("Angle Trunk Rotation", maxrotslice, get_points=False)
+                            maxrot = 0
+                            maxrotslice = 0
                     else:
                         messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter) + " at slice " + str(slice_num))
+                else:
+                    messagebox.showerror("Rib parameters", str(parameter) + " has not been implemented yet")
         window.destroy()
         return
 

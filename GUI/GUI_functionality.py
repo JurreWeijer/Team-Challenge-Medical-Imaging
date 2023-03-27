@@ -871,19 +871,19 @@ class GUI_Functionality:
         window.update()
         
         return window, pb
-    
+     
     def help_button(self):
         self.window = customtkinter.CTkToplevel(self.master)
         self.window.title("Help page")
         
         #title label
-        title_label = customtkinter.CTkLabel(self.window, text="Help", fg_color = "transparent", font=customtkinter.CTkFont(size=18, weight="bold"))
+        title_label = customtkinter.CTkLabel(self.window, text="Welcome to the help page", fg_color = "transparent", font=customtkinter.CTkFont(size=18, weight="bold"))
         title_label.grid(row=0, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
         
         #help image
         help_image = plt.imread('../GUI/Help_image.jpeg')
         
-        self.help_fig = plt.Figure(figsize=(4,4),dpi=100)
+        self.help_fig = plt.Figure(figsize=(4,3),dpi=100)
         self.help_fig.set_facecolor(color = "white")
        
         self.help_fig_subplot = self.help_fig.add_subplot()
@@ -895,11 +895,50 @@ class GUI_Functionality:
         self.help_fig_subplot.imshow(help_image)
         self.help_fig_canvas.draw()
         
+       
+        #ROTATE BUTTON
+        global rotate
+        rotate = 0;
+        # Create the rotate button
+        #self.button_rotate = customtkinter.CTkButton(rotate_button, text="rotate", font=("Arial", 18), command=rotate_image)
+        rotate_button = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+        rotate_button.grid(row=2, column = 0)
+        #label = tk.Label(master = rotate_button, text = f"rotate")
+        #label.pack() 
+        
+        def rotate_image(): 
+            # Clear the current image from the subplot
+            self.help_fig_subplot.clear()
+            # create a variable that keeps track of the help image 
+            global rotate 
+            rotate = (rotate + 1) % 2
+            # Load a new image
+            if rotate == 0:
+                new_image = plt.imread('../GUI/Help_image.jpeg')
+            else: 
+                new_image = plt.imread('../GUI/Help_image180.jpeg')
+   
+            # Display the new image on the subplot
+            self.help_fig_subplot.imshow(new_image)
+            self.help_fig_subplot.axis("off")
+            self.help_fig_subplot.set_facecolor(color = "white")
+   
+            # Update the canvas to show the new image
+            self.help_fig_canvas.draw()
+    
+        
+        self.button_rotate = customtkinter.CTkButton(rotate_button, text = "rotate", font = ("Arial",18),  command=rotate_image)
+        #button_rotate.place(x=20, y = 20)
+        #Button(root, text="rotate", command=rotateimage)
+        rotate_button = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+        rotate_button.grid(row=2, column = 0)
+        self.button_rotate.pack()
+        
         #explanation
         explanation_frame = customtkinter.CTkFrame(self.window, fg_color = 'transparent', corner_radius=0) 
         explanation_frame.grid(row = 1, column = 1, sticky = "news")
         
-        label = tk.Label(explanation_frame, text = "Hier komt een lap tekst")
+        label = tk.Label(explanation_frame, text = "Selection of the landmark points", font=customtkinter.CTkFont(size=16))
         label.pack() 
         tekst = tk.Label(explanation_frame, text= "Select the landmark point from the selected variable in ascending order.")
         tekst.pack()
@@ -913,6 +952,8 @@ class GUI_Functionality:
         tekstline4.pack()
         tekstline5 = tk.Label(explanation_frame, text= "Steep vertebral distance: 9-10")
         tekstline5.pack()
+        
+    
     
     def help_button_test(self):
        

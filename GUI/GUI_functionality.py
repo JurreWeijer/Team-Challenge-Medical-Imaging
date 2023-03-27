@@ -856,9 +856,57 @@ class GUI_Functionality:
        # configure window 
        self.window = customtkinter.CTk()
        self.window.title("Help page")
-
+       
+       general_explanation = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+       general_explanation.grid(row=0, column = 0)
+       general_explanation.logo_label = customtkinter.CTkLabel(general_explanation, text="Help centre", font=customtkinter.CTkFont(size=12, weight="bold"))
+       general_explanation.logo_label.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky = 'ew')
+       
+       #HELP IMAGE 
+       self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
+       self.window.help_image = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=1)
+       self.window.help_image.grid(row=1, column = 0)
+       #img = ImageTk.PhotoImage('C:/Users/Laurie/Documents/Medical_Imaging/2022-2023/Team_Challenge/GUI_Laurie/image_help.png')
+       label = tk.Label(master = self.window.help_image, text = f"helpimage")
+       label.pack() 
+       fig, ax = plt.subplots()
+       # add the path from the github "C:\Users\Laurie\Documents\GitHub\Team-Challenge-Medical-Imaging\GUI\Help_image.jpeg"
+       #background = plt.imread('C:/Users/Laurie/Documents/Medical_Imaging/2022-2023/Team_Challenge/GUI_Laurie/image_help.png')
+       background = plt.imread('../GUI/Help_image.jpeg')
+       ax.imshow(background)
+       canvas = FigureCanvasTkAgg(fig, master=self.window.help_image)
+       canvas.draw()
+       
+       #ROTATE BUTTON
+       rotate_button = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+       rotate_button.grid(row=2, column = 0)
+       #label = tk.Label(master = rotate_button, text = f"rotate")
+       #label.pack() 
+       self.button_rotate = customtkinter.CTkButton(rotate_button, text = "rotate", font = ("Arial",18), )
+       #button_rotate.place(x=20, y = 20)
+       #Button(root, text="rotate", command=rotateimage)
+       self.button_rotate.pack()
+       
+       #VARIABLE NUMBERS
+       variable_numb= tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+       variable_numb.grid(row=1, column = 1)
+       label = tk.Label(master = variable_numb, text = f"Hier komt een lap tekst")
+       label.pack() 
+       tekst = tk.Label(variable_numb, text= "Select the landmark point from the selected variable in ascending order.")
+       tekst.pack()
+       tekstline1 = tk.Label(variable_numb, text= "Angle of the trunk rotation: 1-2")
+       tekstline1.pack()
+       tekstline2 = tk.Label(variable_numb, text= "Asymmetry index: 3-4-5-6")
+       tekstline2.pack()
+       tekstline3 = tk.Label(variable_numb, text= "Pectus index: 7-8-9-10")
+       tekstline3.pack()
+       tekstline4 = tk.Label(variable_numb, text= "Sagital diameter: 9-11")
+       tekstline4.pack()
+       tekstline5 = tk.Label(variable_numb, text= "Steep vertebral distance: 9-10")
+       tekstline5.pack()
+       
+       
        self.window.mainloop()
-
 
 """def calc_contour(self):
     if self.segmented_image is None:

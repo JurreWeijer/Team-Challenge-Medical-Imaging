@@ -60,8 +60,8 @@ class GUI_Functionality:
         self.trans_array_state = None
         self.coronal_image_array = None
         self.coronal_array_state = None
-        self.trans_slice = 200
-        self.coronal_slice = 135
+        self.trans_slice = 199
+        self.coronal_slice = 134
         self.contour_points = None
         self.df_params = None
         self.param_value = None
@@ -873,30 +873,87 @@ class GUI_Functionality:
         return window, pb
     
     def help_button(self):
+        self.window = customtkinter.CTkToplevel(self.master)
+        self.window.title("Help page")
+        
+        #title label
+        title_label = customtkinter.CTkLabel(self.window, text="Help", fg_color = "transparent", font=customtkinter.CTkFont(size=18, weight="bold"))
+        title_label.grid(row=0, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
+        
+        #help image
+        help_image = plt.imread('../GUI/Help_image.jpeg')
+        
+        self.help_fig = plt.Figure(figsize=(4,4),dpi=100)
+        self.help_fig.set_facecolor(color = "white")
+       
+        self.help_fig_subplot = self.help_fig.add_subplot()
+        self.help_fig_subplot.axis("off")
+        self.help_fig_subplot.set_facecolor(color = "white")
+        
+        self.help_fig_canvas = FigureCanvasTkAgg(self.help_fig, master=self.window)  # A tk.DrawingArea.
+        self.help_fig_canvas.get_tk_widget().grid(row=1, column=0, padx=(10,10), pady=(0,10), sticky = 'news')
+        self.help_fig_subplot.imshow(help_image)
+        self.help_fig_canvas.draw()
+        
+        #explanation
+        explanation_frame = customtkinter.CTkFrame(self.window, fg_color = 'transparent', corner_radius=0) 
+        explanation_frame.grid(row = 1, column = 1, sticky = "news")
+        
+        label = tk.Label(explanation_frame, text = "Hier komt een lap tekst")
+        label.pack() 
+        tekst = tk.Label(explanation_frame, text= "Select the landmark point from the selected variable in ascending order.")
+        tekst.pack()
+        tekstline1 = tk.Label(explanation_frame, text= "Angle of the trunk rotation: 1-2")
+        tekstline1.pack()
+        tekstline2 = tk.Label(explanation_frame, text= "Asymmetry index: 3-4-5-6")
+        tekstline2.pack()
+        tekstline3 = tk.Label(explanation_frame, text= "Pectus index: 7-8-9-10")
+        tekstline3.pack()
+        tekstline4 = tk.Label(explanation_frame, text= "Sagital diameter: 9-11")
+        tekstline4.pack()
+        tekstline5 = tk.Label(explanation_frame, text= "Steep vertebral distance: 9-10")
+        tekstline5.pack()
+    
+    def help_button_test(self):
        
        # configure window 
-       self.window = customtkinter.CTk()
+       self.window = customtkinter.CTkToplevel(self.master)
        self.window.title("Help page")
        
        general_explanation = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
-       general_explanation.grid(row=0, column = 0)
-       general_explanation.logo_label = customtkinter.CTkLabel(general_explanation, text="Help centre", font=customtkinter.CTkFont(size=12, weight="bold"))
+       general_explanation.grid(row=0, column = 0, columnspan = 2, sticky = "ew")
+       general_explanation.logo_label = customtkinter.CTkLabel(general_explanation, text="Help centre", fg_color = "transparent", font=customtkinter.CTkFont(size=12, weight="bold"))
        general_explanation.logo_label.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky = 'ew')
        
        #HELP IMAGE 
-       self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
+       #self.master.output_frame = customtkinter.CTkFrame(self.master, width = 400, height = 400, fg_color = "transparent", corner_radius=(0))
        self.window.help_image = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=1)
        self.window.help_image.grid(row=1, column = 0)
        #img = ImageTk.PhotoImage('C:/Users/Laurie/Documents/Medical_Imaging/2022-2023/Team_Challenge/GUI_Laurie/image_help.png')
-       label = tk.Label(master = self.window.help_image, text = f"helpimage")
-       label.pack() 
+       #label = tk.Label(master = self.window.help_image, text = f"helpimage")
+       #label.pack() 
        fig, ax = plt.subplots()
        # add the path from the github "C:\Users\Laurie\Documents\GitHub\Team-Challenge-Medical-Imaging\GUI\Help_image.jpeg"
        #background = plt.imread('C:/Users/Laurie/Documents/Medical_Imaging/2022-2023/Team_Challenge/GUI_Laurie/image_help.png')
+       working_path = os.getcwd()
+       background_path = os.path.join(working_path, "Help_image.jpeg")
        background = plt.imread('../GUI/Help_image.jpeg')
+       help_image = sitk.ReadImage('../GUI/Help_image.jpeg')
        ax.imshow(background)
        canvas = FigureCanvasTkAgg(fig, master=self.window.help_image)
        canvas.draw()
+       
+       self.help_fig = plt.Figure(figsize=(4,4),dpi=100)
+       self.help_fig.set_facecolor(color = "white")
+      
+       self.help_fig_subplot = self.help_fig.add_subplot()
+       self.help_fig_subplot.axis("off")
+       self.help_fig_subplot.set_facecolor(color = "white")
+       
+       self.help_fig_canvas = FigureCanvasTkAgg(self.help_fig, master=self.window.help_image)  # A tk.DrawingArea.
+       self.master.coronal_canvas.draw()
+       self.help_fig_canvas.get_tk_widget().grid(row=1, column=0, padx=(10,10), pady=(0,10), sticky = 'news')
+       self.help_fig_subplot.imshow(help_image)
        
        #ROTATE BUTTON
        rotate_button = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)

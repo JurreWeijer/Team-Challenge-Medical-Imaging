@@ -595,7 +595,8 @@ class GUI_Functionality:
         
     def computer_rib_params(self, dict_landmarks, maxdist = 200):
         maxrot = 0
-        maxrotslice = 0
+        maxsym = 0
+        maxparamslice = 0
         slidesize = 10
 
         window, progressbar = self.progressbar("Parameter calculation")
@@ -626,15 +627,45 @@ class GUI_Functionality:
                             Rotation = calculate_parameter(dict_landmarks, "Angle Trunk Rotation", slice_num)
                             if (maxrot < Rotation):
                                 maxrot = Rotation
-                                maxrotslice = slice_num
-                        if (slice_num - maxrotslice) > slidesize and maxrotslice != 0:
-                            self.get_parameter("Angle Trunk Rotation", maxrotslice, get_points=False)
+                                maxparamslice = slice_num
+                        if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
+                            self.get_parameter("Angle Trunk Rotation", maxparamslice, get_points=False)
                             maxrot = 0
-                            maxrotslice = 0
+                            maxparamslice = 0
                     else:
                         messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter) + " at slice " + str(slice_num))
+                elif parameter == "Assymetry Index":
+                    if "point_5" in self.dict_landmarks[f"slice_{slice_num}"] and "point_6" in self.dict_landmarks[f"slice_{slice_num}"] and "point_7" in self.dict_landmarks[f"slice_{slice_num}"] and "point_8" in self.dict_landmarks[f"slice_{slice_num}"]:
+                        contour_points = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num, dist=10,
+                                                                            interval=1, verbose=False)
+                        contour_points = contour_points.reshape(-1, 2)
+                        point5 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_5"])
+                        point6 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_6"])
+                        point7 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_7"])
+                        point8 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_8"])
+                        # Not quite sure if the distance calculation is right
+                        dist5 = np.dot((contour_points - point5) ** 2, np.ones(2))
+                        dist6 = np.dot((contour_points - point6) ** 2, np.ones(2))
+                        dist7 = np.dot((contour_points - point7) ** 2, np.ones(2))
+                        dist8 = np.dot((contour_points - point8) ** 2, np.ones(2))
+                        print(
+                            "Distance for slice " + str(slice_num) + " is " + str(np.min(dist5)) + " " + str(np.min(dist6)) + " " + str(np.min(dist7)) + " " + str(np.min(dist8)))
+                        if (np.min(dist5) < maxdist and np.min(dist7) < maxdist):
+                            #Only takes the points that are close to the back, because there are very few ribs in front
+                            Asymmetry = calculate_parameter(dict_landmarks, "Asymmetry Index", slice_num)
+                            if (maxsym < Asymmetry):
+                                maxsym = Asymmetry
+                                maxparamslice = slice_num
+                        if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
+                            self.get_parameter("Asymmetry Index", maxparamslice, get_points=False)
+                            maxsym = 0
+                            maxparamslice = 0
+                    else:
+                        messagebox.showerror("Rib parameters","Not all landmarks are generated for " + str(parameter) + " at slice " + str(slice_num))
                 else:
                     messagebox.showerror("Rib parameters", str(parameter) + " has not been implemented yet")
+                    window.destroy()
+                    return
         window.destroy()
         return
 

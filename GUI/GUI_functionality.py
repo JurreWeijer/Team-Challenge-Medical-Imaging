@@ -124,7 +124,7 @@ class GUI_Functionality:
         self.button_landmark_extension.bind('<Button-1>', lambda event: self.weighted_landmark_extension(self.start_slice, self.end_slice))
         
         self.button_change_landmarks = self.layout.master.button_change_landmarks
-        self.button_change_landmarks.bind('<Button-1>', lambda event: self.change_landmarks(self.parameter_menu.get(), self.trans_slice))
+        self.button_change_landmarks.bind('<Button-1>', lambda event: self.get_points(self.parameter_menu.get(), self.trans_slice))
         
         self.button_compute_parameters = self.layout.master.compute_parameters
         self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice, get_points = False))
@@ -624,13 +624,20 @@ class GUI_Functionality:
         time.sleep(2)
         window.destroy()
         
-    def change_landmarks(self,parameter, slice_number):
-        self.get_points(parameter, slice_number)    
-        
     def computer_rib_params(self, dict_landmarks, maxdist = 200):
-        #Compute selected parameter between the selected start slice and end slice
-        #and only if it is no further than maxdist from the closest rib and if it has the largest deformity of this rib
-        #It is assumed that there are at least slidesize slices between each rib and the next
+        """compute selected parameter between the selected start slice and end slice
+        and only if it is no further than maxdist from the closest rib and if it has the largest deformity of this rib.
+        it is assumed that there are at least slidesize slices between each rib and the next
+        
+        Parameters
+        ----------
+        dict_landmarks: dictionary 
+            dictionary that contains the landmarks locations 
+        max_dist: int 
+            maximum distance between the landmarks and the rib centroids
+        
+        """
+     
         maxrot = 0
         maxsym = 0
         maxparamslice = 0
@@ -640,41 +647,51 @@ class GUI_Functionality:
         window, progressbar = self.progressbar("Parameter calculation")
         window.update()
         parameter = self.parameter_menu.get()
-        #Ask for segmentation image if this has not been generated yet
+        
+        #ask for segmentation image if this has not been generated yet
         if self.segmented_image is None:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
+                #read the segmented image and get get the array
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
                 self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
             except:
+                #if the image cannot be read then give an error
                 messagebox.showerror("Segmentation", "Problem with loading the segmented image, please try a different one or run the segmentation function")
-        #Loop over all slices between start_slice and end_slice and compute the selected landmark
-        for slice_num in range(self.start_slice, self.end_slice):
+        
+        #loop over all slices between start_slice and end_slice and compute the selected landmark
+        for slice_num in range(self.start_slice, self.end_slice): #TODO: error handling the start and end slice are not defined
             progressbar.set(slice_num/np.shape(self.image_array)[0])
             window.update_idletasks()
+            
             if f"slice_{slice_num}" in dict_landmarks:
-                if parameter == "Angle Trunk Rotation":
+                
+                if parameter == self.trunk_rotation:
                     if "point_3" in self.dict_landmarks[f"slice_{slice_num}"] and "point_4" in self.dict_landmarks[f"slice_{slice_num}"]:
                         contour_points = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num, dist = 10, interval=1, verbose = False)
                         contour_points = contour_points.reshape(-1,2)
                         point3 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_3"])
                         point4 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_4"])
+                        
                         #Distance calculation
                         dist3 = np.dot((contour_points - point3)**2, np.ones(2))
                         dist4 = np.dot((contour_points - point4)**2, np.ones(2))
                         print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))
+                        
                         if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
                             Rotation = calculate_parameter(dict_landmarks, "Angle Trunk Rotation", slice_num)
                             if (maxrot < Rotation):
                                 maxrot = Rotation
                                 maxparamslice = slice_num
+                        
                         if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
                             self.get_parameter("Angle Trunk Rotation", maxparamslice, get_points=False)
                             maxrot = 0
                             maxparamslice = 0
                     else:
                         messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter) + " at slice " + str(slice_num))
-                elif parameter == "Assymetry Index":
+                
+                elif parameter == self.assymetry_index:
                     if "point_5" in self.dict_landmarks[f"slice_{slice_num}"] and "point_6" in self.dict_landmarks[f"slice_{slice_num}"] and "point_7" in self.dict_landmarks[f"slice_{slice_num}"] and "point_8" in self.dict_landmarks[f"slice_{slice_num}"]:
                         contour_points = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num, dist=10,
                                                                             interval=1, verbose=False)
@@ -683,19 +700,23 @@ class GUI_Functionality:
                         point6 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_6"])
                         point7 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_7"])
                         point8 = np.array(self.dict_landmarks[f"slice_{slice_num}"]["point_8"])
+                       
                         # Not quite sure if the distance calculation is right
                         dist5 = np.dot((contour_points - point5) ** 2, np.ones(2))
                         dist6 = np.dot((contour_points - point6) ** 2, np.ones(2))
                         dist7 = np.dot((contour_points - point7) ** 2, np.ones(2))
                         dist8 = np.dot((contour_points - point8) ** 2, np.ones(2))
+                       
                         print(
                             "Distance for slice " + str(slice_num) + " is " + str(np.min(dist5)) + " " + str(np.min(dist6)) + " " + str(np.min(dist7)) + " " + str(np.min(dist8)))
+                        
                         if (np.min(dist5) < maxdist and np.min(dist7) < maxdist):
                             #Only takes the points that are close to the back, because there are very few ribs in front
                             Asymmetry = calculate_parameter(dict_landmarks, "Asymmetry Index", slice_num)
                             if (maxsym < Asymmetry):
                                 maxsym = Asymmetry
                                 maxparamslice = slice_num
+                       
                         if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
                             self.get_parameter("Asymmetry Index", maxparamslice, get_points=False)
                             maxsym = 0
@@ -706,14 +727,25 @@ class GUI_Functionality:
                     messagebox.showerror("Rib parameters", str(parameter) + " has not been implemented yet")
                     window.destroy()
                     return
+        
         window.destroy()
+        
         return
 
     def automatic_segmentation(self):
+        """compute the segmented image for the image that is currently loaded in
+        
+        Parameters
+        ----------
+     
+        """
+        
         if self.image_array is None:
+            #if there is no opened image then give an error message
             messagebox.showinfo(title="Message", message="Please first select an image")
             return
-
+        
+        #retreive the segmented image and the array of that image
         segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
         self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
         self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
@@ -725,63 +757,40 @@ class GUI_Functionality:
     
         return
 
-    def draw_contour(self):
-
-        if self.segmented_image_array is None:
-            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
-            try:
-                self.segmented_image = sitk.ReadImage(segmentation_path.name)
-                self.image_array = sitk.GetArrayFromImage(self.segmented_image)
-                self.trans_image_array = self.image_array
-                self.coronal_image_array = self.image_array
-            except:
-                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
-
-        self.contour = True 
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
+    def get_contour_landmarks(self, slice_num):
+        """retreive the landmark based on the contour made from the segmented image
         
-    
-    def remove_contour(self):
-        self.contour = False 
-        self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
-
-    def get_contour(self):
-        #Get contour from CSO file
-        print("Getting contour")
-        contour_path = filedialog.askopenfile(title="Open contour file")
-        try:
-            #Does not work quite yet
-            f = os.open(contour_path.name, os.O_RDONLY)
-            contour = os.read(f, 1000)
-            print(contour.decode('utf-8'))
-            os.close(f)
-        except:
-            messagebox.showerror("Contouring", "Problem with opening the file, please try another one")
-
-        print(contour)
-
-        return
-
-    def get_contour_landmarks(self, slice_number):
+        Parameters
+        ----------
+        slice_num: int 
+            the slice number for which the landmarks have to be retreived
+            
+        """
+        
         if self.image_array is None:
+            #if there is no opened image then give an error message
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
+                #read the segmented image and get get the array
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
                 self.image_array = sitk.GetArrayFromImage(self.segmented_image)
             except:
+                #if the image cannot be read then give an error
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
 
         if self.contour_points is None:
             try:
-                centroids = Tools.Contouring.MultiSliceContour(self.image_array, slice_number)
+                #if there is no contour then retrieve the contour using the function MultiSlcieContour
+                centroids = Tools.Contouring.MultiSliceContour(self.image_array, slice_num)
                 hull = cv.convexHull(centroids[1:])
                 self.contour_points = hull.reshape(-1,2)
             except:
+                #if there are problems retreiving the contour give an errror 
                 messagebox.showerror("Contouring", "Problem with calculating the contour points")
 
-        if f"slice_{slice_number}" not in self.dict_landmarks:
-            # If the key doesn't exist, create it with an empty dictionary as its value
-            self.dict_landmarks[f"slice_{slice_number}"] = {}
+        if f"slice_{slice_num}" not in self.dict_landmarks:
+            # if the key doesn't exist, create it with an empty dictionary as its value
+            self.dict_landmarks[f"slice_{slice_num}"] = {}
 
         image_half = np.array(self.image_array.shape)/2
 
@@ -791,9 +800,10 @@ class GUI_Functionality:
 
         Right_points = self.contour_points[self.contour_points[:,0] > image_half[-1]]
         Right_top = Right_points[np.argmin(Right_points[:,1]),:]
-
-        self.dict_landmarks[f"slice_{slice_number}"]["point_3"] = Right_top.astype(int)
-        self.dict_landmarks[f"slice_{slice_number}"]["point_4"] = Left_top.astype(int)
+        
+        #add the points for angle of trunk rotation to the landmark dictionary
+        self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = Right_top.astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = Left_top.astype(int)
 
         #Pectus index
         maxdist = 0
@@ -801,8 +811,9 @@ class GUI_Functionality:
         rightmaxidx = 0
         maxdist, leftmaxPoint, rightmaxPoint = Tools.Deformity_Parameters.Find_Longest(Left_points, Right_points)
 
-        self.dict_landmarks[f"slice_{slice_number}"]["point_9"] = Left_points[leftmaxidx].astype(int)
-        self.dict_landmarks[f"slice_{slice_number}"]["point_10"] = Right_points[rightmaxidx].astype(int)
+        #add the landmarks for the pectus index to the landmark dictionary
+        self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = Left_points[leftmaxidx].astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = Right_points[rightmaxidx].astype(int)
 
         #TODO calculate the sternum and top of vertebra, but the segmentation does not yet allow for that
 
@@ -816,14 +827,15 @@ class GUI_Functionality:
         maxdist, maxright, minright = Tools.Deformity_Parameters.Find_Longest(TopRight_points, BotRight_points, c = 1)
         maxdist, maxleft, minleft = Tools.Deformity_Parameters.Find_Longest(TopLeft_points, BotLeft_points, c = 1)
 
-        self.dict_landmarks[f"slice_{slice_number}"]["point_5"] = maxright.astype(int)
-        self.dict_landmarks[f"slice_{slice_number}"]["point_6"] = minright.astype(int)
-        self.dict_landmarks[f"slice_{slice_number}"]["point_7"] = maxleft.astype(int)
-        self.dict_landmarks[f"slice_{slice_number}"]["point_8"] = minleft.astype(int)
+        #add the landmarks for the assymetry index to the landmark dictionary 
+        self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = maxright.astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = minright.astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = maxleft.astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = minleft.astype(int)
 
         #Quick debug plot
         plt.figure()
-        plt.imshow(sitk.GetArrayFromImage(self.segmented_image)[slice_number,:,:])
+        plt.imshow(sitk.GetArrayFromImage(self.segmented_image)[slice_num,:,:])
         plt.scatter(self.contour_points[:,0], self.contour_points[:,1], s=1)
         plt.scatter([maxright[0], maxleft[0]], [maxright[1], maxleft[1]], c = 'b')
         plt.scatter([minright[0], minleft[0]], [minright[1], minleft[1]], c = 'r')
@@ -833,22 +845,31 @@ class GUI_Functionality:
         return
 
     def progressbar(self, label):
+        """creat a window with a progress bar in it
+        
+        Parameters
+        ----------
+        label: string 
+            label that indicates what the progress bar is for
+            
+        """
+        #create a new window
         window = customtkinter.CTkToplevel(self.master)
         self.master.eval(f"tk::PlaceWindow {str(window)} center")
-
         window.title(label + " progress")
         window.geometry("300x150")
+        
+        #create and pack a label in the window to show what the user is waiting for
         customtkinter.CTkLabel(window, text = "Please wait for " + label).pack()
-        # progressbar
-        pb = customtkinter.CTkProgressBar(master = window, mode = "determinate")
-        # place the progressbar
-        pb.pack()
+        #create and pack the progress bar 
+        pb = customtkinter.CTkProgressBar(master = window, mode = "determinate").pack()
 
         #Make sure the progress bar is set and the window updated
         window.grab_set()
         pb.set(0)
         pb.start()
         window.update()
+        
         return window, pb
     
     def help_button(self):
@@ -908,7 +929,45 @@ class GUI_Functionality:
        
        self.window.mainloop()
 
-"""def calc_contour(self):
+"""
+def draw_contour(self):
+
+    if self.segmented_image_array is None:
+        segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+        try:
+            self.segmented_image = sitk.ReadImage(segmentation_path.name)
+            self.image_array = sitk.GetArrayFromImage(self.segmented_image)
+            self.trans_image_array = self.image_array
+            self.coronal_image_array = self.image_array
+        except:
+            messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
+
+    self.contour = True 
+    self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
+    
+
+def remove_contour(self):
+    self.contour = False 
+    self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
+
+def get_contour(self):
+    #Get contour from CSO file
+    print("Getting contour")
+    contour_path = filedialog.askopenfile(title="Open contour file")
+    try:
+        #Does not work quite yet
+        f = os.open(contour_path.name, os.O_RDONLY)
+        contour = os.read(f, 1000)
+        print(contour.decode('utf-8'))
+        os.close(f)
+    except:
+        messagebox.showerror("Contouring", "Problem with opening the file, please try another one")
+
+    print(contour)
+
+    return
+
+def calc_contour(self):
     if self.segmented_image is None:
         segmentation_path = filedialog.askopenfile(title="Open segmentation image")
         try:

@@ -533,60 +533,94 @@ class GUI_Functionality:
         messagebox.showinfo("Parameters", "File " + file_name + " saved at " + path )
     
     def weighted_landmark_extension(self, start_slice, end_slice):
+        """save the calculated parameters in a .csv file
+        
+        Parameters
+        ----------
+        start_slice: int 
+            the the start slice for weighted landmark extension 
+        end_slice: int 
+            the end slice for weighted landmark extension
+        
+        """
+        
+        #retreive the parameter that is currently selected in the dropdown menu
         parameter = self.parameter_menu.get()
+        
+        #check if the start and end slice are set and give error if on of the two is not 
         if start_slice == None or end_slice == None:
             messagebox.showerror("Landmark extension", "Start or end slice not set, please set them and try again")
             return
         
-        #retreive the input seed and put them into the point dicts
-        #save the slice used for seed in the original_seeds list
+        #create empty list to save the slice number that have a manual input 
         original_seeds = []
+        
+        #get a manual input every 25 slice between the start and end slice, add the slice number to the original_seeds list
         for i in range(start_slice, end_slice, 25):
             self.get_points(parameter, i)
             original_seeds.append(i)
-        self.get_points(parameter, end_slice)
-        original_seeds.append(end_slice)
+        
+        #if the end slice is not in the orignal seed list then add it and get a manual input
+        if original_seeds[-1] != end_slice:
+            self.get_points(parameter, end_slice)
+            original_seeds.append(end_slice)
 
+        #create a window and progress bar
         window, progressbar = self.progressbar("Landmark Extension")
         window.update()
         
+        #set the progress to zero 
         progress = 0
+        
+        #loop over all the required landmarks for the selected parameter
         for point in self.dict_landmark_num[parameter]:
+            #loop over the slices that have a manual input
             for n_seed in range(0,len(original_seeds)-1, 1):
+                #empty lists to add the value for the upward and downward landmark extension
                 up_seed = []
                 down_seed = []
+                
+                #retrieve the first seed that is used for upward landmark extension 
                 prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed]}"][f"point_{point}"]
-                    
+                
+                #perform upward landmark extension starting form the point that was manual input
                 for i in range(original_seeds[n_seed]+1, original_seeds[n_seed+1], 1):
                     next_seed = GUI.GUI_utils.GetNextSeed(self.image_array[i,:,:], prev_seed)
                     up_seed.append(next_seed)
                     prev_seed = next_seed
                 
+                #retrieve the seed from the next point for downward landmark extension
                 prev_seed = self.dict_landmarks[f"slice_{original_seeds[n_seed+1]}"][f"point_{point}"]
                 
+                #perform downward landmark extension starting from the manual input
                 for j in range(original_seeds[n_seed+1]+1, original_seeds[n_seed], -1):
                     next_seed = GUI.GUI_utils.GetNextSeed(self.image_array[j,:,:], prev_seed)
                     down_seed.append(next_seed)
                     prev_seed = next_seed
                 
-                
+                #perform weigting usin the seed from upward and downward landmark extesion, weighting is done based on the distance from the manual inputs
                 for k in range(len(up_seed)): 
-                    seed_x = ((23-1-k) * up_seed[k][0] + (k+1) * down_seed[-k][0])/23
-                    seed_y = ((23-1-k) * up_seed[k][1] + (k+1)* down_seed[-k][1])/23
+                    seed_x = ((len(up_seed)-1-k) * up_seed[k][0] + (k+1) * down_seed[-k][0])/len(up_seed)
+                    seed_y = ((len(up_seed)-1-k) * up_seed[k][1] + (k+1)* down_seed[-k][1])/len(up_seed)
                     seed = (seed_x, seed_y)
                     
                     if f"slice_{original_seeds[n_seed]+k+1}" not in self.dict_landmarks:
-                        # If the key doesn't exist, create it with an empty dictionary as its value
+                        # if the key doesn't exist, create it with an empty dictionary as its value
                         self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"] = {}
-                        
+                     
+                    #save the the seed in the landmark dictionary 
                     self.dict_landmarks[f"slice_{original_seeds[n_seed]+k+1}"][f"point_{point}"] = seed
+            
+            #update the progress bar 
             progress += 1/len(self.dict_landmark_num[parameter])
             progressbar.set(progress-0.1)
             window.update_idletasks()
         
+        #draw the computed landmarks 
         self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
         self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
         
+        #destroy the progress window
         time.sleep(2)
         window.destroy()
         

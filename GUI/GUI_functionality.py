@@ -762,13 +762,16 @@ class GUI_Functionality:
         window.destroy()
         return
 
-    def get_contour_landmarks(self, slice_num):
+    def get_contour_landmarks(self, slice_num, loop = False):
         """retreive the landmark based on the contour made from the segmented image
         
         Parameters
         ----------
         slice_num: int 
             the slice number for which the landmarks have to be retreived
+
+        loop: bool
+            Whether or not we should recalculate the contour points for every single loop
             
         """
         
@@ -783,7 +786,7 @@ class GUI_Functionality:
                 #if the image cannot be read then give an error
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
 
-        if self.contour_points is None:
+        if self.contour_points is None or loop == True:
             try:
                 #if there is no contour then retrieve the contour using the function MultiSlcieContour
                 centroids = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num)
@@ -856,7 +859,7 @@ class GUI_Functionality:
         window, progressbar = self.progressbar("Multi-slice contouring")
         r = range(self.start_slice, self.end_slice)
         for slice_num in r:
-            self.get_contour_landmarks(slice_num)
+            self.get_contour_landmarks(slice_num, loop = True)
             progressbar.set((len(r)+self.start_slice)/slice_num)
             window.update_idletasks()
 

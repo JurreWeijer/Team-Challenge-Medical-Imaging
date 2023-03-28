@@ -152,7 +152,7 @@ class GUI_Functionality:
         self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
 
         self.button_auto_parameter = self.layout.master.button_auto_parameter
-        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_landmarks(self.trans_slice))
+        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
         
         #----------------------------------------------------- entrys -----------------------------------------------------
         self.slice_entry = self.layout.master.slice_entry
@@ -733,7 +733,7 @@ class GUI_Functionality:
         return
 
     def automatic_segmentation(self):
-        """compute the segmented image for the image that is currently loaded in
+        """compute the segmented image for the image that is currently loaded in, saving it after it is done
         
         Parameters
         ----------
@@ -772,13 +772,13 @@ class GUI_Functionality:
             
         """
         
-        if self.image_array is None:
+        if self.segmented_image is None:
             #if there is no opened image then give an error message
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
             try:
                 #read the segmented image and get get the array
                 self.segmented_image = sitk.ReadImage(segmentation_path.name)
-                self.image_array = sitk.GetArrayFromImage(self.segmented_image)
+                self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
             except:
                 #if the image cannot be read then give an error
                 messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
@@ -786,7 +786,7 @@ class GUI_Functionality:
         if self.contour_points is None:
             try:
                 #if there is no contour then retrieve the contour using the function MultiSlcieContour
-                centroids = Tools.Contouring.MultiSliceContour(self.image_array, slice_num)
+                centroids = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num)
                 hull = cv.convexHull(centroids[1:])
                 self.contour_points = hull.reshape(-1,2)
             except:
@@ -797,7 +797,7 @@ class GUI_Functionality:
             # if the key doesn't exist, create it with an empty dictionary as its value
             self.dict_landmarks[f"slice_{slice_num}"] = {}
 
-        image_half = np.array(self.image_array.shape)/2
+        image_half = np.array(self.segmented_image_array.shape)/2
 
         #Split the image in right and left points
         Left_points = self.contour_points[self.contour_points[:,0] < image_half[-1]]
@@ -839,17 +839,29 @@ class GUI_Functionality:
         self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = minleft.astype(int)
 
         #Quick debug plot
-        plt.figure()
-        plt.imshow(sitk.GetArrayFromImage(self.segmented_image)[slice_num,:,:])
-        plt.scatter(self.contour_points[:,0], self.contour_points[:,1], s=1)
-        plt.scatter([maxright[0], maxleft[0]], [maxright[1], maxleft[1]], c = 'b')
-        plt.scatter([minright[0], minleft[0]], [minright[1], minleft[1]], c = 'r')
-        plt.show()
+        # plt.figure()
+        # plt.imshow(sitk.GetArrayFromImage(self.segmented_image)[slice_num,:,:])
+        # plt.scatter(self.contour_points[:,0], self.contour_points[:,1], s=1)
+        # plt.scatter([maxright[0], maxleft[0]], [maxright[1], maxleft[1]], c = 'b')
+        # plt.scatter([minright[0], minleft[0]], [minright[1], minleft[1]], c = 'r')
+        # plt.show()
 
 
         return
 
+    def get_contour_landmarks_range(self):
+        if self.start_slice == None or self.end_slice == None:
+            messagebox.showerror("Contouring", "Please make sure that the start slice and end slice have been selected")
+            return
+        window, progressbar = self.progressbar("Multi-slice contouring")
+        r = range(self.start_slice, self.end_slice)
+        for slice_num in r:
+            self.get_contour_landmarks(slice_num)
+            progressbar.set((len(r)+self.start_slice)/slice_num)
+            window.update_idletasks()
 
+        window.destroy()
+        return
 
     def progressbar(self, label):
         """creat a window with a progress bar in it

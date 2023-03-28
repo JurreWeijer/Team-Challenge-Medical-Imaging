@@ -4,6 +4,7 @@ Created on Sat Feb 18 19:52:02 2023
 
 @author: 20182371
 """
+import warnings
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -34,6 +35,9 @@ def calculate_parameter(dict_landmarks, parameter, n_slice):
         # Steep vertebral distance = dis(11,12)
         steep_vertebral = np.sqrt((points["point_11"][0]-points["point_12"][0])**2+(points["point_11"][1]-points["point_12"][1])**2)
         return steep_vertebral
+    else:
+        #Should never happen, unless there is a problem in the code
+        warnings.warn("Invalid parameter selected in calculate_parameter: " + str(parameter))
     
 def assymetry_index(pts):
     #pts = self.pts

@@ -712,13 +712,13 @@ class GUI_Functionality:
                         
                         if (np.min(dist5) < maxdist and np.min(dist7) < maxdist):
                             #Only takes the points that are close to the back, because there are very few ribs in front
-                            Asymmetry = calculate_parameter(dict_landmarks, "Asymmetry Index", slice_num)
+                            Asymmetry = calculate_parameter(dict_landmarks, "Assymetry Index", slice_num)
                             if (maxsym < Asymmetry):
                                 maxsym = Asymmetry
                                 maxparamslice = slice_num
                        
                         if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
-                            self.get_parameter("Asymmetry Index", maxparamslice, get_points=False)
+                            self.get_parameter("Assymetry Index", maxparamslice, get_points=False)
                             maxsym = 0
                             maxparamslice = 0
                     else:

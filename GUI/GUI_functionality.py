@@ -744,17 +744,22 @@ class GUI_Functionality:
             #if there is no opened image then give an error message
             messagebox.showinfo(title="Message", message="Please first select an image")
             return
-        
+
+        window, progressbar = self.progressbar("Segmentation")
+
         #retreive the segmented image and the array of that image
         segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
+        progressbar.set(0.5)
+        window.update_idletasks()
         self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
         self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
-        
+        progressbar.set(0.9)
+        window.update_idletasks()
         #save segmentation
         filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
         sitk.WriteImage(self.segmented_image, fileName=filename)
         messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
-    
+        window.destroy()
         return
 
     def get_contour_landmarks(self, slice_num):
@@ -785,7 +790,7 @@ class GUI_Functionality:
                 hull = cv.convexHull(centroids[1:])
                 self.contour_points = hull.reshape(-1,2)
             except:
-                #if there are problems retreiving the contour give an errror 
+                #if there are problems retreiving the contour give an errror
                 messagebox.showerror("Contouring", "Problem with calculating the contour points")
 
         if f"slice_{slice_num}" not in self.dict_landmarks:
@@ -800,7 +805,7 @@ class GUI_Functionality:
 
         Right_points = self.contour_points[self.contour_points[:,0] > image_half[-1]]
         Right_top = Right_points[np.argmin(Right_points[:,1]),:]
-        
+
         #add the points for angle of trunk rotation to the landmark dictionary
         self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = Right_top.astype(int)
         self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = Left_top.astype(int)
@@ -827,7 +832,7 @@ class GUI_Functionality:
         maxdist, maxright, minright = Tools.Deformity_Parameters.Find_Longest(TopRight_points, BotRight_points, c = 1)
         maxdist, maxleft, minleft = Tools.Deformity_Parameters.Find_Longest(TopLeft_points, BotLeft_points, c = 1)
 
-        #add the landmarks for the assymetry index to the landmark dictionary 
+        #add the landmarks for the assymetry index to the landmark dictionary
         self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = maxright.astype(int)
         self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = minright.astype(int)
         self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = maxleft.astype(int)
@@ -843,6 +848,8 @@ class GUI_Functionality:
 
 
         return
+
+
 
     def progressbar(self, label):
         """creat a window with a progress bar in it
@@ -862,7 +869,8 @@ class GUI_Functionality:
         #create and pack a label in the window to show what the user is waiting for
         customtkinter.CTkLabel(window, text = "Please wait for " + label).pack()
         #create and pack the progress bar 
-        pb = customtkinter.CTkProgressBar(master = window, mode = "determinate").pack()
+        pb = customtkinter.CTkProgressBar(master = window, mode = "determinate")
+        pb.pack()
 
         #Make sure the progress bar is set and the window updated
         window.grab_set()

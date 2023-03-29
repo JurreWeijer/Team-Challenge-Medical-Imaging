@@ -185,7 +185,10 @@ class GUI_Functionality:
             #read the image and get the array
             self.image = sitk.ReadImage(self.file_path.name)
             self.image_array = sitk.GetArrayFromImage(self.image)
-            print(self.image_array.shape)
+            
+            if np.all(self.image_array <= 1) and np.all(self.image_array >= 0):
+                messagebox.showinfo(title="Message", message="incorrect file type, please open a non-segmented image")
+                return 
             
             #initialize the trans array image and state 
             self.trans_image_array = self.image_array

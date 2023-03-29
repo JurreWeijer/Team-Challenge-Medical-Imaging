@@ -71,6 +71,7 @@ class GUI_Functionality:
         self.start_slice = None
         self.end_slice = None
         self.contour = False
+        self.help_window = None
         
         #---------------------------------------------- image frame buttons ----------------------------------------------
         self.button_open_image = self.layout.master.button_open_image
@@ -197,8 +198,8 @@ class GUI_Functionality:
             #reset variables upon opening an image
             self.segmented_image = None
             self.segmented_image_array = None
-            self.trans_slice = 200
-            self.coronal_slice = 135
+            self.trans_slice = 199
+            self.coronal_slice = 134
             self.contour_points = None
             self.df_params = None
             self.param_value = None
@@ -208,6 +209,9 @@ class GUI_Functionality:
             self.start_slice = None
             self.end_slice = None
             self.contour = False
+            
+            for i in self.output_table.get_children():
+                self.output_table.delete(i)
             
             #draw the image in the GUI
             self.layout.draw_image(self.trans_image_array, self.coronal_image_array, self.trans_slice, self.coronal_slice, self.contour, self.start_slice, self.end_slice, self.map)
@@ -410,6 +414,10 @@ class GUI_Functionality:
         slice_num: int
             the slice number for which points have to be retreived
         """
+        
+        if self.help_window is not None: 
+            self.help_window.destroy()
+            self.help_window = None
         
         #show the image in new window
         plt.imshow(self.image_array[slice_num, :, :],cmap=self.map)
@@ -896,11 +904,11 @@ class GUI_Functionality:
         return window, pb
      
     def help_button(self):
-        self.window = customtkinter.CTkToplevel(self.master)
-        self.window.title("Help page")
+        self.help_window = customtkinter.CTkToplevel(self.master)
+        self.help_window.title("Help page")
         
         #title label
-        title_label = customtkinter.CTkLabel(self.window, text="Welcome to the help page", fg_color = "transparent", font=customtkinter.CTkFont(size=18, weight="bold"))
+        title_label = customtkinter.CTkLabel(self.help_window, text="Welcome to the help page", fg_color = "transparent", font=customtkinter.CTkFont(size=18, weight="bold"))
         title_label.grid(row=0, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
         
         #help image
@@ -913,7 +921,7 @@ class GUI_Functionality:
         self.help_fig_subplot.axis("off")
         self.help_fig_subplot.set_facecolor(color = "white")
         
-        self.help_fig_canvas = FigureCanvasTkAgg(self.help_fig, master=self.window)  # A tk.DrawingArea.
+        self.help_fig_canvas = FigureCanvasTkAgg(self.help_fig, master=self.help_window)  # A tk.DrawingArea.
         self.help_fig_canvas.get_tk_widget().grid(row=1, column=0, padx=(10,10), pady=(0,10), sticky = 'news')
         self.help_fig_subplot.imshow(help_image)
         self.help_fig_canvas.draw()
@@ -924,7 +932,7 @@ class GUI_Functionality:
         rotate = 0;
         # Create the rotate button
         #self.button_rotate = customtkinter.CTkButton(rotate_button, text="rotate", font=("Arial", 18), command=rotate_image)
-        rotate_button = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+        rotate_button = tk.Frame(master = self.help_window, relief=tk.RAISED, borderwidth=0)
         rotate_button.grid(row=2, column = 0)
         #label = tk.Label(master = rotate_button, text = f"rotate")
         #label.pack() 
@@ -953,12 +961,12 @@ class GUI_Functionality:
         self.button_rotate = customtkinter.CTkButton(rotate_button, text = "rotate", font = ("Arial",18),  command=rotate_image)
         #button_rotate.place(x=20, y = 20)
         #Button(root, text="rotate", command=rotateimage)
-        rotate_button = tk.Frame(master = self.window, relief=tk.RAISED, borderwidth=0)
+        rotate_button = tk.Frame(master = self.help_window, relief=tk.RAISED, borderwidth=0)
         rotate_button.grid(row=2, column = 0)
         self.button_rotate.pack()
         
         #explanation
-        explanation_frame = customtkinter.CTkFrame(self.window, fg_color = 'transparent', corner_radius=0) 
+        explanation_frame = customtkinter.CTkFrame(self.help_window, fg_color = 'transparent', corner_radius=0) 
         explanation_frame.grid(row = 1, column = 1, sticky = "news")
         
         label = tk.Label(explanation_frame, text = "Selection of the landmark points", font=customtkinter.CTkFont(size=16))

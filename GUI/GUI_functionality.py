@@ -7,6 +7,7 @@ Created on Sun Feb 19 17:15:37 2023
 import customtkinter 
 import tkinter as tk 
 from tkinter import filedialog, messagebox
+from tkinter import *
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -168,7 +169,15 @@ class GUI_Functionality:
         
         #--------------------------------------------------- output table -------------------------------------------------
         self.output_table = self.layout.master.table
-
+        
+        #-----------------------------------------------------quit button -------------------------------------------------------
+        self.button_quit = self.layout.master.button_quit
+        self.button_quit.bind('<Button-1>', lambda event: self.quit_button())
+        
+        
+        
+        
+        
     def open_file(self):
         """function that opens the filedialog and allows for opening of an image 
         which is then displayed in the transverse and coronal view"""
@@ -929,6 +938,15 @@ class GUI_Functionality:
         self.help_fig_subplot.imshow(help_image)
         self.help_fig_canvas.draw()
         
+        
+        
+        
+    def quit_button(self):
+        self.help_window = customtkinter.CTkToplevel(self.master)
+        self.help_window.title("Quit")
+        self.destroy()
+        
+        
        
         #ROTATE BUTTON
         global rotate
@@ -1057,9 +1075,11 @@ class GUI_Functionality:
        tekstline4.pack()
        tekstline5 = tk.Label(variable_numb, text= "Steep vertebral distance: 9-10")
        tekstline5.pack()
-       
-       
-       self.window.mainloop()
+            
+            
+            
+            
+            
 
 """
 def draw_contour(self):

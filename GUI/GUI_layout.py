@@ -161,9 +161,6 @@ class GUI_Layout:
         #configure of the button frame
         self.master.button_frame.columnconfigure((0,1), weight = 1)
         
-        
-<<<<<<< Updated upstream
-=======
         #general components of the button frame
         self.master.landmark_extention_label = customtkinter.CTkLabel(self.master.button_frame, text="General area", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.landmark_extention_label.grid(row=0, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
@@ -218,29 +215,6 @@ class GUI_Layout:
         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Compute landmarks", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.manual_parameter_label.grid(row=5, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
-        self.master.button_assymetry_index = customtkinter.CTkButton(self.master.button_frame, text = "assymetry index", font = ("Arial",18), )
-        self.master.button_assymetry_index.grid(row=1, column = 0, padx=(5,5), pady=(5,5), sticky= 'ew')
-        
-        self.master.button_trunk_angle = customtkinter.CTkButton(self.master.button_frame, text = "trunk angle", font = ("Arial",18), )
-        self.master.button_trunk_angle.grid(row=1, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_pectus_index = customtkinter.CTkButton(self.master.button_frame, text = "pectus index", font = ("Arial",18), )
-        self.master.button_pectus_index.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_sagital_diameter = customtkinter.CTkButton(self.master.button_frame, text = "sagital diameter", font = ("Arial",18), )
-        self.master.button_sagital_diameter.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_steep_vertebral = customtkinter.CTkButton(self.master.button_frame, text = "steep vertebral", font = ("Arial",18), )
-        self.master.button_steep_vertebral.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-    def landmark_extension_buttons(self):
-        #landmark extenstion components of the button frame
-        self.master.landmark_extention_label = customtkinter.CTkLabel(self.master.button_frame, text="Landmark Extension", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.landmark_extention_label.grid(row=4, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
->>>>>>> d0dd716fd0fd60a03878852404ae18b43763622a
         
         self.master.parameter_menu = customtkinter.CTkOptionMenu(self.master.button_frame, dynamic_resizing=False,
                                                          values=["Assymetry index", "Angle trunk rotation", "Pectus index", "Sagittal diameter", "Steep vertebral"])                                                         

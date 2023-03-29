@@ -39,11 +39,11 @@ class GUI_Functionality:
         self.transverse = "transverse"
         self.plus = '+'
         self.minus = '-'
-        self.assymetry_index = "Assymetry Index"
-        self.trunk_rotation = "Angle Trunk Rotation"
-        self.pectus_index = "Pectus Index"
-        self.sagital_diameter = "Sagital Diameter"
-        self.steep_vertebral = "Steep Vertebral"
+        self.assymetry_index = "Assymetry index"
+        self.trunk_rotation = "Angle trunk rotation"
+        self.pectus_index = "Pectus index"
+        self.sagital_diameter = "Sagital diameter"
+        self.steep_vertebral = "Steep vertebral"
         self.dict_landmark_num = {self.assymetry_index : [5,6,7,8], 
                                   self.trunk_rotation : [3,4], 
                                   self.pectus_index : [9,10,11,12],
@@ -96,26 +96,7 @@ class GUI_Functionality:
         self.coronal_button_goto_slice = self.layout.master.coronal_button_goto_slice
         self.coronal_button_goto_slice.bind('<Button-1>', lambda event: self.go_to_slice(self.coronal))
         
-        #---------------------------------------------- manual parameter buttons -----------------------------------------
-        self.button_assymetry_index = self.layout.master.button_assymetry_index
-        self.button_assymetry_index.bind('<Button-1>', lambda event: self.get_parameter(self.assymetry_index, self.trans_slice))
-        
-        self.button_trunk_angle = self.layout.master.button_trunk_angle
-        self.button_trunk_angle.bind('<Button-1>', lambda event: self.get_parameter(self.trunk_rotation, self.trans_slice))
-        
-        self.button_pectus_index = self.layout.master.button_pectus_index
-        self.button_pectus_index.bind('<Button-1>', lambda event: self.get_parameter(self.pectus_index, self.trans_slice))
-        
-        self.button_sagital_diameter = self.layout.master.button_sagital_diameter
-        self.button_sagital_diameter.bind('<Button-1>', lambda event: self.get_parameter(self.sagital_diameter, self.trans_slice))
-        
-        self.button_steep_vertebral = self.layout.master.button_steep_vertebral
-        self.button_steep_vertebral.bind('<Button-1>', lambda event: self.get_parameter(self.steep_vertebral, self.trans_slice))
-        
-        self.button_save_parameters = self.layout.master.button_save_parameters
-        self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
-        
-        #---------------------------------------------- landmark extension buttons --------------------------------------
+        #---------------------------------------------- general buttons -----------------------------------------
         self.button_begin = self.layout.master.button_begin
         self.button_begin.bind('<Button-1>', lambda event: self.set_slice("start"))
         
@@ -125,16 +106,6 @@ class GUI_Functionality:
         self.button_landmark_extension = self.layout.master.button_landmark_extension
         self.button_landmark_extension.bind('<Button-1>', lambda event: self.weighted_landmark_extension(self.start_slice, self.end_slice))
         
-        self.button_change_landmarks = self.layout.master.button_change_landmarks
-        self.button_change_landmarks.bind('<Button-1>', lambda event: self.get_points(self.parameter_menu.get(), self.trans_slice))
-        
-        self.button_compute_parameters = self.layout.master.compute_parameters
-        self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice, get_points = False))
-
-        self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
-        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks))
-        
-        #---------------------------------------------- segmentation buttons ---------------------------------------------
         self.button_segment = self.layout.master.button_segment
         self.button_segment.bind('<Button-1>', lambda event: self.automatic_segmentation())
         
@@ -144,17 +115,18 @@ class GUI_Functionality:
         self.button_show_coronal_segment = self.layout.master.button_show_coronal_segment
         self.button_show_coronal_segment.bind('<Button-1>', lambda event: self.change_image_view(self.coronal))
         
-        #self.button_calculate_contour = self.layout.master.button_calculate_contour
-        #self.button_calculate_contour.bind('<Button-1>', lambda event: self.draw_contour())
+        #---------------------------------------------- parameter buttons --------------------------------------
+        self.button_manual_parameters = self.layout.master.button_manual_parameters
+        self.button_manual_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice))
         
-        #self.button_remove_contour = self.layout.master.button_remove_contour
-        #self.button_remove_contour.bind('<Button-1>', lambda event: self.remove_contour())
+        self.button_compute_parameters = self.layout.master.button_compute_parameters
+        self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice, get_points = False))
 
-        self.button_load_contour = self.layout.master.button_load_contour
-        self.button_load_contour.bind('<Button-1>', lambda event: self.get_contour())
-
-        self.button_auto_parameter = self.layout.master.button_auto_parameter
-        self.button_auto_parameter.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
+        self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
+        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks))
+        
+        self.button_auto_parameters = self.layout.master.button_auto_parameters
+        self.button_auto_parameters.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
         
         #----------------------------------------------------- entrys -----------------------------------------------------
         self.slice_entry = self.layout.master.slice_entry

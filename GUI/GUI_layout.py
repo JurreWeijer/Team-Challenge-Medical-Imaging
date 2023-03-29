@@ -168,124 +168,50 @@ class GUI_Layout:
         self.master.general_label = customtkinter.CTkLabel(self.master.button_frame, text="Analysis", anchor = "center", font=customtkinter.CTkFont(size=22, weight="bold"))
         self.master.general_label.grid(row=0, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-        
         self.master.general_area_label = customtkinter.CTkLabel(self.master.button_frame, text="Image processing", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.master.general_area_label.grid(row=1, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-     
-        self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment image", font = ("Arial",18), )
-        self.master.button_segment.grid(row=2, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_show_trans_segment = customtkinter.CTkButton(self.master.button_frame, text = "Transverse segmentation", font = ("Arial",18), )
-        self.master.button_show_trans_segment.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_show_coronal_segment = customtkinter.CTkButton(self.master.button_frame, text = "Coronal segmentation", font = ("Arial",18), )
-        self.master.button_show_coronal_segment.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')    
+        self.master.parameter_menu = customtkinter.CTkOptionMenu(self.master.button_frame, dynamic_resizing=False,
+                                                         values=["Angle trunk rotation", "Assymetry index", "Pectus index", "Sagittal diameter", "Steep vertebral"])                                                         
+        self.master.parameter_menu.grid(row=2, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
         
         self.master.button_begin = customtkinter.CTkButton(self.master.button_frame, text = "Set startpoint", font = ("Arial",18), )
-        self.master.button_begin.grid(row=4, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_begin.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
         self.master.button_end = customtkinter.CTkButton(self.master.button_frame, text = "Set endpoint", font = ("Arial",18), )
-        self.master.button_end.grid(row=4, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_end.grid(row=3, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_load_contour = customtkinter.CTkButton(self.master.button_frame, text = "Load contour", font = ("Arial",18), )
-        self.master.button_load_contour.grid(row=5, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')    
+        self.master.button_landmark_extension = customtkinter.CTkButton(self.master.button_frame, text = "Landmark extension", font = ("Arial",18), )
+        self.master.button_landmark_extension.grid(row=4, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
+        self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment image", font = ("Arial",18), )
+        self.master.button_segment.grid(row=5, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
+        self.master.button_show_trans_segment = customtkinter.CTkButton(self.master.button_frame, text = "Transverse segmentation", font = ("Arial",18), )
+        self.master.button_show_trans_segment.grid(row=6, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-    '''    
-    def compute_parameters(self):
-         #automatic landmarks components of the button frame
-         self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Compute parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-         self.master.manual_parameter_label.grid(row= 5, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
-
-    
-         
-         self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "Compute parameter", font = ("Arial",18), )
-         self.master.compute_parameters.grid(row=6, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-         
-         self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "Compute rib parameter", font = ("Arial",18), )
-         self.master.button_compute_rib_rotation.grid(row=6, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-         
-         
-         
-     
-         #self.master.button_calculate_contour = customtkinter.CTkButton(self.master.button_frame, text = "Show Contour", font = ("Arial",18), )
-         #self.master.button_calculate_contour.grid(row=13, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-         
-         #self.master.button_remove_contour = customtkinter.CTkButton(self.master.button_frame, text = "Remove Contour", font = ("Arial",18), )
-         #self.master.button_remove_contour.grid(row=13, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-            
-    '''    
+        self.master.button_show_coronal_segment = customtkinter.CTkButton(self.master.button_frame, text = "Coronal segmentation", font = ("Arial",18), )
+        self.master.button_show_coronal_segment.grid(row=6, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')    
+        
     def compute_landmarks(self):
         
-        #manual components of the button frame
-        self.master.manual_parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Compute landmarks", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.manual_parameter_label.grid(row=7, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
+        #parameter component of the button frame
+        self.master.parameter_label = customtkinter.CTkLabel(self.master.button_frame, text="Compute parameters", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.master.parameter_label.grid(row=7, column=0, columnspan=2, padx=(10, 10), pady=(10, 10))
         
-        
-        self.master.parameter_menu = customtkinter.CTkOptionMenu(self.master.button_frame, dynamic_resizing=False,
-                                                         values=["Assymetry index", "Angle trunk rotation", "Pectus index", "Sagittal diameter", "Steep vertebral"])                                                         
-        self.master.parameter_menu.grid(row=8, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
-       
-        
-       
-        # trying to figure out how to link the indices with the menu
-        
-       # if values = [0]:    #the user inputs the member of the list and analoga upologizei each index
-        self.master.button_assymetry_index = customtkinter.CTkButton(self.master.button_frame, text = "Manual calculation", font = ("Arial",18), )
-        self.master.button_assymetry_index.grid(row=9, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky= 'ew')
-        
-        self.master.button_trunk_angle = customtkinter.CTkButton(self.master.button_frame, text = "Angle trunk rotation", font = ("Arial",18), fg_color = "dodger blue")
-        #self.master.button_trunk_angle.grid(row=1, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_pectus_index = customtkinter.CTkButton(self.master.button_frame, text = "Pectus index", font = ("Arial",18), fg_color = "SlateBlue3")
-       # self.master.button_pectus_index.grid(row=2, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_sagital_diameter = customtkinter.CTkButton(self.master.button_frame, text = "Sagittal diameter", font = ("Arial",18), fg_color = "medium blue")
-       # self.master.button_sagital_diameter.grid(row=2, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_steep_vertebral = customtkinter.CTkButton(self.master.button_frame, text = "Steep vertebral", font = ("Arial",18), fg_color = "midnight blue")
-       # self.master.button_steep_vertebral.grid(row=3, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
-    
-     
+        self.master.button_manual_parameters = customtkinter.CTkButton(self.master.button_frame, text = "Manual calculation", font = ("Arial",18), )
+        self.master.button_manual_parameters.grid(row=8, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky= 'ew')
         
         #---------------------------------------- Semi-automatic -------------------------------------------------
+        self.master.button_compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "Compute slice parameter", font = ("Arial",18), )
+        self.master.button_compute_parameters.grid(row=9, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
+        self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "Compute rib parameters", font = ("Arial",18), )
+        self.master.button_compute_rib_rotation.grid(row=10, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-       # self.master.landmark_extention_label = customtkinter.CTkLabel(self.master.button_frame, text="Semi automatic", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-       # self.master.landmark_extention_label.grid(row=4, column=0, columnspan=2, padx=(6, 6), pady=(6, 6))
-        
-        #self.master.parameter_menu = customtkinter.CTkOptionMenu(self.master.button_frame, dynamic_resizing=False,
-        #                                                 values=["Angle trunk rotation", "Assymetry index", "Pectus index", "Sagittal diameter", "Steep vertebral"])
-        #self.master.parameter_menu.grid(row=5, column=0, columnspan = 2, padx=(10, 10), pady=(10, 10), sticky = 'ew')
-        
-        self.master.button_landmark_extension = customtkinter.CTkButton(self.master.button_frame, text = "Semi automatic calculation", font = ("Arial",18), )
-        self.master.button_landmark_extension.grid(row=10, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.compute_parameters = customtkinter.CTkButton(self.master.button_frame, text = "Compute parameter", font = ("Arial",18), )
-        self.master.compute_parameters.grid(row=11, column = 0, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "Compute rib parameter", font = ("Arial",18), )
-        self.master.button_compute_rib_rotation.grid(row=11, column = 1, columnspan = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        self.master.button_change_landmarks = customtkinter.CTkButton(self.master.button_frame, text = "Change landmarks", font = ("Arial",18), )
-        self.master.button_change_landmarks.grid(row=12, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
-    
-    
-    
-    #------------------------------------------ Automatic --------------------------------------------------------------------
-    
-        #self.master.landmark_extention_label = customtkinter.CTkLabel(self.master.button_frame, text="Automatic", anchor = "center", font=customtkinter.CTkFont(size=20, weight="bold"))
-        #self.master.landmark_extention_label.grid(row=7, column=0, columnspan=2, padx=(6, 6), pady=(6, 6))
-        
-        
-        self.master.button_auto_parameter = customtkinter.CTkButton(self.master.button_frame, text = "Automatic calculation", font = ("Arial",18), )
-        self.master.button_auto_parameter.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
-        
-        
-        
-        
+        #------------------------------------------ Automatic --------------------------------------------------------------------
+        self.master.button_auto_parameters = customtkinter.CTkButton(self.master.button_frame, text = "Automatic calculation", font = ("Arial",18), )
+        self.master.button_auto_parameters.grid(row=11, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -349,7 +275,7 @@ class GUI_Layout:
             self.master.trans_subplot.cla()
             self.master.trans_subplot.imshow(trans_image[trans_slice, :, :], cmap=cmap)
             self.master.trans_subplot.axis('off')
-            self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
+            self.master.trans_subplot.text(0.95, 0.03, f"slice number: {trans_slice+1}", transform=self.master.trans_subplot.transAxes, fontsize=10, color='white', ha='right', va='bottom')
             self.master.trans_subplot.set_ylim(0,trans_image.shape[0])
             self.master.trans_subplot.axhline(y=coronal_slice, color='r', linewidth=1)
             self.master.trans_subplot.scatter(landmarks_x,landmarks_y, c="red", marker = "x")

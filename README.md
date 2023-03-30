@@ -1,5 +1,43 @@
 # Team-Challenge-Medical-Imaging
 
+Hello and welcome to the program we created for the Team Challenge, a project for the UU & TU/e MiX master.
+For this project we created a program that imports CT scans from scoliotic and non-scoliotic patients and calculate some parameters for trunk deformity. This is done manual, semi automatic and fully automatic.
+
+There are some things that need to be in order to run the program, the following libraries should be installed: 
+- Numpy
+- Matplotlib
+- Pandas
+- SimpleITK
+- opencv
+- Tkinter 
+- CustomTkinter 
+
+When the program starts a GUI pops up. The first thing the user is supposed to do, is open an image, which can be done with the Open Image button in the centre of the Scoliosis Chest Deformity window. Then on the left side the axial view pops up and on the right side the coronal view pops up. It is possible to go to a different slice in each of the views. 
+
+There are a couple of things the user can do. 
+- Segment the image 
+- Calculate parameters from manual input 
+- Calculate parameters from landmark extension (semi automatic) 
+- Calculate parameters automatically 
+
+# Segment the image 
+The user can segment the image (with the Segment image button). After applying image segmentation, the path of where the image is saved is given. The segmentation can be viewed by using the Transverse segmentation button (for axial view) and Coronal segmentation button (for coronal view). 
+
+# Calculate parameters from manual input 
+The user is asked to put in the landmarks for the selected parameter. The parameter value is directly added to the table below. 
+
+# Calculate parameters from landmark extension (semi automatic) 
+First set a startpoint and an endpoint. Then press the Landmark extension button, the user is asked to put in the landmarks for a fraction of the slices. After the extension is done the user can go through the slices and view the landmarks for the previous selected parameter. If the user wants to calculate the value of the parameter, the Compute slice parameters button can be used. The value will then be shown in the table below.
+
+# Calculate parameters automatically
+First set a startpoint and an endpoint. Then the user can press the Automatic calculation button, the landmarkpositions are now automatically determined. The user can go through the slices and save the parameter values by pressing Compute slice parameters. 
+
+For some of the parameters, the value is more significant when it is calculated with landmarks closer to the rib. To get those values, the Compute rib parameters can be used. This is available for Angle trunk rotation and Assymetry index. The Compute rib parameters can only be used after calculating the parameters from landmark extension or automatically. 
+
+In the table down below, the calculated values pop up. These can be saved with the button on the bottom.  
+
+
+------------------- the old readme --------------------------------------------------------------------------
 This project is for the UU & TU/e MiX master project Team Challenge.
 
 The goal is to create a program that imports CT scans from scoliotic and non-scoliotic patients and calculates some kind of metric for the trunk deformity.

@@ -123,7 +123,7 @@ class GUI_Functionality:
         self.button_compute_parameters.bind('<Button-1>', lambda event: self.get_parameter(self.parameter_menu.get(), self.trans_slice, get_points = False))
 
         self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
-        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks))
+        self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks, type = 'middle'))
         
         self.button_auto_landmarks = self.layout.master.button_auto_landmarks
         self.button_auto_landmarks.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
@@ -616,7 +616,7 @@ class GUI_Functionality:
         time.sleep(2)
         window.destroy()
         
-    def computer_rib_params(self, dict_landmarks, maxdist = 200):
+    def computer_rib_params(self, dict_landmarks, maxdist = 200, type = 'middle'):
         """compute selected parameter between the selected start slice and end slice
         and only if it is no further than maxdist from the closest rib and if it has the largest deformity of this rib.
         it is assumed that there are at least slidesize slices between each rib and the next
@@ -627,12 +627,18 @@ class GUI_Functionality:
             dictionary that contains the landmarks locations 
         max_dist: int 
             maximum distance between the landmarks and the rib centroids
+        type: str
+            Type of slice selection, options:
+            'middle' for slice in the middle of each rib
+            'max' for slice at maximum deformity
         
         """
      
         maxrot = 0
         maxsym = 0
         maxparamslice = 0
+        rib_begin = 0
+        rib_end = 0
         slidesize = 10
 
         # Some error handling
@@ -685,14 +691,25 @@ class GUI_Functionality:
                         
                         if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
                             Rotation = calculate_parameter(dict_landmarks, self.trunk_rotation, slice_num)
+                            if rib_begin == 0:
+                                rib_begin = slice_num
+                                rib_end = slice_num
+                            else:
+                                rib_end = slice_num
                             if (maxrot < Rotation):
                                 maxrot = Rotation
                                 maxparamslice = slice_num
                         
-                        if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
-                            self.get_parameter(self.trunk_rotation, maxparamslice, get_points=False)
+                        if (slice_num - rib_end) > slidesize and rib_begin != 0:
+                            if type == 'middle':
+                                param_slice = (rib_end-rib_begin)//2 + rib_begin
+                            elif type == 'max':
+                                param_slice = maxparamslice
+                            self.get_parameter(self.trunk_rotation, param_slice, get_points=False)
                             maxrot = 0
                             maxparamslice = 0
+                            rib_begin = 0
+                            rib_end = 0
                     else:
                         messagebox.showerror("Rib parameters", "Not all landmarks are generated for " + str(parameter) + " at slice " + str(slice_num))
                 

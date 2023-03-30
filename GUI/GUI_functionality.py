@@ -42,7 +42,7 @@ class GUI_Functionality:
         self.assymetry_index = "Assymetry index"
         self.trunk_rotation = "Angle trunk rotation"
         self.pectus_index = "Pectus index"
-        self.sagital_diameter = "Sagital diameter"
+        self.sagital_diameter = "Sagittal diameter"
         self.steep_vertebral = "Steep vertebral"
         self.dict_landmark_num = {self.assymetry_index : [5,6,7,8], 
                                   self.trunk_rotation : [3,4], 
@@ -141,14 +141,19 @@ class GUI_Functionality:
         
         #--------------------------------------------------- output table -------------------------------------------------
         self.output_table = self.layout.master.table
+        self.output_table.bind('<Delete>', self.delete_items())
         
         #-----------------------------------------------------quit button -------------------------------------------------------
         self.button_quit = self.layout.master.button_quit
         self.button_quit.bind('<Button-1>', lambda event: self.quit_button())
         
         
-        
-        
+    
+    # I can't get this delete option to work: https://www.youtube.com/watch?v=jRpHmF-iuMI&t=614s
+    def delete_items(self):
+        print("delete")
+        for i in self.output_table.selection():
+            self.output_table.delete(i)
         
     def open_file(self):
         """function that opens the filedialog and allows for opening of an image 
@@ -203,7 +208,7 @@ class GUI_Functionality:
             
         except:
             messagebox.showerror("opening file", "Problem with opening the file, please. try another one")
-    
+            
     def change_slice(self, view, direction):
         """Handle changing the slice using plus and minus buttons below the 
         transverse and coronal images
@@ -273,9 +278,10 @@ class GUI_Functionality:
             # error message if the input is not an integer
             messagebox.showinfo(title="Message", message="Must input an integer to change the slice.")
         else:
-            if self.image_array is None:
+            if self.image_array is None: 
                 #if there is no opened image then do nothing
-                return 
+                messagebox.showinfo(title="Message", message="no image opened, please open an image first")
+                return  
             
             if view == self.transverse:
                 #if the view is transverse, check whether the slice is in range
@@ -319,7 +325,7 @@ class GUI_Functionality:
         
         if self.image_array is None: 
             #if there is no opened image then do nothing
-            messagebox.showerror("Segmentation", "Must open an normal image first")
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
             return 
         
         if self.segmented_image_array is None:
@@ -371,6 +377,10 @@ class GUI_Functionality:
         position: string
             the position, start or end, of the point that is set
         """
+        if self.image_array is None: 
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="no imaged opened, please open an image first")
+            return 
         
         if position == "start":
             #if the position is start then check if the slice is lower than the set end slice
@@ -404,14 +414,13 @@ class GUI_Functionality:
             self.help_window = None
         
         #show the image in new window
-        plt.imshow(self.image_array[slice_num, :, :],cmap=self.map)
+        plt.imshow(self.image_array[slice_num, :, :], cmap=self.map)
         plt.gca().invert_yaxis()
 
-        
         #retreive points by user input 
         points = []
         points = np.asarray(plt.ginput(len(self.dict_landmark_num[parameter]), timeout=-1))
-        plt.close()
+        plt.close() 
         
         if f"slice_{slice_num}" not in self.dict_landmarks:
             # if the key doesn't exist, create it with an empty dictionary as its value
@@ -454,9 +463,9 @@ class GUI_Functionality:
         """
         
         
-        if self.image_array is None:
+        if self.image_array is None: 
             #if there is no opened image then do nothing
-            messagebox.showinfo(title="Message", message="must open image first")
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
             return 
         
         #set the current parameter value to the parameter value that is passed 
@@ -466,6 +475,7 @@ class GUI_Functionality:
             #if get points is True then call function for retreiving landmarks and update the landmarks in the image
             self.get_points(parameter, slice_num)
             self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
+        
         elif get_points == False: 
             for i in range(len(self.dict_landmark_num[parameter])):
                 if f"slice_{slice_num}" not in self.dict_landmarks:
@@ -476,11 +486,11 @@ class GUI_Functionality:
                     return
                     
         #calculate the parameters value
-        param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),3)
+        param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),1)
         #add the parameter to the dictionary 
         self.add_parameter(parameter, param_value, slice_num)
         #insert the parameter value to the output table
-        self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_num))
+        self.output_table.insert(parent= '', index = tk.END, values = (parameter, param_value, slice_num+1))
         
     def add_parameter(self, parameter, param_value, slice_num):
         """store the parameter value in the correct locations 
@@ -519,7 +529,7 @@ class GUI_Functionality:
         """
         
         if self.df_params is None:
-            #if there are not calculated parameters then do nothing
+            messagebox.showinfo(title = "Message", message = "no parameters computed, please compute parameters before saving" )
             return 
         
         #ask for a file name and retreive it from the input dialog
@@ -544,6 +554,10 @@ class GUI_Functionality:
             the end slice for weighted landmark extension
         
         """
+        if self.image_array is None: 
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
+            return
         
         #retreive the parameter that is currently selected in the dropdown menu
         parameter = self.parameter_menu.get()
@@ -642,7 +656,11 @@ class GUI_Functionality:
             'max' for slice at maximum deformity
         
         """
-     
+        if self.image_array is None: 
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
+            return
+        
         maxrot = 0
         maxsym = 0
         maxparamslice = 0
@@ -770,10 +788,9 @@ class GUI_Functionality:
         ----------
      
         """
-        
-        if self.image_array is None:
-            #if there is no opened image then give an error message
-            messagebox.showinfo(title="Message", message="Please first select an image")
+        if self.image_array is None: 
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
             return
 
         window, progressbar = self.progressbar("Segmentation")
@@ -782,15 +799,20 @@ class GUI_Functionality:
         segmented_image = Tools.Segmentation.SimpleSegmentation(self.image, threshold=150, OpeningSize=1, ClosingSize=2)
         progressbar.set(0.5)
         window.update_idletasks()
+        
         self.segmented_image = Tools.Segmentation.FilterLargestComponents(segmented_image)
         self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
         progressbar.set(0.9)
         window.update_idletasks()
+        
         #save segmentation
         filename = str(os.getcwd() + "/Segmented" + os.path.split(self.file_path.name)[1])
         sitk.WriteImage(self.segmented_image, fileName=filename)
-        messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
         window.destroy()
+        
+        messagebox.showinfo("Segmentation", "Segmentation completed, image placed at " + filename)
+        
+        
         return
 
     def get_contour_landmarks(self, slice_num, loop = False):
@@ -884,10 +906,30 @@ class GUI_Functionality:
         return
 
     def get_contour_landmarks_range(self):
+        
+        if self.image_array is None: 
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
+            return
+        
         if self.start_slice == None or self.end_slice == None:
             messagebox.showerror("Contouring", "Please make sure that the start slice and end slice have been selected")
             return
+        
+        if self.segmented_image is None:
+            #if there is no opened image then give an error message
+            segmentation_path = filedialog.askopenfile(title="Open segmentation image")
+            try:
+                #read the segmented image and get get the array
+                self.segmented_image = sitk.ReadImage(segmentation_path.name)
+                self.segmented_image_array = sitk.GetArrayFromImage(self.segmented_image)
+            except:
+                #if the image cannot be read then give an error
+                messagebox.showerror("Contouring", "Problem with loading the image, please try a different one")
+                return 
+            
         window, progressbar = self.progressbar("Multi-slice contouring")
+        
         r = range(self.start_slice, self.end_slice)
         for slice_num in r:
             self.get_contour_landmarks(slice_num, loop = True)

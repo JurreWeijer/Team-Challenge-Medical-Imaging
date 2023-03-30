@@ -3,6 +3,8 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
+#this does work but is seems prone to errors
+%matplotlib qt
 import customtkinter
 import os
 from GUI.GUI_main import Application

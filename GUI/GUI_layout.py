@@ -149,8 +149,6 @@ class GUI_Layout:
         self.master.table.heading("slice", text = "Slice")
         self.master.table.grid(row=1, column=0, sticky = "news", padx = (5,5), pady = (5,0))
         
-        self.master.table.bind('<Delete>', self.delete_items)
-        
         self.master.button_save_parameters = customtkinter.CTkButton(self.master.output_frame, text="Save Parameters", )
         self.master.button_save_parameters.grid(row=3, column=0, padx=(5,5), pady=(5,5), sticky = 'ew')
         
@@ -218,10 +216,6 @@ class GUI_Layout:
         
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
-    
-    def delete_items(self):
-        for i in self.table.selection():
-            self.table.delete(i)
             
     def on_closing(self):
         self.master.destroy()  

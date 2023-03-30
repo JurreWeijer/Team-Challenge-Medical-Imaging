@@ -890,6 +890,7 @@ class GUI_Functionality:
     def help_button(self):
         self.help_window = customtkinter.CTkToplevel(self.master)
         self.help_window.title("Help page")
+        self.help_window.grab_set()
         
         #title label
         title_label = customtkinter.CTkLabel(self.help_window, text="Welcome to the help page", fg_color = "transparent", font=customtkinter.CTkFont(size=18, weight="bold"))

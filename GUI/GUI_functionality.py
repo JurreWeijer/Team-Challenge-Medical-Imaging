@@ -635,11 +635,18 @@ class GUI_Functionality:
         maxparamslice = 0
         slidesize = 10
 
-        #Progressbar to show progress for the parameter calculation
-        window, progressbar = self.progressbar("Parameter calculation")
-        window.update()
-        parameter = self.parameter_menu.get()
-        
+        # Some error handling
+        if self.start_slice == None or self.end_slice == None:
+            messagebox.showerror("Rib parameters", "Start slice or end slice not selected")
+            return
+
+        for slice_num in range(self.start_slice, self.end_slice + 1):
+            if f"slice_{slice_num}" in dict_landmarks:
+                break
+            if slice_num == self.end_slice:
+                messagebox.showerror("Rib parameters", "No landmarks found between start slice and end slice")
+                return
+
         #ask for segmentation image if this has not been generated yet
         if self.segmented_image is None:
             segmentation_path = filedialog.askopenfile(title="Open segmentation image")
@@ -651,9 +658,14 @@ class GUI_Functionality:
                 #if the image cannot be read then give an error
                 messagebox.showerror("Segmentation", "Problem with loading the segmented image, please try a different one or run the segmentation function")
                 return
+
+        #Progressbar to show progress for the parameter calculation
+        window, progressbar = self.progressbar("Parameter calculation")
+        window.update()
+        parameter = self.parameter_menu.get()
         
         #loop over all slices between start_slice and end_slice and compute the selected landmark
-        for slice_num in range(self.start_slice, self.end_slice): #TODO: error handling the start and end slice are not defined
+        for slice_num in range(self.start_slice, self.end_slice+1):
             progressbar.set(slice_num/np.shape(self.image_array)[0])
             window.update_idletasks()
             

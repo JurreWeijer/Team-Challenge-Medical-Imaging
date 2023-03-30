@@ -650,6 +650,7 @@ class GUI_Functionality:
             except:
                 #if the image cannot be read then give an error
                 messagebox.showerror("Segmentation", "Problem with loading the segmented image, please try a different one or run the segmentation function")
+                return
         
         #loop over all slices between start_slice and end_slice and compute the selected landmark
         for slice_num in range(self.start_slice, self.end_slice): #TODO: error handling the start and end slice are not defined
@@ -671,13 +672,13 @@ class GUI_Functionality:
                         print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))
                         
                         if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
-                            Rotation = calculate_parameter(dict_landmarks, "Angle Trunk Rotation", slice_num)
+                            Rotation = calculate_parameter(dict_landmarks, self.trunk_rotation, slice_num)
                             if (maxrot < Rotation):
                                 maxrot = Rotation
                                 maxparamslice = slice_num
                         
                         if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
-                            self.get_parameter("Angle Trunk Rotation", maxparamslice, get_points=False)
+                            self.get_parameter(self.trunk_rotation, maxparamslice, get_points=False)
                             maxrot = 0
                             maxparamslice = 0
                     else:
@@ -704,13 +705,13 @@ class GUI_Functionality:
                         
                         if (np.min(dist5) < maxdist and np.min(dist7) < maxdist):
                             #Only takes the points that are close to the back, because there are very few ribs in front
-                            Asymmetry = calculate_parameter(dict_landmarks, "Assymetry Index", slice_num)
+                            Asymmetry = calculate_parameter(dict_landmarks, self.assymetry_index, slice_num)
                             if (maxsym < Asymmetry):
                                 maxsym = Asymmetry
                                 maxparamslice = slice_num
                        
                         if (slice_num - maxparamslice) > slidesize and maxparamslice != 0:
-                            self.get_parameter("Assymetry Index", maxparamslice, get_points=False)
+                            self.get_parameter(self.assymetry_index, maxparamslice, get_points=False)
                             maxsym = 0
                             maxparamslice = 0
                     else:

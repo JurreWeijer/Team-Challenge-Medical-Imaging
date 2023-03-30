@@ -125,8 +125,8 @@ class GUI_Functionality:
         self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
         self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks))
         
-        self.button_auto_parameters = self.layout.master.button_auto_parameters
-        self.button_auto_parameters.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
+        self.button_auto_landmarks = self.layout.master.button_auto_landmarks
+        self.button_auto_landmarks.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
         
         #----------------------------------------------------- entrys -----------------------------------------------------
         self.slice_entry = self.layout.master.slice_entry

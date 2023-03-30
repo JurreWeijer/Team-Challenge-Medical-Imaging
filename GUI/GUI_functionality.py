@@ -1019,9 +1019,9 @@ class GUI_Functionality:
         label1.pack(side = "left")
         
     def quit_button(self):
-        self.help_window = customtkinter.CTkToplevel(self.master)
-        self.help_window.title("Quit")
-        self.destroy()
+        self.quit_window = customtkinter.CTkToplevel(self.master)
+        self.quit_window.title("Quit")
+        self.destroy(self.master)
             
     
     def help_button_test(self):

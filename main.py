@@ -4,16 +4,19 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 #this does work but is seems prone to errors
-%matplotlib qt
+#%matplotlib qt
 import customtkinter
 import os
 from GUI.GUI_main import Application
+import matplotlib 
 
 datadir = './Data'
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
+    matplotlib.use('qt5agg')
+    
     if os.path.exists(datadir) is False:
         os.mkdir(datadir)
 

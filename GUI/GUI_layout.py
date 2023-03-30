@@ -140,17 +140,20 @@ class GUI_Layout:
         
         #components of the output frame
         self.master.output_label = customtkinter.CTkLabel(self.master.output_frame,  text = "Parameter Values", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.master.output_label.grid(row =0, column = 0, padx=(10, 10), pady=(10, 10))
+        self.master.output_label.grid(row =0, column = 0, columnspan = 2, padx=(10, 10), pady=(10, 10))
         
         #https://www.youtube.com/watch?v=jRpHmF-iuMI&t=266s
         self.master.table = ttk.Treeview(self.master.output_frame, columns = ("parameter", "value", "slice"), show = "headings")
         self.master.table.heading("parameter", text = "Parameter")
         self.master.table.heading("value", text = "Value")
         self.master.table.heading("slice", text = "Slice")
-        self.master.table.grid(row=1, column=0, sticky = "news", padx = (5,5), pady = (5,0))
+        self.master.table.grid(row=1, column=0, columnspan = 2, sticky = "news", padx = (5,5), pady = (5,0))
         
-        self.master.button_save_parameters = customtkinter.CTkButton(self.master.output_frame, text="Save Parameters", )
+        self.master.button_save_parameters = customtkinter.CTkButton(self.master.output_frame, text="Save parameters", )
         self.master.button_save_parameters.grid(row=3, column=0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        
+        self.master.button_clear_parameters = customtkinter.CTkButton(self.master.output_frame, text="Clear parameters", )
+        self.master.button_clear_parameters.grid(row = 3, column = 1)
         
         
     def general_area(self):
@@ -183,11 +186,11 @@ class GUI_Layout:
         self.master.button_segment = customtkinter.CTkButton(self.master.button_frame, text = "Segment image", font = ("Arial",18), )
         self.master.button_segment.grid(row=4, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_show_trans_segment = customtkinter.CTkButton(self.master.button_frame, text = "Transverse segmentation", font = ("Arial",18), )
-        self.master.button_show_trans_segment.grid(row=5, column = 0, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_show_trans_segment = customtkinter.CTkButton(self.master.button_frame, text = "Transverse seg", font = ("Arial",18), )
+        self.master.button_show_trans_segment.grid(row=5, column = 0, rowspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
-        self.master.button_show_coronal_segment = customtkinter.CTkButton(self.master.button_frame, text = "Coronal segmentation", font = ("Arial",18), )
-        self.master.button_show_coronal_segment.grid(row=5, column = 1, padx=(5,5), pady=(5,5), sticky = 'ew')
+        self.master.button_show_coronal_segment = customtkinter.CTkButton(self.master.button_frame, text = "Coronal seg", font = ("Arial",18), )
+        self.master.button_show_coronal_segment.grid(row=5, column = 1, rowspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
         
     def compute_landmarks(self):
         

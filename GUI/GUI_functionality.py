@@ -128,6 +128,13 @@ class GUI_Functionality:
         self.button_auto_landmarks = self.layout.master.button_auto_landmarks
         self.button_auto_landmarks.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
         
+        #----------------------------------------------------- output part -----------------------------------------------
+        self.button_clear_parameters = self.layout.master.button_clear_parameters
+        self.button_clear_parameters.bind('<Button-1>', lambda event: self.clear_parameters())
+        
+        self.button_save_parameters = self.layout.master.button_save_parameters
+        self.button_save_parameters.bind('<Button-1>', lambda event: self.save_parameters())
+        
         #----------------------------------------------------- entrys -----------------------------------------------------
         self.slice_entry = self.layout.master.slice_entry
         self.coronal_slice_entry = self.layout.master.coronal_slice_entry
@@ -415,6 +422,7 @@ class GUI_Functionality:
         
         #show the image in new window
         plt.imshow(self.image_array[slice_num, :, :], cmap=self.map)
+        plt.title(f"Put in the landmarks for {parameter}")
         plt.gca().invert_yaxis()
 
         #retreive points by user input 
@@ -486,7 +494,10 @@ class GUI_Functionality:
                     return
                     
         #calculate the parameters value
-        param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),1)
+        if parameter == self.assymetry_index:
+            param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),3)
+        else:
+            param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),1)
         #add the parameter to the dictionary 
         self.add_parameter(parameter, param_value, slice_num)
         #insert the parameter value to the output table
@@ -542,7 +553,11 @@ class GUI_Functionality:
         #show a message to inform that the parameters are save and where
         path = str(os.getcwd())
         messagebox.showinfo("Parameters", "File " + file_name + " saved at " + path )
-    
+        
+    def clear_parameters(self):
+        for i in self.output_table.get_children():
+            self.output_table.delete(i)
+        
     def weighted_landmark_extension(self, start_slice, end_slice):
         """save the calculated parameters in a .csv file
         

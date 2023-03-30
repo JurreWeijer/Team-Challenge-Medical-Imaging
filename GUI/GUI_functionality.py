@@ -983,20 +983,40 @@ class GUI_Functionality:
         explanation_frame = customtkinter.CTkFrame(self.help_window, fg_color = 'transparent', corner_radius=0) 
         explanation_frame.grid(row = 1, column = 1, sticky = "news")
         
-        label = tk.Label(explanation_frame, text = "Selection of the landmark points", font=customtkinter.CTkFont(size=16))
-        label.pack() 
-        tekst = tk.Label(explanation_frame, text= "Select the landmark point from the selected variable in ascending order.")
-        tekst.pack()
-        tekstline1 = tk.Label(explanation_frame, text= "Angle of the trunk rotation: 1-2")
-        tekstline1.pack()
-        tekstline2 = tk.Label(explanation_frame, text= "Asymmetry index: 3-4-5-6")
-        tekstline2.pack()
-        tekstline3 = tk.Label(explanation_frame, text= "Pectus index: 7-8-9-10")
-        tekstline3.pack()
-        tekstline4 = tk.Label(explanation_frame, text= "Sagital diameter: 9-11")
-        tekstline4.pack()
-        tekstline5 = tk.Label(explanation_frame, text= "Steep vertebral distance: 9-10")
-        tekstline5.pack()
+        label = tk.Label(explanation_frame, text = "Selection of the landmark points")
+        label.pack(side = "top") 
+        # Maak het frame voor het huidige item
+        frame = tk.Frame(explanation_frame)
+        
+        # Legenda Angle of trunk rotation
+        block = tk.Canvas(frame, width=20, height=20, bg="dodger blue",  highlightthickness=0)
+        block.pack(side = "top")
+        text = tk.Label(frame, text=" Angle of the trunk rotation: 1-2\n")
+        text.pack(side = "top")
+        # Legenda Assymmetry index
+        block = tk.Canvas(frame, width=20, height=20, bg="sky blue",  highlightthickness=0)
+        block.pack(side="top")
+        text = tk.Label(frame, text=" Assymmetry index: 3-4-5-6\n")
+        text.pack(side="top")
+        # Legenda Pectus index 
+        block = tk.Canvas(frame, width=20, height=20, bg="SlateBlue3",  highlightthickness=0)
+        block.pack(side="top")
+        text = tk.Label(frame, text=" Pectus index: 7-8-9-10\n")
+        text.pack(side="top")
+        # Legenda Sagital diameter
+        block = tk.Canvas(frame, width=20, height=20, bg="medium blue",  highlightthickness=0)
+        block.pack(side="top")
+        text = tk.Label(frame, text=" Sagital diameter: 9-11\n")
+        text.pack(side="top")
+        # Legenda Steep vertebral distance
+        block = tk.Canvas(frame, width=20, height=20, bg="midnight blue" ,  highlightthickness=0)
+        block.pack(side="top")
+        text = tk.Label(frame, text= " Steep vertebral distance: 9-10")
+        text.pack(side="top")
+        # Plaats het frame voor het huidige item in het legenda-frame
+        frame.pack()
+        label1 = tk.Label(explanation_frame, text = "This program is created for the Team Challenge, a project for the UU & TU/e MiX master.\n For this project we created a program that imports CT scans from scoliotic and non-scoliotic patients and calculate some parameters for trunk deformity. This is done manual, semi automatic and fully automatic.\n")
+        label1.pack(side = "left")
         
     def quit_button(self):
         self.help_window = customtkinter.CTkToplevel(self.master)

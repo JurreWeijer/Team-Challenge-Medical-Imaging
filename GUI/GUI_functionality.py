@@ -461,11 +461,20 @@ class GUI_Functionality:
         
         #set the current parameter value to the parameter value that is passed 
         self.current_param = parameter
+        
         if get_points == True:
             #if get points is True then call function for retreiving landmarks and update the landmarks in the image
             self.get_points(parameter, slice_num)
             self.layout.show_landmarks(self.image_array, self.trans_slice, self.coronal_slice, self.dict_landmarks, self.map)
-        
+        elif get_points == False: 
+            for i in range(len(self.dict_landmark_num[parameter])):
+                if f"slice_{slice_num}" not in self.dict_landmarks:
+                   messagebox.showinfo(title="Message", message=f"the landmarks for {parameter} are not known in the current slice")
+                   return       
+                if f"point_{self.dict_landmark_num[parameter][i]}" not in self.dict_landmarks[f"slice_{slice_num}"]:
+                    messagebox.showinfo(title="Message", message=f"the landmarks for {parameter} are not known in the current slice")
+                    return
+                    
         #calculate the parameters value
         param_value = round(calculate_parameter(self.dict_landmarks, parameter, slice_num),3)
         #add the parameter to the dictionary 

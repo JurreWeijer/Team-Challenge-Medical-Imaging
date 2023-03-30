@@ -940,16 +940,6 @@ class GUI_Functionality:
         self.help_fig_canvas.get_tk_widget().grid(row=1, column=0, padx=(10,10), pady=(0,10), sticky = 'news')
         self.help_fig_subplot.imshow(help_image)
         self.help_fig_canvas.draw()
-        
-        
-        
-        
-    def quit_button(self):
-        self.help_window = customtkinter.CTkToplevel(self.master)
-        self.help_window.title("Quit")
-        self.destroy()
-        
-        
        
         #ROTATE BUTTON
         global rotate
@@ -1008,7 +998,11 @@ class GUI_Functionality:
         tekstline5 = tk.Label(explanation_frame, text= "Steep vertebral distance: 9-10")
         tekstline5.pack()
         
-    
+    def quit_button(self):
+        self.help_window = customtkinter.CTkToplevel(self.master)
+        self.help_window.title("Quit")
+        self.destroy()
+            
     
     def help_button_test(self):
        

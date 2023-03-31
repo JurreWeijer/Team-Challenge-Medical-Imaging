@@ -1047,7 +1047,7 @@ class GUI_Functionality:
         explanation_frame = customtkinter.CTkFrame(self.help_window, fg_color = 'transparent', corner_radius=0) 
         explanation_frame.grid(row = 1, column = 1, sticky = "news")
         # create textbox
-        self.textbox = customtkinter.CTkTextbox(explanation_frame, wrap = tk.WORD, width=400)
+        self.textbox = customtkinter.CTkTextbox(explanation_frame, wrap = tk.WORD, width = 400)#, width=400, height = 300)
         self.textbox.grid(row=1, column=0, padx=(0, 0), pady=(0, 0), sticky="nsew")
         self.textbox.insert("0.0", "How to use the program:\n\n" + 
                             "Before anything can be calculated an image must be opened, " + 
@@ -1055,6 +1055,33 @@ class GUI_Functionality:
                             "On the left side the axial view pops up and on the right side the coronal view pops up. " + 
                             "It is possible to go to a different slice in each of the views. \n \n" +  
                             "After loading in the image, there are a couple things the user can do: \n " 
+                            "- Segment the image \n" + 
+                            "- Calculate parameters from manual input \n" + 
+                            "- Calculate parameters from landmark extension (semi automatic) \n"+ 
+                            "- Calculate parameters automatically \n"+
+                            "\n # Segment the image \n"+
+                            "The user can segment the image (with the Segment image button). "+
+                            "After applying image segmentation, the path of where the image is saved is given. "+
+                            "The segmentation can be viewed by using the Transverse segmentation button (for axial view) "+
+                            "and Coronal segmentation button (for coronal view). \n\n" +  
+                            "# Calculate parameters from manual input \n"+  
+                            "The user is asked to put in the landmarks for the selected parameter. "+
+                            "The parameter value is directly added to the table below. \n\n"+  
+                            "# Calculate parameters from landmark extension (semi automatic)" 
+                            + "First set a startpoint and an endpoint. Then press the Landmark extension button, "+
+                            "the user is asked to put in the landmarks for a fraction of the slices. After the extension "+
+                            "is done the user can go through the slices and view the landmarks for the previous selected parameter. "+
+                            "If the user wants to calculate the value of the parameter, the Compute slice parameters button can be used."+
+                            "The value will then be shown in the table below. \n\n"+  
+                            "# Calculate parameters automatically \n"+ 
+                            "First set a startpoint and an endpoint. Then the user can press the Automatic calculation button, "+
+                            "the landmarkpositions are now automatically determined. The user can go through the slices and save "+ 
+                            "the parameter values by pressing Compute slice parameters. \n \n"+  
+                            "For some of the parameters, the value is more significant when it is calculated with landmarks closer to the rib."+ 
+                            "To get those values, the Compute rib parameters can be used. This is available for Angle trunk rotation "+
+                            "and Assymetry index. The Compute rib parameters can only be used after calculating the parameters from "+
+                            "landmark extension or automatically. \n \n"+  
+                            "In the table down below, the calculated values pop up. These can be saved with the button on the bottom."
                             )
         
         legend = customtkinter.CTkFrame(self.help_window, fg_color = 'transparent', corner_radius=0) 
@@ -1064,29 +1091,29 @@ class GUI_Functionality:
         
         # Legenda Angle of trunk rotation
         block = tk.Canvas(legend, width=20, height=20, bg="dodger blue",  highlightthickness=0)
-        block.grid(row=1, column =0)
+        block.grid(row=1, column =0, padx=(0, 0), pady=(0, 0), sticky="nsew")
         text = tk.Label(legend, text=" Angle of the trunk rotation: 1-2")
-        text.grid(row= 1, column=1 )
+        text.grid(row= 1, column=1 , padx=(0, 0), pady=(0, 0), sticky="w")
         # Legenda Assymmetry index
         block = tk.Canvas(legend, width=20, height=20, bg="sky blue",  highlightthickness=0)
-        block.grid(row= 2, column=0 )
+        block.grid(row= 2, column=0, padx=(0, 0), pady=(0, 0) , sticky="nsew")
         text = tk.Label(legend, text=" Assymmetry index: 3-4-5-6")
-        text.grid(row= 2, column=1)
+        text.grid(row= 2, column=1, padx=(0, 0), pady=(0, 0), sticky="w")
         # Legenda Pectus index 
         block = tk.Canvas(legend, width=20, height=20, bg="SlateBlue3",  highlightthickness=0)
-        block.grid(row= 3, column=0 )
+        block.grid(row= 3, column=0, padx=(0, 0), pady=(0, 0) , sticky="nsew" )
         text = tk.Label(legend, text=" Pectus index: 7-8-9-10")
-        text.grid(row= 3, column=1 )
+        text.grid(row= 3, column=1 , padx=(0, 0), pady=(0, 0) , sticky="w")
         # Legenda Sagital diameter
         block = tk.Canvas(legend, width=20, height=20, bg="medium blue",  highlightthickness=0)
-        block.grid(row= 4, column=0 )
+        block.grid(row= 4, column=0 , padx=(0, 0), pady=(0, 0) , sticky="nsew")
         text = tk.Label(legend, text=" Sagital diameter: 9-11")
-        text.grid(row= 4, column=1 )
+        text.grid(row= 4, column=1, padx=(0, 0), pady=(0, 0) , sticky="w" )
         # Legenda Steep vertebral distance
         block = tk.Canvas(legend, width=20, height=20, bg="midnight blue" ,  highlightthickness=0)
-        block.grid(row= 5, column=0)
+        block.grid(row= 5, column=0, padx=(0, 0), pady=(0, 0) , sticky="nsew")
         text = tk.Label(legend, text= " Steep vertebral distance: 9-10")
-        text.grid(row= 5, column=1 )
+        text.grid(row= 5, column=1, padx=(0, 0), pady=(0, 0) , sticky="w" )
         
         
         

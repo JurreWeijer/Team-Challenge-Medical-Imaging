@@ -1003,7 +1003,7 @@ class GUI_Functionality:
         self.help_fig_subplot.set_facecolor(color = "white")
         
         self.help_fig_canvas = FigureCanvasTkAgg(self.help_fig, master=self.help_window)  # A tk.DrawingArea.
-        self.help_fig_canvas.get_tk_widget().grid(row=1, column=0, padx=(10,10), pady=(0,10), sticky = 'news')
+        self.help_fig_canvas.get_tk_widget().grid(row=1, column=0, rowspan = 2, padx=(10,10), pady=(0,10), sticky = 'news')
         self.help_fig_subplot.imshow(help_image)
         self.help_fig_canvas.draw()
        
@@ -1013,7 +1013,7 @@ class GUI_Functionality:
         # Create the rotate button
         #self.button_rotate = customtkinter.CTkButton(rotate_button, text="rotate", font=("Arial", 18), command=rotate_image)
         rotate_button = tk.Frame(master = self.help_window, relief=tk.RAISED, borderwidth=0)
-        rotate_button.grid(row=2, column = 0)
+        rotate_button.grid(row=3, column = 0)
         #label = tk.Label(master = rotate_button, text = f"rotate")
         #label.pack() 
         
@@ -1039,50 +1039,56 @@ class GUI_Functionality:
     
         
         self.button_rotate = customtkinter.CTkButton(rotate_button, text = "rotate", font = ("Arial",18),  command=rotate_image)
-        #button_rotate.place(x=20, y = 20)
-        #Button(root, text="rotate", command=rotateimage)
         rotate_button = tk.Frame(master = self.help_window, relief=tk.RAISED, borderwidth=0)
-        rotate_button.grid(row=2, column = 0)
+        rotate_button.grid(row=3, column = 0)
         self.button_rotate.pack()
         
         #explanation
         explanation_frame = customtkinter.CTkFrame(self.help_window, fg_color = 'transparent', corner_radius=0) 
         explanation_frame.grid(row = 1, column = 1, sticky = "news")
+        # create textbox
+        self.textbox = customtkinter.CTkTextbox(explanation_frame, wrap = tk.WORD, width=400)
+        self.textbox.grid(row=1, column=0, padx=(0, 0), pady=(0, 0), sticky="nsew")
+        self.textbox.insert("0.0", "How to use the program:\n\n" + 
+                            "Before anything can be calculated an image must be opened, " + 
+                            "this can be done with the Open Image button in the centre of the Scoliosis Chest Deformity window. " + 
+                            "On the left side the axial view pops up and on the right side the coronal view pops up. " + 
+                            "It is possible to go to a different slice in each of the views. \n \n" +  
+                            "After loading in the image, there are a couple things the user can do: \n " 
+                            )
         
-        label = tk.Label(explanation_frame, text = "Selection of the landmark points")
-        label.pack(side = "top") 
-        # Maak het frame voor het huidige item
-        frame = tk.Frame(explanation_frame)
+        legend = customtkinter.CTkFrame(self.help_window, fg_color = 'transparent', corner_radius=0) 
+        legend.grid(row = 2, column = 1, sticky = "nswe")
+        text = tk.Label(legend, text = "Legend for selection of the landmark points")
+        text.grid(row =0, column = 0, columnspan = 2)
         
         # Legenda Angle of trunk rotation
-        block = tk.Canvas(frame, width=20, height=20, bg="dodger blue",  highlightthickness=0)
-        block.pack(side = "top")
-        text = tk.Label(frame, text=" Angle of the trunk rotation: 1-2\n")
-        text.pack(side = "top")
+        block = tk.Canvas(legend, width=20, height=20, bg="dodger blue",  highlightthickness=0)
+        block.grid(row=1, column =0)
+        text = tk.Label(legend, text=" Angle of the trunk rotation: 1-2")
+        text.grid(row= 1, column=1 )
         # Legenda Assymmetry index
-        block = tk.Canvas(frame, width=20, height=20, bg="sky blue",  highlightthickness=0)
-        block.pack(side="top")
-        text = tk.Label(frame, text=" Assymmetry index: 3-4-5-6\n")
-        text.pack(side="top")
+        block = tk.Canvas(legend, width=20, height=20, bg="sky blue",  highlightthickness=0)
+        block.grid(row= 2, column=0 )
+        text = tk.Label(legend, text=" Assymmetry index: 3-4-5-6")
+        text.grid(row= 2, column=1)
         # Legenda Pectus index 
-        block = tk.Canvas(frame, width=20, height=20, bg="SlateBlue3",  highlightthickness=0)
-        block.pack(side="top")
-        text = tk.Label(frame, text=" Pectus index: 7-8-9-10\n")
-        text.pack(side="top")
+        block = tk.Canvas(legend, width=20, height=20, bg="SlateBlue3",  highlightthickness=0)
+        block.grid(row= 3, column=0 )
+        text = tk.Label(legend, text=" Pectus index: 7-8-9-10")
+        text.grid(row= 3, column=1 )
         # Legenda Sagital diameter
-        block = tk.Canvas(frame, width=20, height=20, bg="medium blue",  highlightthickness=0)
-        block.pack(side="top")
-        text = tk.Label(frame, text=" Sagital diameter: 9-11\n")
-        text.pack(side="top")
+        block = tk.Canvas(legend, width=20, height=20, bg="medium blue",  highlightthickness=0)
+        block.grid(row= 4, column=0 )
+        text = tk.Label(legend, text=" Sagital diameter: 9-11")
+        text.grid(row= 4, column=1 )
         # Legenda Steep vertebral distance
-        block = tk.Canvas(frame, width=20, height=20, bg="midnight blue" ,  highlightthickness=0)
-        block.pack(side="top")
-        text = tk.Label(frame, text= " Steep vertebral distance: 9-10")
-        text.pack(side="top")
-        # Plaats het frame voor het huidige item in het legenda-frame
-        frame.pack()
-        label1 = tk.Label(explanation_frame, text = "This program is created for the Team Challenge, a project for the UU & TU/e MiX master.\n For this project we created a program that imports CT scans from scoliotic and non-scoliotic patients and calculate some parameters for trunk deformity. This is done manual, semi automatic and fully automatic.\n")
-        label1.pack(side = "left")
+        block = tk.Canvas(legend, width=20, height=20, bg="midnight blue" ,  highlightthickness=0)
+        block.grid(row= 5, column=0)
+        text = tk.Label(legend, text= " Steep vertebral distance: 9-10")
+        text.grid(row= 5, column=1 )
+        
+        
         
     def quit_button(self):
         self.quit_window = customtkinter.CTkToplevel(self.master)

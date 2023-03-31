@@ -56,9 +56,6 @@ class GUI_Layout:
         self.master.button_help = customtkinter.CTkButton(self.master.sidebar_frame, text = "Help", font = ("Arial",18), )
         self.master.button_help.grid(row=1, column = 0, padx=(10,10), pady=(10,10), sticky= 'ew')
         
-        self.master.button_quit = customtkinter.CTkButton(self.master.sidebar_frame, text = "Quit", font = ("Arial",18),)
-        self.master.button_quit.grid(row=3, column = 0, padx=(10,10), pady=(10,10), sticky= 'ew')
-        
         self.master.appearance_mode_label = customtkinter.CTkLabel(self.master.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.master.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0), sticky = 'ew')
         

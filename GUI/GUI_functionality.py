@@ -150,10 +150,6 @@ class GUI_Functionality:
         self.output_table = self.layout.master.table
         self.output_table.bind('<Delete>', self.delete_items())
         
-        #-----------------------------------------------------quit button -------------------------------------------------------
-        self.button_quit = self.layout.master.button_quit
-        self.button_quit.bind('<Button-1>', lambda event: self.quit_button())
-        
         
     
     # I can't get this delete option to work: https://www.youtube.com/watch?v=jRpHmF-iuMI&t=614s
@@ -1115,12 +1111,7 @@ class GUI_Functionality:
         text = tk.Label(legend, text= " Steep vertebral distance: 9-10")
         text.grid(row= 5, column=1, padx=(0, 0), pady=(0, 0) , sticky="w" )
         
-        
-        
-    def quit_button(self):
-        self.quit_window = customtkinter.CTkToplevel(self.master)
-        self.quit_window.title("Quit")
-        self.destroy(self.master)
+
             
     
     def help_button_test(self):

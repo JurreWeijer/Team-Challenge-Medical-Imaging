@@ -884,34 +884,59 @@ class GUI_Functionality:
         maxdist, leftmaxPoint, rightmaxPoint = Tools.Deformity_Parameters.Find_Longest(Left_points, Right_points)
 
         #add the landmarks for the pectus index to the landmark dictionary
-        self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = Left_points[leftmaxidx].astype(int)
-        self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = Right_points[rightmaxidx].astype(int)
-
+# =============================================================================
+#         self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = Left_points[leftmaxidx].astype(int)
+#         self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = Right_points[rightmaxidx].astype(int)
+# 
+# =============================================================================
         #TODO calculate the sternum and top of vertebra, but the segmentation does not yet allow for that
 
         #Asymmetry index
-        TopRight_points = Right_points[Right_points[:,1] < image_half[-2]] #divide the contour into quarters, pay attention to the flipped axis!
-        BotRight_points = Right_points[Right_points[:,1] > image_half[-2]]
-        TopLeft_points = Left_points[Left_points[:,1] < image_half[-2]]
-        BotLeft_points = Left_points[Left_points[:,1] > image_half[-2]]
+        
+        #get all the contour points in an array
+        conts = self.contour_points
+        canva = np.zeros((self.image_array[slice_num,:,:].shape[0],self.image_array[slice_num,:,:].shape[1], 3 ))
+        cv.drawContours(canva, [conts], -1, (0, 255, 0), 1)
+        canva = canva[:,:,1]
+        size = canva.shape
+        midpoint = int(size[1]/2)
+        
+        
+        #examine left half of the image 
+        max_dist = 0
+        coor_right = []
+        for x in range(0,midpoint-5):
+            inline = []
+            for y in range(size[0]):
+                if canva[y,x] != 0:
+                    inline.append([x,y])
+            if len(inline) == 2:
+                dist = np.abs(inline[0][1]-inline[1][1])
+                if dist > max_dist :
+                    max_dist = dist
+                    coor_right = np.array(inline)
+                
+        #examine right half of the image
+        max_dist = 0
+        coor_left = []
+        for x in range(midpoint+5, size[1]):
+            inline = []
+            for y in range(size[0]):
+                if canva[y,x] != 0:
+                    inline.append([x,y])
+            if len(inline) == 2:
+                dist = np.abs(inline[0][1]-inline[1][1])
+                if dist > max_dist :
+                    max_dist = dist
+                    coor_left = np.array(inline)
 
-        #Does not interpolate between contour points yet
-        maxdist, maxright, minright = Tools.Deformity_Parameters.Find_Longest(TopRight_points, BotRight_points, c = 1)
-        maxdist, maxleft, minleft = Tools.Deformity_Parameters.Find_Longest(TopLeft_points, BotLeft_points, c = 1)
 
-        #add the landmarks for the assymetry index to the landmark dictionary
-        self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = maxright.astype(int)
-        self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = minright.astype(int)
-        self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = maxleft.astype(int)
-        self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = minleft.astype(int)
+        
+        self.dict_landmarks[f"slice_{slice_num}"]["point_5"] = coor_left[0].astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_6"] = coor_left[1].astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_7"] = coor_right[0].astype(int)
+        self.dict_landmarks[f"slice_{slice_num}"]["point_8"] = coor_right[1].astype(int)
 
-        #Quick debug plot
-        # plt.figure()
-        # plt.imshow(sitk.GetArrayFromImage(self.segmented_image)[slice_num,:,:])
-        # plt.scatter(self.contour_points[:,0], self.contour_points[:,1], s=1)
-        # plt.scatter([maxright[0], maxleft[0]], [maxright[1], maxleft[1]], c = 'b')
-        # plt.scatter([minright[0], minleft[0]], [minright[1], minleft[1]], c = 'r')
-        # plt.show()
 
 
         return

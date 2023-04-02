@@ -37,16 +37,16 @@ There are a couple of things the user can do.
 - Calculate parameters from landmark extension (semi automatic) 
 - Calculate parameters automatically 
 
-# Segment the image 
+### Segment the image 
 The user can segment the image (with the Segment image button). After applying image segmentation, the path of where the image is saved is given. The segmentation can be viewed by using the Transverse segmentation button (for axial view) and Coronal segmentation button (for coronal view). 
 
-# Calculate parameters from manual input 
+### Calculate parameters from manual input 
 The user is asked to put in the landmarks for the selected parameter. The parameter value is directly added to the table below. 
 
-# Calculate parameters from landmark extension (semi automatic) 
+### Calculate parameters from landmark extension (semi automatic) 
 First set a startpoint and an endpoint. Then press the Landmark extension button, the user is asked to put in the landmarks for a fraction of the slices. After the extension is done the user can go through the slices and view the landmarks for the previous selected parameter. If the user wants to calculate the value of the parameter, the Compute slice parameters button can be used. The value will then be shown in the table below.
 
-# Calculate parameters automatically
+### Calculate parameters automatically
 First set a startpoint and an endpoint. Then the user can press the Automatic calculation button, the landmarkpositions are now automatically determined. The user can go through the slices and save the parameter values by pressing Compute slice parameters. 
 
 For some of the parameters, the value is more significant when it is calculated with landmarks closer to the rib. To get those values, the Compute rib parameters can be used. This is available for Angle trunk rotation and Assymetry index. The Compute rib parameters can only be used after calculating the parameters from landmark extension or automatically. 

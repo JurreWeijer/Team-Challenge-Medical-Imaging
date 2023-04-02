@@ -1088,8 +1088,8 @@ class GUI_Functionality:
                             "# Calculate parameters from manual input \n"+  
                             "The user is asked to put in the landmarks for the selected parameter. "+
                             "The parameter value is directly added to the table below. \n\n"+  
-                            "# Calculate parameters from landmark extension (semi automatic)" 
-                            + "First set a startpoint and an endpoint. Then press the Landmark extension button, "+
+                            "# Calculate parameters from landmark extension (semi automatic) \n" +
+                            "First set a startpoint and an endpoint. Then press the Landmark extension button, "+
                             "the user is asked to put in the landmarks for a fraction of the slices. After the extension "+
                             "is done the user can go through the slices and view the landmarks for the previous selected parameter. "+
                             "If the user wants to calculate the value of the parameter, the Compute slice parameters button can be used."+

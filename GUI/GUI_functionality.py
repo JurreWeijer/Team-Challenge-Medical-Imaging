@@ -922,20 +922,6 @@ class GUI_Functionality:
         self.dict_landmarks[f"slice_{slice_num}"]["point_3"] = Right_top.astype(int)
         self.dict_landmarks[f"slice_{slice_num}"]["point_4"] = Left_top.astype(int)
 
-        #Pectus index
-        maxdist = 0
-        leftmaxidx = 0
-        rightmaxidx = 0
-        maxdist, leftmaxPoint, rightmaxPoint = Tools.Deformity_Parameters.Find_Longest(Left_points, Right_points)
-
-        #add the landmarks for the pectus index to the landmark dictionary
-# =============================================================================
-#         self.dict_landmarks[f"slice_{slice_num}"]["point_9"] = Left_points[leftmaxidx].astype(int)
-#         self.dict_landmarks[f"slice_{slice_num}"]["point_10"] = Right_points[rightmaxidx].astype(int)
-# 
-# =============================================================================
-        #TODO calculate the sternum and top of vertebra, but the segmentation does not yet allow for that
-
         #Asymmetry index
         
         #get all the contour points in an array
@@ -987,6 +973,13 @@ class GUI_Functionality:
         return
 
     def get_contour_landmarks_range(self):
+        """computes landmarks based on the segmentation for a range of slices indicated by the start
+        and endpoint
+        
+        Parameters
+        ----------
+            
+        """
         
         if self.image_array is None: 
             #if there is no opened image then do nothing
@@ -1050,6 +1043,12 @@ class GUI_Functionality:
         return window, pb
      
     def help_button(self):
+        """open a new window with a description of the program 
+        
+        Parameters
+        ----------
+            
+        """
         self.help_window = customtkinter.CTkToplevel(self.master)
         self.help_window.title("Help page")
         self.help_window.grab_set()

@@ -28,6 +28,8 @@ Add libraries here if you need to use them!
 - opencv
 - Tkinter 
 - CustomTkinter 
+- Scipy 
+- Scikit-image
 
 When the program starts a GUI pops up. The first thing the user is supposed to do, is open an image, which can be done with the Open Image button in the centre of the Scoliosis Chest Deformity window. Then on the left side the axial view pops up and on the right side the coronal view pops up. It is possible to go to a different slice in each of the views. 
 

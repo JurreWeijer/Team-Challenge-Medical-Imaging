@@ -1,6 +1,6 @@
 # Team-Challenge-Medical-Imaging
 
-Hello and welcome to the program we created for the Team Challenge, a project for the UU & TU/e MiX master. For this project we created a program that uses CT scans from scoliotic and non-scoliotic patients to calculate some trunk deformity parameters. This is done manual, semi automatic and fully automatic.
+Hello and welcome to the program we created for the Team Challenge, a project for the UU & TU/e MiX master. For this project we created a program that uses CT scans from scoliotic and non-scoliotic patients to calculate some trunk deformity parameters from [Harris 2014](https://link.springer.com/article/10.1007/s00586-014-3580-8). This is done manual, semi automatic and fully automatic.
 
 **This tool is under development, metrics are probably not accurate under all circumstances**
 

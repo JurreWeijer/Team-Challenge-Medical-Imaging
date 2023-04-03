@@ -801,20 +801,23 @@ class GUI_Functionality:
 
 
     def compute_all_params(self, dict_landmarks):
+        #Computes all parameters between the start and end slice
+
+        #Error handling
         if self.image_array is None:
             #if there is no opened image then do nothing
             messagebox.showinfo(title="Message", message="no image opened, please open an image first")
             return
 
         if self.start_slice == None or self.end_slice == None:
-            messagebox.showerror("Rib parameters", "Start slice or end slice not selected")
+            messagebox.showerror("All parameters", "Start slice or end slice not selected")
             return
 
         for slice_num in range(self.start_slice, self.end_slice + 1):
             if f"slice_{slice_num}" in dict_landmarks:
                 break
             if slice_num == self.end_slice:
-                messagebox.showerror("Rib parameters", "No landmarks found between start slice and end slice")
+                messagebox.showerror("All parameters", "No landmarks found between start slice and end slice")
                 return
 
         window, progressbar = self.progressbar("Parameter calculation")

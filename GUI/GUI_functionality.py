@@ -126,7 +126,7 @@ class GUI_Functionality:
         self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks, type = 'middle'))
 
         self.button_compute_all_parameters = self.layout.master.button_compute_all_parameters
-        self.button_compute_all_parameters.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks, type='all'))
+        self.button_compute_all_parameters.bind('<Button-1>', lambda event: self.compute_all_params(self.dict_landmarks))
 
         self.button_auto_landmarks = self.layout.master.button_auto_landmarks
         self.button_auto_landmarks.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
@@ -729,9 +729,6 @@ class GUI_Functionality:
                         dist3 = np.dot((contour_points - point3)**2, np.ones(2))
                         dist4 = np.dot((contour_points - point4)**2, np.ones(2))
                         print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))
-                        if type == 'all':
-                            self.get_parameter(self.trunk_rotation, slice_num, get_points=False)
-                            continue
 
                         if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
                             Rotation = calculate_parameter(dict_landmarks, self.trunk_rotation, slice_num)
@@ -801,6 +798,44 @@ class GUI_Functionality:
         window.destroy()
         
         return
+
+
+    def compute_all_params(self, dict_landmarks):
+        #Computes all parameters between the start and end slice
+
+        #Error handling
+        if self.image_array is None:
+            #if there is no opened image then do nothing
+            messagebox.showinfo(title="Message", message="no image opened, please open an image first")
+            return
+
+        if self.start_slice == None or self.end_slice == None:
+            messagebox.showerror("All parameters", "Start slice or end slice not selected")
+            return
+
+        for slice_num in range(self.start_slice, self.end_slice + 1):
+            if f"slice_{slice_num}" in dict_landmarks:
+                break
+            if slice_num == self.end_slice:
+                messagebox.showerror("All parameters", "No landmarks found between start slice and end slice")
+                return
+
+        window, progressbar = self.progressbar("Parameter calculation")
+        window.update()
+        parameter = self.parameter_menu.get()
+
+        # loop over all slices between start_slice and end_slice and compute the selected landmark
+        for slice_num in range(self.start_slice, self.end_slice + 1):
+            progressbar.set(slice_num / np.shape(self.image_array)[0])
+            window.update_idletasks()
+            if f"slice_{slice_num}" in dict_landmarks:
+                self.get_parameter(parameter, slice_num, get_points=False)
+
+        window.destroy()
+        return
+
+
+
 
     def automatic_segmentation(self):
         """compute the segmented image for the image that is currently loaded in, saving it after it is done

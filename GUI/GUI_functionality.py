@@ -775,7 +775,11 @@ class GUI_Functionality:
                        
                         print(
                             "Distance for slice " + str(slice_num) + " is " + str(np.min(dist5)) + " " + str(np.min(dist6)) + " " + str(np.min(dist7)) + " " + str(np.min(dist8)))
-                        
+
+                        if type == 'all':
+                            self.get_parameter(self.assymetry_index, slice_num, get_points=False)
+                            continue
+
                         if (np.min(dist5) < maxdist and np.min(dist7) < maxdist):
                             #Only takes the points that are close to the back, because there are very few ribs in front
                             Asymmetry = calculate_parameter(dict_landmarks, self.assymetry_index, slice_num)

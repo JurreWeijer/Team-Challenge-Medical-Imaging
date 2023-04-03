@@ -213,7 +213,9 @@ class GUI_Layout:
         self.master.button_compute_rib_rotation = customtkinter.CTkButton(self.master.button_frame, text = "Compute rib parameters", font = ("Arial",18), )
         self.master.button_compute_rib_rotation.grid(row=13, column = 0, columnspan = 2, padx=(5,5), pady=(5,5), sticky = 'ew')
 
-        
+        self.master.button_compute_all_parameters = customtkinter.CTkButton(self.master.button_frame, text="Compute all parameters", font=("Arial", 18), )
+        self.master.button_compute_all_parameters.grid(row=14, column=0, columnspan=2, padx=(5, 5), pady=(5, 5), sticky='ew')
+
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
             

@@ -124,7 +124,10 @@ class GUI_Functionality:
 
         self.button_compute_rib_rotation = self.layout.master.button_compute_rib_rotation
         self.button_compute_rib_rotation.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks, type = 'middle'))
-        
+
+        self.button_compute_all_parameters = self.layout.master.button_compute_all_parameters
+        self.button_compute_all_parameters.bind('<Button-1>', lambda event: self.computer_rib_params(self.dict_landmarks, type='all'))
+
         self.button_auto_landmarks = self.layout.master.button_auto_landmarks
         self.button_auto_landmarks.bind('<Button-1>', lambda event: self.get_contour_landmarks_range())
         
@@ -726,7 +729,10 @@ class GUI_Functionality:
                         dist3 = np.dot((contour_points - point3)**2, np.ones(2))
                         dist4 = np.dot((contour_points - point4)**2, np.ones(2))
                         print("Distance for slice " + str(slice_num) + " is " + str(np.min(dist3)) + " " + str(np.min(dist4)))
-                        
+                        if type == 'all':
+                            self.get_parameter(self.trunk_rotation, slice_num, get_points=False)
+                            continue
+
                         if (np.min(dist3) < maxdist and np.min(dist4) < maxdist):
                             Rotation = calculate_parameter(dict_landmarks, self.trunk_rotation, slice_num)
                             if rib_begin == 0:
@@ -853,7 +859,7 @@ class GUI_Functionality:
         if self.contour_points is None or loop == True:
             try:
                 #if there is no contour then retrieve the contour using the function MultiSlcieContour
-                centroids = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num)
+                centroids = Tools.Contouring.MultiSliceContour(self.segmented_image_array, slice_num, verbose = False)
                 hull = cv.convexHull(centroids[1:])
                 self.contour_points = hull.reshape(-1,2)
             except:
